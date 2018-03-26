@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+                      http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+  version="4.0">        
+         
+         
+         
+         
+
+    <display-name>xLogistx Web Service</display-name>
+    <description>XLogistX API WSW</description>
+    
+    <listener>
+        <listener-class>io.xlogistx.ws.servlet.XXWSInitShutdown</listener-class>
+   	</listener>
+	
+	<!-- Servlets -->
+   <servlet>
+   		<servlet-name>autoLoginServlet</servlet-name>
+      	<servlet-class>org.zoxweb.server.security.shiro.servlet.ShiroAutoLoginServlet</servlet-class>
+   </servlet>
+   
+   <servlet-mapping>
+      	<servlet-name>autoLoginServlet</servlet-name>
+      	<url-pattern>/v1/auto-login</url-pattern>
+   </servlet-mapping>
+   
+   
+    <servlet>
+      <servlet-name>versionServlet</servlet-name>
+        <servlet-class>org.zoxweb.server.http.servlet.HTTPAppVersionServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+      <servlet-name>versionServlet</servlet-name>
+      <url-pattern>/v1/app-version</url-pattern>
+   </servlet-mapping>
+    
+    
+	
+	
+	
+    <filter>
+        <filter-name>hraFilter</filter-name>
+        <filter-class>org.zoxweb.server.http.servlet.filters.HTTPRequestAttributesFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>hraFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    
+    <filter>
+   	    <filter-name>SecureFilter</filter-name>
+      	<filter-class>org.zoxweb.server.http.servlet.filters.SecureOnlyFilter</filter-class>
+   	</filter>
+   	<filter-mapping>
+      	<filter-name>SecureFilter</filter-name>
+      	<url-pattern>/*</url-pattern>
+  	</filter-mapping>
+  	
+	<filter>
+		<filter-name>ShiroFilter</filter-name>
+      	<filter-class>org.apache.shiro.web.servlet.ShiroFilter</filter-class>
+  	</filter>
+  	<filter-mapping>
+      	<filter-name>ShiroFilter</filter-name>
+      	<url-pattern>/*</url-pattern>
+      	<dispatcher>REQUEST</dispatcher> 
+      	<dispatcher>FORWARD</dispatcher> 
+      	<dispatcher>INCLUDE</dispatcher> 
+      	<dispatcher>ERROR</dispatcher>
+  	</filter-mapping>
+  	<filter>
+    	<filter-name>EncodingFilter</filter-name>
+    	<filter-class>org.zoxweb.server.http.servlet.filters.EncodingFilter</filter-class>
+    	<init-param>
+      		<param-name>encoding</param-name>
+      		<param-value>UTF-8</param-value>
+    	</init-param>
+  	</filter>
+  	<filter>
+    	<filter-name>NoCacheFilter</filter-name>
+    	<filter-class>org.zoxweb.server.http.servlet.filters.NoCacheFilter</filter-class>
+  	</filter>
+  	<filter-mapping>
+    	<filter-name>EncodingFilter</filter-name>
+    	<url-pattern>/*</url-pattern>
+  	</filter-mapping>
+  	<filter-mapping>
+   		<filter-name>NoCacheFilter</filter-name>
+    	<url-pattern>/*</url-pattern>
+  	</filter-mapping>
+    
+    
+    
+     <error-page>
+     	<error-code>404</error-code>
+        <location>/InvalidAccess.html</location>
+ 	 </error-page>
+
+
+
+</web-app>
