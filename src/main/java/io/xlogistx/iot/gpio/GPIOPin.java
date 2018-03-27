@@ -19,6 +19,8 @@ package io.xlogistx.iot.gpio;
 
 import org.zoxweb.shared.util.GetName;
 import org.zoxweb.shared.util.GetValue;
+import org.zoxweb.shared.util.SharedStringUtil;
+import org.zoxweb.shared.util.SharedUtil;
 
 import com.pi4j.io.gpio.Pin;
 import com.pi4j.io.gpio.RaspiPin;
@@ -47,10 +49,21 @@ implements GetValue<Pin>, GetName
 	GPIO_17(RaspiPin.GPIO_17),
 	GPIO_18(RaspiPin.GPIO_18),
 	GPIO_19(RaspiPin.GPIO_19),
-	GPIO_20(RaspiPin.GPIO_20)	
+	GPIO_20(RaspiPin.GPIO_20),
+	GPIO_21(RaspiPin.GPIO_21),
+	GPIO_22(RaspiPin.GPIO_22),
+	GPIO_23(RaspiPin.GPIO_23),
+	GPIO_24(RaspiPin.GPIO_24),
+	GPIO_25(RaspiPin.GPIO_25),
+	GPIO_26(RaspiPin.GPIO_26),
+	GPIO_27(RaspiPin.GPIO_27),
+	GPIO_28(RaspiPin.GPIO_28),
+	GPIO_29(RaspiPin.GPIO_29),
+	GPIO_30(RaspiPin.GPIO_30),
+	GPIO_31(RaspiPin.GPIO_31)
 	;
 	private final Pin PIN;
-	GPIOPin( Pin p)
+	GPIOPin(Pin p)
 	{
 		PIN=p;
 	}
@@ -68,5 +81,52 @@ implements GetValue<Pin>, GetName
 	}
 	
 	
+	public static GPIOPin lookup(String pinID)
+	{
+		pinID = SharedStringUtil.trimOrNull(pinID);
+		GPIOPin ret = null;
+		if (pinID != null)
+		{
+			pinID = pinID.replace('-', '_');
+			String split[] = pinID.split("_");
+			if (split.length == 2)
+			{
+				try
+				{
+					int n = Integer.parseInt(split[1]);
+					split[1] = String.format("%02d", n);
+					pinID = split[0] + "_" + split[1];
+				}
+				catch(Exception e)
+				{
+					
+				}
+			}
+			ret = SharedUtil.lookupEnum(values(), pinID);
+		}
+		if (ret == null)
+		{
+			try
+			{
+				int index = Integer.parseInt(pinID);
+				if (index>-1 && index < values().length)
+				{
+					ret = values()[index];
+				}
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+			}
+		}
+		
+		return ret;
+	}
+	
+	public static Pin lookupPin(String pinID)
+	{
+		GPIOPin ret = lookup(pinID);	
+		return ret != null ? ret.getValue() : null;
+	}
 	
 }
