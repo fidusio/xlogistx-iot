@@ -41,7 +41,12 @@ public class GPIOTools
 		return gpioController;
 	}
 	
-	
+	public void setOutputPinState(Pin pin, PinState state)
+	{
+		GpioPinDigitalOutput output = SINGLETON.getGpioController().provisionDigitalOutputPin(pin, state);
+		output.setShutdownOptions(false, state);
+		output.setState(state);
+	}
 	
 	public static void main(String ...args)
 	{
@@ -52,9 +57,7 @@ public class GPIOTools
 			for (; index< args.length; index++)
 			{
 				Pin pin = GPIOPin.lookupPin(args[index]);
-				GpioPinDigitalOutput output = SINGLETON.getGpioController().provisionDigitalOutputPin(pin, state);
-				output.setShutdownOptions(false, state);
-				output.setState(state);
+				SINGLETON.setOutputPinState(pin, state);
 				System.out.println(pin.getName() + " set to " + state);
 			}
 			
