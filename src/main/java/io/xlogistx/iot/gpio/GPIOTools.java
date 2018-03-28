@@ -1,8 +1,11 @@
 package io.xlogistx.iot.gpio;
 
+import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.zoxweb.shared.util.NVCollection;
+import org.zoxweb.shared.util.NVCollectionStringDecoder;
 import org.zoxweb.shared.util.SharedUtil;
 
 import com.pi4j.io.gpio.GpioController;
@@ -41,10 +44,12 @@ public class GPIOTools
 		return gpioController;
 	}
 	
-	public void setOutputPinState(Pin pin, PinState state)
+	public void setOutputPinState(Pin pin, PinState state, boolean permanent)
 	{
 		GpioPinDigitalOutput output = SINGLETON.getGpioController().provisionDigitalOutputPin(pin, state);
-		output.setShutdownOptions(false, state);
+		if (permanent)
+			output.setShutdownOptions(false, state);
+		
 		output.setState(state);
 	}
 	
@@ -53,12 +58,20 @@ public class GPIOTools
 		try
 		{
 			int index = 0;
-			PinState state = SharedUtil.lookupEnum(PinState.values(), args[index++]);
-			for (; index< args.length; index++)
+			
+			NVCollectionStringDecoder decoder = new NVCollectionStringDecoder("=", "," ,true);
+			for (; index < args.length; index++)
 			{
-				Pin pin = GPIOPin.lookupPin(args[index]);
-				SINGLETON.setOutputPinState(pin, state);
-				System.out.println(pin.getName() + " set to " + state);
+				
+				NVCollection<String> param = decoder.decode(args[index]);
+				
+				Pin pin = GPIOPin.lookupPin(param.getName());
+				List<String> values = (List<String>) param.getValue();
+				PinState state = SharedUtil.lookupEnum(PinState.values(), values.get(0));
+				
+				boolean persist = values.size() > 1 ? Boolean.getBoolean(values.get(1)) : false;
+				SINGLETON.setOutputPinState(pin, state, persist);
+				System.out.println(pin.getName() + " set to " + values);
 			}
 			
 			
