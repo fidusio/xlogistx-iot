@@ -3,6 +3,7 @@ package io.xlogistx.iot.gpio;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Logger;
 
 import org.zoxweb.shared.util.Const.TimeInMillis;
 import org.zoxweb.shared.util.NVCollection;
@@ -17,6 +18,7 @@ import com.pi4j.io.gpio.PinState;
 
 public class GPIOTools 
 {
+	private static final transient Logger log = Logger.getLogger(GPIOTools.class.getName());
 	public static final GPIOTools SINGLETON = new GPIOTools();
 	private Lock lock = new ReentrantLock();
 	private volatile GpioController gpioController = null;
@@ -47,6 +49,9 @@ public class GPIOTools
 	
 	public void setOutputPinState(Pin pin, PinState state, boolean permanent, long durationInMillis)
 	{
+		
+		log.info(SharedUtil.toCanonicalID(',', pin, state, permanent, durationInMillis));
+		
 		GpioPinDigitalOutput output = SINGLETON.getGpioController().provisionDigitalOutputPin(pin, state);
 		if (permanent)
 			output.setShutdownOptions(false, state);
