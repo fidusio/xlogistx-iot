@@ -14,7 +14,7 @@ public class PinTest {
 	@Test
 	public void lookupTest() {
 		String[] pinIDs = {
-			"GPIO-1=low,true,100millis",
+			"GPIO-1=low,true,100min",
 			"2=low,true",
 			"GPIO_03=low,true,5seconds",
 		};

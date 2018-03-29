@@ -5,6 +5,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
+import org.zoxweb.shared.util.Const.Bool;
 import org.zoxweb.shared.util.Const.TimeInMillis;
 import org.zoxweb.shared.util.NVCollection;
 import org.zoxweb.shared.util.NVCollectionStringDecoder;
@@ -47,13 +48,13 @@ public class GPIOTools
 		return gpioController;
 	}
 	
-	public void setOutputPinState(Pin pin, PinState state, boolean permanent, long durationInMillis)
+	public void setOutputPinState(Pin pin, PinState state, boolean persist, long durationInMillis)
 	{
 		
-		log.info(SharedUtil.toCanonicalID(',', pin, state, permanent, durationInMillis));
+		log.info(SharedUtil.toCanonicalID(',', pin, state, persist, durationInMillis));
 		
 		GpioPinDigitalOutput output = SINGLETON.getGpioController().provisionDigitalOutputPin(pin, state);
-		if (permanent)
+		if (persist)
 			output.setShutdownOptions(false, state);
 		output.setState(state);
 		
@@ -68,7 +69,7 @@ public class GPIOTools
 			// revert to the back state
 			
 			state = PinState.getInverseState(state);
-			if (permanent)
+			if (persist)
 				output.setShutdownOptions(false, state);
 			output.setState(state);
 		}
@@ -88,11 +89,11 @@ public class GPIOTools
 				NVCollection<String> param = decoder.decode(args[index]);
 				
 				Pin pin = GPIOPin.lookupPin(param.getName());
-				List<String> values = (List<String>) param.getValue();
+				List<String> values = param.asList();
 				int valuesIndex = 0;
 				PinState state = SharedUtil.lookupEnum(PinState.values(), values.get(valuesIndex++));
 				
-				boolean persist = values.size() > valuesIndex ? Boolean.getBoolean(values.get(valuesIndex++)) : false;
+				boolean persist = values.size() > valuesIndex ? Bool.lookupValue(values.get(valuesIndex++)) : false;
 				long millis = values.size() > valuesIndex ? TimeInMillis.toMillis(values.get(valuesIndex++)) : 0;
 				System.out.println(pin.getName() + " set to " + values + " for " + millis + " millis");
 				SINGLETON.setOutputPinState(pin, state, persist, millis);
