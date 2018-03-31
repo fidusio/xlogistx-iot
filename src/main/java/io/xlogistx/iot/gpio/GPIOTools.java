@@ -50,8 +50,7 @@ public class GPIOTools
 	}
 	
 	public void setOutputPinState(Pin pin, PinState state, boolean persist, long durationInMillis)
-	{
-		
+	{		
 		log.info(SharedUtil.toCanonicalID(',', pin, state, persist, durationInMillis));
 		synchronized(pin)
 		{
@@ -115,7 +114,8 @@ public class GPIOTools
 		}
 		catch(Exception e)
 		{
-			e.printStackTrace();
+		    e.printStackTrace();
+		    System.out.println("usage: [GPIO=Low/High,true/false,[duration]...");
 		}
 	}
 	
