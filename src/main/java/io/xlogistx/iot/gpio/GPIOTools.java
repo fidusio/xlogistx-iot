@@ -53,33 +53,35 @@ public class GPIOTools
 	{
 		
 		log.info(SharedUtil.toCanonicalID(',', pin, state, persist, durationInMillis));
-		
-		GpioPin gpioPin = SINGLETON.getGpioController().getProvisionedPin(pin);
-		if(gpioPin != null)
+		synchronized(pin)
 		{
-			SINGLETON.getGpioController().unprovisionPin(gpioPin);
-		}
-		
-		GpioPinDigitalOutput output = SINGLETON.getGpioController().provisionDigitalOutputPin(pin, state);
-
-		if (persist)
-			output.setShutdownOptions(false, state);
-		output.setState(state);
-		
-		if (durationInMillis > 0)
-		{
-			try {
-				Thread.sleep(durationInMillis);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			GpioPin gpioPin = SINGLETON.getGpioController().getProvisionedPin(pin);
+			if(gpioPin != null)
+			{
+				SINGLETON.getGpioController().unprovisionPin(gpioPin);
 			}
-			// revert to the back state
 			
-			state = PinState.getInverseState(state);
+			GpioPinDigitalOutput output = SINGLETON.getGpioController().provisionDigitalOutputPin(pin, state);
+	
 			if (persist)
 				output.setShutdownOptions(false, state);
 			output.setState(state);
+			
+			if (durationInMillis > 0)
+			{
+				try {
+					Thread.sleep(durationInMillis);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				// revert to the back state
+				
+				state = PinState.getInverseState(state);
+				if (persist)
+					output.setShutdownOptions(false, state);
+				output.setState(state);
+			}
 		}
 		
 	}
