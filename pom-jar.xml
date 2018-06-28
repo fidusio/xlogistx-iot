@@ -193,6 +193,11 @@
         	<!--  <systemPath>${project.basedir}/src/main/resources/lib/pi4j-gpio-extension-${pi.current.version}.jar</systemPath> -->
         </dependency>
        
+       <dependency>
+    		<groupId>net.java.dev.jna</groupId>
+    		<artifactId>jna</artifactId>
+    		<version>4.5.1</version>
+		</dependency>
 
     </dependencies>
 
