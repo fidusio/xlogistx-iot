@@ -49,7 +49,7 @@ public class GPIOTools
 		return gpioController;
 	}
 	
-	public void setOutputPinState(Pin pin, PinState state, boolean persist, long durationInMillis)
+	public void setOutputPinState(Pin pin, PinState state, boolean persist, long durationInMillis, boolean delay)
 	{		
 		log.info(SharedUtil.toCanonicalID(',', pin, state, persist, durationInMillis));
 		synchronized(pin)
@@ -60,13 +60,23 @@ public class GPIOTools
 				SINGLETON.getGpioController().unprovisionPin(gpioPin);
 			}
 			
+			if (delay && durationInMillis > 0 )
+			{
+			  try {
+                Thread.sleep(durationInMillis);
+              } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+              }
+			}
+			
 			GpioPinDigitalOutput output = SINGLETON.getGpioController().provisionDigitalOutputPin(pin, state);
 	
 			if (persist)
 				output.setShutdownOptions(false, state);
 			output.setState(state);
 			
-			if (durationInMillis > 0)
+			if (durationInMillis > 0 && !delay)
 			{
 				try {
 					Thread.sleep(durationInMillis);
@@ -85,6 +95,9 @@ public class GPIOTools
 		
 	}
 	
+	
+
+	
 	public static void main(String ...args)
 	{
 		try
@@ -101,11 +114,26 @@ public class GPIOTools
 				List<String> values = param.asList();
 				int valuesIndex = 0;
 				PinState state = SharedUtil.lookupEnum(PinState.values(), values.get(valuesIndex++));
+
+				
 				
 				boolean persist = values.size() > valuesIndex ? Bool.lookupValue(values.get(valuesIndex++)) : false;
-				long millis = values.size() > valuesIndex ? TimeInMillis.toMillis(values.get(valuesIndex++)) : 0;
+				
+				
+				String waiting = values.size() > valuesIndex ? values.get(valuesIndex++) : null;
+				boolean delay = false;
+				if (waiting != null)
+				{
+				  if (waiting.startsWith("d"))
+				  {
+				    delay = true;
+				    waiting = waiting.substring(1);
+				  }
+				}
+				
+				long millis = waiting != null ? TimeInMillis.toMillis(waiting) : 0;
 				System.out.println(pin.getName() + " set to " + values + " for " + millis + " millis");
-				SINGLETON.setOutputPinState(pin, state, persist, millis);
+				SINGLETON.setOutputPinState(pin, state, persist, millis, delay);
 			
 			}
 			
