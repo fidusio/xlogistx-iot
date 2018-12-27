@@ -10,7 +10,7 @@
         <version>LATEST</version>
     </parent>
 
-    <name>xlogistx-iot</name>
+    <name>xlogistx-io</name>
     <artifactId>xlogistx-iot</artifactId>
     <version>1.0.0</version>
     <packaging>war</packaging>
