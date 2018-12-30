@@ -113,7 +113,7 @@ public class GPIOTools
 				Pin pin = GPIOPin.lookupPin(param.getName());
 				List<String> values = param.asList();
 				int valuesIndex = 0;
-				PinState state = SharedUtil.lookupEnum(PinState.values(), values.get(valuesIndex++));
+				PinState state = SharedUtil.lookupEnum(values.get(valuesIndex++), PinState.values());
 
 				
 				

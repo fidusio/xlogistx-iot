@@ -54,7 +54,7 @@ public class GPSParser
 		String[] rawMessageAndCheckSum = parseParamWithCheckSum(rawGPSMessage);
 		String[] tokens = rawMessageAndCheckSum[0].split(delim);
 	
-		GPSMessageID messageType = (GPSMessageID) SharedUtil.lookupEnum(GPSMessageID.values(), tokens[0]);
+		GPSMessageID messageType = (GPSMessageID) SharedUtil.lookupEnum(tokens[0], GPSMessageID.values());
 		GPSMessage ret = null;
 		
 		switch(messageType)
@@ -205,10 +205,10 @@ public class GPSParser
 				{
 				
 				case 1:
-					active.setMode1((ModeOne) SharedUtil.lookupEnum(GPSConst.ModeOne.values(), tokens[i]));
+					active.setMode1((ModeOne) SharedUtil.lookupEnum(tokens[i], GPSConst.ModeOne.values()));
 					break;
 				case 2:
-					active.setMode2((ModeTwo) SharedUtil.lookupEnum(GPSConst.ModeTwo.values(), tokens[i]));
+					active.setMode2((ModeTwo) SharedUtil.lookupEnum(tokens[i], GPSConst.ModeTwo.values()));
 					break;
 				case 15:
 					active.setPDOP(Float.valueOf(tokens[i]));

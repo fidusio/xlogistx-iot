@@ -102,7 +102,7 @@ implements GetValue<Pin>, GetName
 					
 				}
 			}
-			ret = SharedUtil.lookupEnum(values(), pinID);
+			ret = SharedUtil.lookupEnum(pinID, values());
 		}
 		if (ret == null)
 		{
