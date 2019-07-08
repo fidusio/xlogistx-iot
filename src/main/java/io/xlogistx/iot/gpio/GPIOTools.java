@@ -1,5 +1,6 @@
 package io.xlogistx.iot.gpio;
 
+
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -17,6 +18,8 @@ import com.pi4j.io.gpio.GpioPin;
 import com.pi4j.io.gpio.GpioPinDigitalOutput;
 import com.pi4j.io.gpio.Pin;
 import com.pi4j.io.gpio.PinState;
+import com.pi4j.wiringpi.Gpio;
+
 
 public class GPIOTools 
 {
@@ -26,7 +29,9 @@ public class GPIOTools
 	private volatile GpioController gpioController = null;
 	
 	
-	private GPIOTools() {}
+	private GPIOTools() {
+	  log.info("Wiring Pi setup:" + Gpio.wiringPiSetup());
+	}
 	
 	public GpioController getGpioController()
 	{
@@ -49,10 +54,10 @@ public class GPIOTools
 		return gpioController;
 	}
 	
-	public void setOutputPinState(Pin pin, PinState state, boolean persist, long durationInMillis, boolean delay)
+	public synchronized void setOutputPinState(Pin pin, PinState state, boolean persist, long durationInMillis, boolean delay)
 	{		
 		log.info(SharedUtil.toCanonicalID(',', pin, state, persist, durationInMillis));
-		synchronized(pin)
+		//synchronized(pin)
 		{
 			GpioPin gpioPin = SINGLETON.getGpioController().getProvisionedPin(pin);
 			if(gpioPin != null)
@@ -96,6 +101,11 @@ public class GPIOTools
 	}
 	
 	
+	public synchronized boolean getPinState(GPIOPin pin)
+	{
+	  return Gpio.digitalRead(pin.getBCMID()) == 1;
+	}
+	
 
 	
 	public static void main(String ...args)
@@ -105,38 +115,58 @@ public class GPIOTools
 			int index = 0;
 			
 			NVCollectionStringDecoder decoder = new NVCollectionStringDecoder("=", "," ,true);
+			boolean read = false;
 			for (; index < args.length; index++)
 			{
+			    if (index == 0)
+			      if (args[index].equalsIgnoreCase("-r"))
+			      {
+			        read = true;
+			        continue;
+			      }
 				
 				NVCollection<String> param = decoder.decode(args[index]);
 				
 				Pin pin = GPIOPin.lookupPin(param.getName());
-				List<String> values = param.asList();
-				int valuesIndex = 0;
-				PinState state = SharedUtil.lookupEnum(values.get(valuesIndex++), PinState.values());
-
+				GPIOPin gpioPin = GPIOPin.lookup(param.getName());
+				if(!read)
+                {
+    				List<String> values = param.asList();
+    				int valuesIndex = 0;
+    				PinState state = SharedUtil.lookupEnum(values.get(valuesIndex++), PinState.values());
+    
+    				
+    				
+    				boolean persist = values.size() > valuesIndex ? Bool.lookupValue(values.get(valuesIndex++)) : false;
+    				
+    				
+    				String waiting = values.size() > valuesIndex ? values.get(valuesIndex++) : null;
+    				boolean delay = false;
+    				if (waiting != null)
+    				{
+    				  if (waiting.startsWith("d"))
+    				  {
+    				    delay = true;
+    				    waiting = waiting.substring(1);
+    				  }
+    				}
 				
-				
-				boolean persist = values.size() > valuesIndex ? Bool.lookupValue(values.get(valuesIndex++)) : false;
-				
-				
-				String waiting = values.size() > valuesIndex ? values.get(valuesIndex++) : null;
-				boolean delay = false;
-				if (waiting != null)
-				{
-				  if (waiting.startsWith("d"))
-				  {
-				    delay = true;
-				    waiting = waiting.substring(1);
-				  }
+  				  long millis = waiting != null ? TimeInMillis.toMillis(waiting) : 0;
+  				  System.out.println(pin.getName() + " set to " + values + " for " + millis + " millis");
+  				  SINGLETON.setOutputPinState(pin, state, persist, millis, delay);
 				}
-				
-				long millis = waiting != null ? TimeInMillis.toMillis(waiting) : 0;
-				System.out.println(pin.getName() + " set to " + values + " for " + millis + " millis");
-				SINGLETON.setOutputPinState(pin, state, persist, millis, delay);
+				else
+				{
+				  System.out.println(gpioPin +", " + SINGLETON.getPinState(gpioPin));
+				}
 			
 			}
 			
+//			Collection<GpioPin> allPins = SINGLETON.getGpioController().getProvisionedPins();
+//			for (GpioPin pin : allPins)
+//			{
+//			  System.out.println(pin.getClass().getName() + ", " + pin);
+//			}
 			
 			
 		}

@@ -13,20 +13,20 @@
     <name>xlogistx-io</name>
     <artifactId>xlogistx-iot</artifactId>
     <version>1.0.0</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
 
     <properties>
-    	<pi.current.version>1.2</pi.current.version>
+    	<pi4j.version>1.2</pi4j.version>
     </properties>
 
     <build>
-        <finalName>ROOT</finalName>
         <directory>target</directory>
         <resources>
             <resource>
                 <directory>src/main/java/</directory>
             </resource>
         </resources>
+        
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -83,24 +83,11 @@
             <scope>compile</scope>
         </dependency>
         
-        <dependency>
-            <groupId>org.zoxweb</groupId>
-            <artifactId>zoxweb-shiro</artifactId>
-            <scope>compile</scope>
-        </dependency>
+       
 
         
 
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-fileupload</groupId>
-            <artifactId>commons-fileupload</artifactId>
-             <scope>compile</scope>
-        </dependency>
+        
 
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -108,49 +95,10 @@
             <scope>compile</scope>
         </dependency>
 
-        <dependency>
-            <groupId>javax.websocket</groupId>
-            <artifactId>javax.websocket-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>javax.websocket</groupId>
-            <artifactId>javax.websocket-client-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.glassfish.tyrus</groupId>
-            <artifactId>tyrus-websocket-core</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.glassfish.tyrus.bundles</groupId>
-            <artifactId>tyrus-standalone-client-jdk</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.shiro</groupId>
-            <artifactId>shiro-core</artifactId>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.shiro</groupId>
-            <artifactId>shiro-web</artifactId>
-            <scope>compile</scope>
-        </dependency>
+        
         
       	
-        <dependency>
-		  <groupId>javax.cache</groupId>
-		  <artifactId>cache-api</artifactId>
-		  <scope>runtime</scope>
-		</dependency>
-		<dependency>
-	      <groupId>org.ehcache</groupId>
-	      <artifactId>ehcache</artifactId>
-	      <scope>runtime</scope>
-	    </dependency>
+      
 	   
         <dependency>
             <groupId>org.jsoup</groupId>
@@ -158,45 +106,27 @@
             <scope>compile</scope>
         </dependency>
 
-        <dependency>
-            <groupId>javax.mail</groupId>
-            <artifactId>javax.mail-api</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <!--
-        <dependency>
-        	<groupId>com.pi4j</groupId>
-        	<artifactId></artifactId>
-        	<version>${pi.current.version}</version>
-        	<systemPath>${project.basedir}/src/main/resources/libs/-${pi.current.version}</systemPath>
-        </dependency>
-		-->
-		
 		<dependency>
         	<groupId>com.pi4j</groupId>
         	<artifactId>pi4j-core</artifactId>
-        	<version>${pi.current.version}</version>
+        	<version>${pi4j.version}</version>
         </dependency>
         <dependency>
         	<groupId>com.pi4j</groupId>
         	<artifactId>pi4j-device</artifactId>
-        	<version>${pi.current.version}</version>
-        	
-        	
+        	<version>${pi4j.version}</version>
         </dependency>
         <dependency>
         	<groupId>com.pi4j</groupId>
         	<artifactId>pi4j-gpio-extension</artifactId>
-        	<version>${pi.current.version}</version>
-        	
-        	
+        	<version>${pi4j.version}</version>
         </dependency>
-       <dependency>
+       	<!--  <dependency>
     		<groupId>net.java.dev.jna</groupId>
     		<artifactId>jna</artifactId>
     		<version>${jna.version}</version>
 		</dependency>
-
+		-->
     </dependencies>
 
 </project>
