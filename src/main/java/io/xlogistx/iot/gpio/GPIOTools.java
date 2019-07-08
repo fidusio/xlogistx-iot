@@ -125,12 +125,13 @@ public class GPIOTools
 			        continue;
 			      }
 				
-				NVCollection<String> param = decoder.decode(args[index]);
-				
-				Pin pin = GPIOPin.lookupPin(param.getName());
-				GPIOPin gpioPin = GPIOPin.lookup(param.getName());
+
 				if(!read)
-                {
+				{
+					NVCollection<String> param = decoder.decode(args[index]);
+
+					Pin pin = GPIOPin.lookupPin(param.getName());
+
     				List<String> values = param.asList();
     				int valuesIndex = 0;
     				PinState state = SharedUtil.lookupEnum(values.get(valuesIndex++), PinState.values());
@@ -157,6 +158,8 @@ public class GPIOTools
 				}
 				else
 				{
+
+					GPIOPin gpioPin = GPIOPin.lookup(args[index]);
 				  System.out.println(gpioPin +", " + SINGLETON.getPinState(gpioPin));
 				}
 			
