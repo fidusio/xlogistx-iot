@@ -113,7 +113,7 @@ public class GPIOTools
 		try
 		{
 			int index = 0;
-			
+			long delta = System.currentTimeMillis();
 			NVCollectionStringDecoder decoder = new NVCollectionStringDecoder("=", "," ,true);
 			boolean read = false;
 			for (; index < args.length; index++)
@@ -134,7 +134,8 @@ public class GPIOTools
 
     				List<String> values = param.asList();
     				int valuesIndex = 0;
-    				PinState state = SharedUtil.lookupEnum(values.get(valuesIndex++), PinState.values());
+    				PinState state = PinState.getState(Bool.lookupValue(values.get(valuesIndex++)));
+    				//	SharedUtil.lookupEnum(values.get(valuesIndex++), PinState.values());
     
     				
     				
@@ -171,7 +172,8 @@ public class GPIOTools
 //			  System.out.println(pin.getClass().getName() + ", " + pin);
 //			}
 			
-			
+			delta = System.currentTimeMillis() - delta;
+			System.out.println("It took : " + TimeInMillis.toString(delta));
 		}
 		catch(Exception e)
 		{
