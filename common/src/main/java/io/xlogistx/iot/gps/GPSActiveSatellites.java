@@ -30,7 +30,7 @@ import org.zoxweb.shared.util.SharedUtil;
  * protocol header $GPGSA. GSA (GNSS DOP and Active Satellites) describes 
  * the GPS receiver operating mode, active satellites used in the 
  * position solution and DOP values.
- * @author mzebib
+ * @author mnael
  *
  */
 @SuppressWarnings("serial")
