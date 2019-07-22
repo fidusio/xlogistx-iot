@@ -1,132 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>io.xlogistx</groupId>
-        <artifactId>xlogistx-mvn</artifactId>
-        <version>LATEST</version>
-    </parent>
+  <parent>
+    <groupId>io.xlogistx</groupId>
+    <artifactId>xlogistx-mvn</artifactId>
+    <version>LATEST</version>
+  </parent>
 
-    <name>xlogistx-io</name>
-    <artifactId>xlogistx-iot</artifactId>
-    <version>1.0.0</version>
-    <packaging>jar</packaging>
+  <name>xlogistx-io</name>
+  <artifactId>xlogistx-iot</artifactId>
+  <version>1.0.0</version>
+  <packaging>pom</packaging>
 
-    <properties>
-    	<pi4j.version>1.2</pi4j.version>
-    </properties>
 
-    <build>
-        <directory>target</directory>
-        <resources>
-            <resource>
-                <directory>src/main/java/</directory>
-            </resource>
-        </resources>
-        
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven-plugin.version}</version>
-                <configuration>
-                    <source>${jdk.version}</source>
-                    <target>${jdk.version}</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>${maven-plugin-source.version}</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>${maven-javadoc.version}</version>
-                <configuration>
-                    <failOnError>false</failOnError>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+  <modules>
+    <module>common</module>
+    <module>gpio</module>
 
-    <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
+  </modules>
 
-       
+  <properties>
+  </properties>
 
-        <dependency>
-            <groupId>org.zoxweb</groupId>
-            <artifactId>zoxweb-core</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        
-       
 
-        
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/java/</directory>
+      </resource>
+      <resource>
+        <directory>src/main/resources/</directory>
+      </resource>
+    </resources>
+  </build>
 
-        
+  <dependencies>
 
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <scope>compile</scope>
-        </dependency>
 
-        
-        
-      	
-      
-	   
-        <dependency>
-            <groupId>org.jsoup</groupId>
-            <artifactId>jsoup</artifactId>
-            <scope>compile</scope>
-        </dependency>
 
-		<dependency>
-        	<groupId>com.pi4j</groupId>
-        	<artifactId>pi4j-core</artifactId>
-        	<version>${pi4j.version}</version>
-        </dependency>
-        <dependency>
-        	<groupId>com.pi4j</groupId>
-        	<artifactId>pi4j-device</artifactId>
-        	<version>${pi4j.version}</version>
-        </dependency>
-        <dependency>
-        	<groupId>com.pi4j</groupId>
-        	<artifactId>pi4j-gpio-extension</artifactId>
-        	<version>${pi4j.version}</version>
-        </dependency>
-       	<!--  <dependency>
-    		<groupId>net.java.dev.jna</groupId>
-    		<artifactId>jna</artifactId>
-    		<version>${jna.version}</version>
-		</dependency>
-		-->
-    </dependencies>
+  </dependencies>
 
 </project>
