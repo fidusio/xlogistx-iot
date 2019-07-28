@@ -19,11 +19,15 @@
   <modules>
     <module>common</module>
     <module>gpio</module>
+    <module>ws</module>
 
   </modules>
 
-  <properties>
-  </properties>
+
+    <properties>
+      <mqtt-paho.version>1.2.1</mqtt-paho.version>
+    </properties>
+
 
 
   <build>

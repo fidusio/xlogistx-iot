@@ -10,11 +10,13 @@
     <version>1.0.0</version>
   </parent>
 
-  <name>xlogistx-iot-common</name>
-  <artifactId>xlogistx-iot-common</artifactId>
+  <name>xlogistx-iot-ws</name>
+  <artifactId>xlogistx-iot-ws</artifactId>
   <version>1.0.0</version>
 
-
+  <properties>
+    <mqtt-paho.version>1.2.1</mqtt-paho.version>
+  </properties>
 
   
 
