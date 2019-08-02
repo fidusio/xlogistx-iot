@@ -1,5 +1,5 @@
-class
-resources
+*.class
+#resources
 
 # Package Files #
 *.jar
@@ -32,9 +32,6 @@ test-classes/
 
 #.settings
 .settings/
-
-.project
-
 
 #project
 *.project

@@ -7,10 +7,10 @@
   <parent>
     <groupId>io.xlogistx</groupId>
     <artifactId>xlogistx-mvn</artifactId>
-    <version>LATEST</version>
+    <version>1.0.0</version>
   </parent>
 
-  <name>xlogistx-io</name>
+  <name>xlogistx-iot</name>
   <artifactId>xlogistx-iot</artifactId>
   <version>1.0.0</version>
   <packaging>pom</packaging>
@@ -26,6 +26,7 @@
 
     <properties>
       <mqtt-paho.version>1.2.1</mqtt-paho.version>
+
     </properties>
 
 
@@ -41,10 +42,5 @@
     </resources>
   </build>
 
-  <dependencies>
-
-
-
-  </dependencies>
 
 </project>

@@ -14,9 +14,8 @@
   <artifactId>xlogistx-iot-gpio</artifactId>
   <version>1.0.0</version>
 
-
   <properties>
-    <pi4j.version>1.2</pi4j.version>
+  <pi4j-version>1.2</pi4j-version>
   </properties>
 
   <build>
@@ -101,17 +100,22 @@
     <dependency>
       <groupId>com.pi4j</groupId>
       <artifactId>pi4j-core</artifactId>
-      <version>${pi4j.version}</version>
+      <version>${pi4j-version}</version>
+      <scope>compile</scope>
     </dependency>
+
     <dependency>
       <groupId>com.pi4j</groupId>
       <artifactId>pi4j-device</artifactId>
-      <version>${pi4j.version}</version>
+      <version>${pi4j-version}</version>
+      <scope>compile</scope>
     </dependency>
+
     <dependency>
       <groupId>com.pi4j</groupId>
       <artifactId>pi4j-gpio-extension</artifactId>
-      <version>${pi4j.version}</version>
+      <version>${pi4j-version}</version>
+      <scope>compile</scope>
     </dependency>
 
   </dependencies>
