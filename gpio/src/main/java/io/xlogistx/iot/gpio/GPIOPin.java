@@ -90,7 +90,17 @@ implements GetValue<Pin>, GetName
 		// TODO Auto-generated method stub
 		return PIN.getName();
 	}
-	
+
+	public static GPIOPin lookup(Pin pin)
+	{
+		for(GPIOPin p : values())
+		{
+			if (pin.equals(p.PIN))
+				return p;
+		}
+
+		return null;
+	}
 	
 	public static GPIOPin lookup(String pinID)
 	{
