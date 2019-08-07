@@ -12,7 +12,6 @@
 
   <name>xlogistx-iot-gpio</name>
   <artifactId>xlogistx-iot-gpio</artifactId>
-  <version>1.0.0</version>
 
   <properties>
   <pi4j-version>1.2</pi4j-version>
