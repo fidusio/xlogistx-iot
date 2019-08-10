@@ -1,6 +1,8 @@
 package io.xlogistx.iot.ws.http;
 
 import com.sun.net.httpserver.*;
+import java.util.Arrays;
+import java.util.Date;
 import org.zoxweb.server.security.CryptoUtil;
 import org.zoxweb.server.task.TaskUtil;
 
@@ -23,19 +25,19 @@ import java.util.logging.Logger;
 public class HTTPServer {
 
 
-  private final static Logger LOG = Logger.getLogger(HTTPServer.class.getName());
+  private final static Logger log = Logger.getLogger(HTTPServer.class.getName());
 
   static class  ContextHandler implements HttpHandler
   {
     public void handle(HttpExchange he) throws IOException {
-
+      he.getRequestMethod();
       InputStream is = he.getRequestBody();
       is.close();
 
 
       NVGenericMap nvgm = new NVGenericMap();
       nvgm.add("url", he.getHttpContext().getPath());
-      nvgm.add("data", "123456");
+      nvgm.add("data", "" + new Date());
 
       String json  = GSONUtil.DEFAULT_GSON.toJson(nvgm);
       byte[] response = SharedStringUtil.getBytes(json);
@@ -45,6 +47,7 @@ public class HTTPServer {
       OutputStream os = he.getResponseBody();
       os.write(response);
       os.close();
+      //log.info(""+Thread.currentThread());
     }
   }
 
@@ -52,7 +55,8 @@ public class HTTPServer {
   {
     try
     {
-
+      TaskUtil.setMinTaskProcessorThreadCount(32);
+      System.setProperty("java.util.logging.SimpleFormatter.format","%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS %4$-6s : %2$s %5$s%6$s%n");
       String keyfile = System.getenv("KEYFILE");
       String keyfilePassword = System.getenv("KEYFILE_PASSWORD");
       int index = 0;
@@ -75,23 +79,49 @@ public class HTTPServer {
         server.createContext("/"+args[index], new ContextHandler());
       }
       server.setExecutor(TaskUtil.getDefaultTaskProcessor());
-      server.setHttpsConfigurator (new HttpsConfigurator(sslContext) {
+      server.setHttpsConfigurator (new HttpsConfigurator(sslContext));
+      /*server.setHttpsConfigurator (new HttpsConfigurator(sslContext) {
+        SSLParameters sslParameters;
         public void configure (HttpsParameters params) {
-
+          if (sslParameters == null)
+          {
+            sslParameters = getSSLContext().getDefaultSSLParameters();
+          }
           // get the remote address if needed
           //InetSocketAddress remote = params.getClientAddress();
 
-
-          params.setSSLParameters(getSSLContext().getDefaultSSLParameters());
-          // statement above could throw IAE if any params invalid.
-          // eg. if app has a UI and parameters supplied by a user.
-
+          //SSLParameters sslParameters = getSSLContext().getDefaultSSLParameters();
+          try {
+//            sslParameters.setCipherSuites(new String[]{"TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+//                "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256", "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+//                "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384", "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256",
+//                "TLS_DHE_DSS_WITH_AES_128_GCM_SHA256", "TLS_ECDHE_RSA_WITH_AES_128_SHA256",
+//                "TLS_ECDHE_ECDSA_WITH_AES_128_SHA256", "TLS_ECDHE_RSA_WITH_AES_128_SHA",
+//                "TLS_ECDHE_ECDSA_WITH_AES_128_SHA",
+//                "TLS_ECDHE_RSA_WITH_AES_256_SHA384", "TLS_ECDHE_ECDSA_WITH_AES_256_SHA384",
+//                "TLS_ECDHE_RSA_WITH_AES_256_SHA", "TLS_ECDHE_ECDSA_WITH_AES_256_SHA",
+//                "TLS_DHE_RSA_WITH_AES_128_SHA256", "TLS_DHE_RSA_WITH_AES_128_SHA",
+//                "TLS_DHE_DSS_WITH_AES_128_SHA256", "TLS_DHE_RSA_WITH_AES_256_SHA256",
+//                "TLS_DHE_DSS_WITH_AES_256_SHA", "TLS_DHE_RSA_WITH_AES_256_SHA"});
+            params.setSSLParameters(sslParameters);
+//            log.info(Arrays.toString(sslParameters.getCipherSuites()));
+//            log.info(""+Thread.currentThread());
+            // statement above could throw IAE if any params invalid.
+            // eg. if app has a UI and parameters supplied by a user.
+          }
+          catch(Exception e)
+          {
+            e.printStackTrace();
+          }
         }
       });
+      */
+
+
 
       server.start();
 
-      System.out.println("server started @ " + server.getAddress());
+      log.info("server started @ " + server.getAddress() + " executor thread count:" + TaskUtil.getDefaultTaskProcessor().availableExecutorThreads());
 
     }
     catch(Exception e)

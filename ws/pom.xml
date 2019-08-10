@@ -12,12 +12,14 @@
 
   <name>xlogistx-iot-ws</name>
   <artifactId>xlogistx-iot-ws</artifactId>
+  <packaging>war</packaging>
 
 
 
   
 
   <build>
+    <finalName>ROOT</finalName>
     <directory>target</directory>
     <resources>
       <resource>
@@ -81,11 +83,25 @@
       <scope>compile</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.zoxweb</groupId>
+      <artifactId>zoxweb-shiro</artifactId>
+    </dependency>
+
 
 
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-fileupload</groupId>
+      <artifactId>commons-fileupload</artifactId>
       <scope>compile</scope>
     </dependency>
 
@@ -101,6 +117,15 @@
       <groupId>org.eclipse.paho</groupId>
       <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
       <version>${mqtt-paho.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.shiro</groupId>
+      <artifactId>shiro-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.shiro</groupId>
+      <artifactId>shiro-web</artifactId>
     </dependency>
 
   </dependencies>

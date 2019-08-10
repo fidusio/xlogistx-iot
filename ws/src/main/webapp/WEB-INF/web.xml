@@ -11,11 +11,11 @@
 
     <display-name>xLogistx Web Service</display-name>
     <description>XLogistX API WSW</description>
-    
+    <!--
     <listener>
         <listener-class>io.xlogistx.ws.servlet.XXWSInitShutdown</listener-class>
    	</listener>
-	
+		-->
 	<!-- Servlets -->
    <servlet>
    		<servlet-name>autoLoginServlet</servlet-name>
@@ -58,19 +58,22 @@
       	<filter-name>SecureFilter</filter-name>
       	<url-pattern>/*</url-pattern>
   	</filter-mapping>
-  	
+
+	<!--
 	<filter>
 		<filter-name>ShiroFilter</filter-name>
       	<filter-class>org.apache.shiro.web.servlet.ShiroFilter</filter-class>
-  	</filter>
-  	<filter-mapping>
+	</filter>
+	<filter-mapping>
       	<filter-name>ShiroFilter</filter-name>
       	<url-pattern>/*</url-pattern>
       	<dispatcher>REQUEST</dispatcher> 
       	<dispatcher>FORWARD</dispatcher> 
       	<dispatcher>INCLUDE</dispatcher> 
       	<dispatcher>ERROR</dispatcher>
-  	</filter-mapping>
+	</filter-mapping>
+	-->
+
   	<filter>
     	<filter-name>EncodingFilter</filter-name>
     	<filter-class>org.zoxweb.server.http.servlet.filters.EncodingFilter</filter-class>
