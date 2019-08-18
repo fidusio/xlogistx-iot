@@ -3,6 +3,8 @@ package io.xlogistx.iot.ws.http;
 import com.sun.net.httpserver.*;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.zoxweb.server.security.CryptoUtil;
 import org.zoxweb.server.task.TaskUtil;
 
@@ -55,7 +57,7 @@ public class HTTPServer {
   {
     try
     {
-      TaskUtil.setMinTaskProcessorThreadCount(32);
+      TaskUtil.setThreadMultiplier(8);
       System.setProperty("java.util.logging.SimpleFormatter.format","%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS %4$-6s : %2$s %5$s%6$s%n");
       String keyfile = System.getenv("KEYFILE");
       String keyfilePassword = System.getenv("KEYFILE_PASSWORD");
@@ -79,6 +81,7 @@ public class HTTPServer {
         server.createContext("/"+args[index], new ContextHandler());
       }
       server.setExecutor(TaskUtil.getDefaultTaskProcessor());
+      //server.setExecutor(Executors.newFixedThreadPool(96));
       server.setHttpsConfigurator (new HttpsConfigurator(sslContext));
       /*server.setHttpsConfigurator (new HttpsConfigurator(sslContext) {
         SSLParameters sslParameters;

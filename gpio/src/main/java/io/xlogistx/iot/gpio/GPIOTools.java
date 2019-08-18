@@ -4,12 +4,14 @@ package io.xlogistx.iot.gpio;
 import com.pi4j.io.gpio.GpioPinDigitalInput;
 import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
 import com.pi4j.io.gpio.event.GpioPinListenerDigital;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
+import java.util.regex.Pattern;
 import org.zoxweb.server.task.TaskUtil;
 import org.zoxweb.shared.util.Const.Bool;
 import org.zoxweb.shared.util.Const.TimeInMillis;
@@ -37,12 +39,24 @@ public class GPIOTools
 	public static class PinStateListener implements GpioPinListenerDigital
 	{
 
+		private GPIOPin[] toSets;
+		public PinStateListener(GPIOPin ...toSets)
+		{
+			this.toSets = toSets;
+		}
+
 		@Override
 		public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent event) {
 
 			System.out.println(new Date() + " --> GPIO PIN STATE : " + event.getPin() + " = "
 											  	+ SINGLETON.getPinState(GPIOPin.lookup(event.getPin().getPin())));
-			//SINGLETON.setOutputPinState(GPIOPin.GPIO_03.getValue(), SINGLETON.getPinState(GPIOPin.lookup(event.getPin().getPin())) ? PinState.HIGH : PinState.LOW, false, 0, false);
+			if (toSets != null) {
+				for (GPIOPin toSet : toSets) {
+					SINGLETON.setOutputPinState(toSet.getValue(),
+							SINGLETON.getPinState(GPIOPin.lookup(event.getPin().getPin())) ? PinState.HIGH
+									: PinState.LOW, false, 0, false);
+				}
+			}
 		}
 	}
 	
@@ -151,10 +165,19 @@ public class GPIOTools
 						break;
 					case MONITOR:
 						TaskUtil.getDefaultTaskScheduler();
-						gpioPin = GPIOPin.lookup(args[index]);
+						String pins[] = args[index].split(Pattern.quote(","));
+						log.info("to monitor:" + pins[0]);
+						gpioPin = GPIOPin.lookup(pins[0]);
+						ArrayList<GPIOPin> toSet = new ArrayList<GPIOPin>();
+						for (int p = 1; p < pins.length; p++)
+						{
+							toSet.add( GPIOPin.lookup(pins[p]));
+						}
+
+
 						GpioPinDigitalInput input = SINGLETON.getGpioController()
 								.provisionDigitalInputPin(gpioPin.getValue());
-						input.addListener(new PinStateListener());
+						input.addListener(new PinStateListener(toSet.toArray(new GPIOPin[0])));
 						break;
 					case SET:
 						NVCollection<String> param = decoder.decode(args[index]);
