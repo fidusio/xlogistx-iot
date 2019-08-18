@@ -36,29 +36,40 @@ public class GPIOTools
 	private volatile GpioController gpioController = null;
 	private static final Logger Log = Logger.getLogger(GPIOTools.class.getName());
 
-	public static class PinStateListener implements GpioPinListenerDigital
-	{
-
-		private GPIOPin[] toSets;
-		public PinStateListener(GPIOPin ...toSets)
-		{
-			this.toSets = toSets;
-		}
-
-		@Override
-		public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent event) {
-
-			System.out.println(new Date() + " --> GPIO PIN STATE : " + event.getPin() + " = "
-											  	+ SINGLETON.getPinState(GPIOPin.lookup(event.getPin().getPin())));
-			if (toSets != null) {
-				for (GPIOPin toSet : toSets) {
-					SINGLETON.setOutputPinState(toSet.getValue(),
-							SINGLETON.getPinState(GPIOPin.lookup(event.getPin().getPin())) ? PinState.HIGH
-									: PinState.LOW, false, 0, false);
-				}
-			}
-		}
-	}
+//	public static class PinStateListener implements GpioPinListenerDigital
+//	{
+//
+//		private GPIOPin[] toSets;
+//		public PinStateListener(GPIOPin ...toSets)
+//		{
+//			this.toSets = toSets;
+//		}
+//
+//		@Override
+//		public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent event) {
+//
+//			System.out.println(new Date() + " --> GPIO PIN STATE : " + event.getPin() + " = "
+//											  	+ SINGLETON.getPinState(GPIOPin.lookup(event.getPin().getPin())));
+//			if (toSets != null) {
+//
+//				setPinsState(SINGLETON.getPinState(GPIOPin.lookup(event.getPin().getPin())));
+////				for (GPIOPin toSet : toSets) {
+////					SINGLETON.setOutputPinState(toSet.getValue(),
+////							SINGLETON.getPinState(GPIOPin.lookup(event.getPin().getPin())) ? PinState.HIGH
+////									: PinState.LOW, false, 0, false);
+////				}
+//			}
+//		}
+//
+//		public void setPinsState(PinState state)
+//		{
+//			if (toSets != null && state != null) {
+//				for (GPIOPin toSet : toSets) {
+//					SINGLETON.setOutputPinState(toSet.getValue(), state, false, 0, false);
+//				}
+//			}
+//		}
+//	}
 	
 	private GPIOTools() {
 	  log.info("Wiring Pi setup:" + Gpio.wiringPiSetup());
@@ -132,9 +143,9 @@ public class GPIOTools
 	}
 	
 	
-	public synchronized boolean getPinState(GPIOPin pin)
+	public synchronized PinState getPinState(GPIOPin pin)
 	{
-	  return Gpio.digitalRead(pin.getBCMID()) == 1;
+	  return Gpio.digitalRead(pin.getBCMID()) == 1 ? PinState.HIGH : PinState.LOW;
 	}
 	
 
@@ -177,7 +188,10 @@ public class GPIOTools
 
 						GpioPinDigitalInput input = SINGLETON.getGpioController()
 								.provisionDigitalInputPin(gpioPin.getValue());
-						input.addListener(new PinStateListener(toSet.toArray(new GPIOPin[0])));
+
+
+						input.addListener(new PinStateMonitor(new GPIOMonitor().setMonitor(gpioPin).setFollowers(toSet.toArray(new GPIOPin[0])), true));
+						//input.addListener(new PinStateListener(toSet.toArray(new GPIOPin[0])));
 						break;
 					case SET:
 						NVCollection<String> param = decoder.decode(args[index]);
