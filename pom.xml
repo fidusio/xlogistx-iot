@@ -19,6 +19,7 @@
   <modules>
     <module>common</module>
     <module>gpio</module>
+    <module>devices</module>
     <module>ws</module>
   </modules>
 
