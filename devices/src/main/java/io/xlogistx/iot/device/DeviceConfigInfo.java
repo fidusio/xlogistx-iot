@@ -1,4 +1,4 @@
-package io.xlogistx.io.device;
+package io.xlogistx.iot.device;
 
 import org.zoxweb.shared.util.NVGenericMap;
 import org.zoxweb.shared.util.SetDescription;

@@ -1,4 +1,4 @@
-package io.xlogistx.io.device.impl;
+package io.xlogistx.iot.device.impl;
 
 import org.zoxweb.shared.net.InetSocketAddressDAO;
 import org.zoxweb.shared.util.Const.Bool;
