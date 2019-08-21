@@ -21,6 +21,8 @@ public class MPowerController
       if (args.length > i)
       {
         proxy = new InetSocketAddressDAO(args[i++]);
+        proxy.setProxyType("http");
+        System.out.println(proxy);
       }
 
 
@@ -45,7 +47,7 @@ public class MPowerController
 
           response = UBNTEqpt.controlPort(url, sessionCookie, port, on, proxy);
           System.out.println(response);
-          response = UBNTEqpt.getSensorsStatus(url, sessionCookie);
+          response = UBNTEqpt.getSensorsStatus(url, sessionCookie, proxy);
           System.out.println(response);
           ts = System.currentTimeMillis() - ts;
           System.out.println(response + "\nin " + ts + " millis.");

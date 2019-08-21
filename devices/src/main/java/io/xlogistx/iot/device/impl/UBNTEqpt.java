@@ -123,11 +123,12 @@ public class UBNTEqpt
     return new String(rd.getData());
   }
 
-  public static String getSensorsStatus(String url, NVPair sessionCookie) throws IOException
+  public static String getSensorsStatus(String url, NVPair sessionCookie, InetSocketAddressDAO proxy) throws IOException
   {
 
     // create the control message
     HTTPMessageConfigInterface getSensorsStatus = HTTPMessageConfig.createAndInit(url, "mfi/sensors.cgi", HTTPMethod.GET);
+    getSensorsStatus.setProxyAddress(proxy);
     getSensorsStatus.getHeaderParameters().add( sessionCookie);
     //getSensorsStatus.getHeaderParameters().add( new NVPair("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"));
     getSensorsStatus.getHeaderParameters().add( new NVPair("X-Requested-With", "XMLHttpRequest"));
