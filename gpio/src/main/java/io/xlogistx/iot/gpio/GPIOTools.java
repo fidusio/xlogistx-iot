@@ -155,8 +155,7 @@ public class GPIOTools
 						GpioPinDigitalInput input = SINGLETON.getGpioController()
 								.provisionDigitalInputPin(gpioPin.getValue());
 
-
-						input.addListener(new PinStateMonitor(new GPIOMonitor().setMonitor(gpioPin).setFollowers(toSet.toArray(new GPIOPin[0])), true));
+						input.addListener(new PinStateMonitor(new GPIOMonitor().setMonitor(gpioPin).setFollowers(toSet.toArray(new GPIOPin[0])).setFollowersDelay("4sec"), true));
 						//input.addListener(new PinStateListener(toSet.toArray(new GPIOPin[0])));
 						break;
 					case SET:

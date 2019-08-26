@@ -4,6 +4,7 @@ import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
 import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 import java.util.logging.Logger;
+import org.zoxweb.server.task.TaskUtil;
 
 public class PinStateMonitor
     implements GpioPinListenerDigital
@@ -25,16 +26,38 @@ public class PinStateMonitor
     lastEventTS = System.currentTimeMillis();
     System.out.println(" --> GPIO PIN STATE : " + event.getPin() + " = "
         + GPIOTools.SINGLETON.getPinState(GPIOPin.lookup(event.getPin().getPin())));
-    setFollowersState(GPIOTools.SINGLETON.getPinState(GPIOPin.lookup(event.getPin().getPin())));
+    setFollowersState(GPIOTools.SINGLETON.getPinState(GPIOPin.lookup(event.getPin().getPin())), gpiom.getDelay());
+  }
+
+  public  void setFollowersState(final PinState state, long delay)
+  {
+    if (gpiom != null && gpiom.getToFollow() != null && state != null) {
+      if (state == PinState.HIGH) {
+        TaskUtil.getDefaultTaskScheduler().queue(gpiom.getDelay(), (Runnable) () -> {
+          setFollowersState(state);
+        });
+      }
+      else
+      {
+        setFollowersState(state);
+      }
+    }
   }
 
   public synchronized void setFollowersState(PinState state)
   {
-    if (gpiom != null && gpiom.getToFollow() != null && state != null) {
+    if (gpiom != null && gpiom.getToFollow() != null && state != null)
+    {
+      if (state == PinState.HIGH)
+      {
+        // if set to high always get the current sensor value
+        state = GPIOTools.SINGLETON.getPinState(GPIOPin.lookup(gpiom.getToMonitor().getValue()));
+      }
       for (GPIOPin toSet : gpiom.getToFollow()) {
         GPIOTools.SINGLETON.setOutputPinState(toSet.getValue(), state, false, 0, false);
       }
     }
+
   }
 
   public long getLastEventTS()
