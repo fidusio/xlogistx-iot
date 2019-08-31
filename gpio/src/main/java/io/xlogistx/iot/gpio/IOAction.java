@@ -8,6 +8,7 @@ public enum IOAction implements GetValue<String> {
   MONITOR("-m"),
   SET("-s"),
   PROVISION("-p"),
+  // pulse width modulation
   PWM("-pwm"),
   ;
 
