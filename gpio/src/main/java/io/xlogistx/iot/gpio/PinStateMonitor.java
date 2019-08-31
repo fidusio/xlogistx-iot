@@ -24,23 +24,25 @@ public class PinStateMonitor
   public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent event)
   {
     lastEventTS = System.currentTimeMillis();
-    System.out.println(" --> GPIO PIN STATE : " + event.getPin() + " = "
+    log.info(Thread.currentThread() + " --> GPIO PIN STATE : " + event.getPin() + " = "
         + GPIOTools.SINGLETON.getPinState(GPIOPin.lookup(event.getPin().getPin())));
-    setFollowersState(GPIOTools.SINGLETON.getPinState(GPIOPin.lookup(event.getPin().getPin())), gpiom.getDelay());
+    setFollowersState(GPIOTools.SINGLETON.getPinState(GPIOPin.lookup(event.getPin().getPin())), true);
   }
 
-  public  void setFollowersState(final PinState state, long delay)
+  public  void setFollowersState(final PinState state, boolean scheduled)
   {
-    if (gpiom != null && gpiom.getToFollow() != null && state != null) {
-      if (state == PinState.HIGH) {
-        TaskUtil.getDefaultTaskScheduler().queue(gpiom.getDelay(), (Runnable) () -> {
+    if (gpiom != null && gpiom.getToFollow() != null && state != null)
+    {
+
+        if(scheduled) {
+          TaskUtil.getDefaultTaskScheduler()
+              .queue(state.isHigh() ? gpiom.getHighDelay() : gpiom.getLowDelay(), (Runnable) () -> {
+                setFollowersState(state);
+              });
+        }
+        else{
           setFollowersState(state);
-        });
-      }
-      else
-      {
-        setFollowersState(state);
-      }
+        }
     }
   }
 
@@ -53,6 +55,7 @@ public class PinStateMonitor
         // if set to high always get the current sensor value
         state = GPIOTools.SINGLETON.getPinState(GPIOPin.lookup(gpiom.getToMonitor().getValue()));
       }
+
       for (GPIOPin toSet : gpiom.getToFollow()) {
         GPIOTools.SINGLETON.setOutputPinState(toSet.getValue(), state, false, 0, false);
       }

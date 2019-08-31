@@ -2,17 +2,19 @@ package io.xlogistx.iot.gpio;
 
 
 import com.pi4j.io.gpio.GpioPinDigitalInput;
-import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
-import com.pi4j.io.gpio.event.GpioPinListenerDigital;
+
 import java.util.ArrayList;
-import java.util.Date;
+
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 import java.util.regex.Pattern;
+import org.zoxweb.server.io.IOUtil;
+import org.zoxweb.server.logging.LoggerUtil;
 import org.zoxweb.server.task.TaskUtil;
+import org.zoxweb.server.util.GSONUtil;
 import org.zoxweb.shared.util.Const.Bool;
 import org.zoxweb.shared.util.Const.TimeInMillis;
 import org.zoxweb.shared.util.NVCollection;
@@ -28,8 +30,12 @@ import com.pi4j.io.gpio.PinState;
 import com.pi4j.wiringpi.Gpio;
 
 
+
 public class GPIOTools 
 {
+	static {
+		LoggerUtil.enableDefaultLogger("io.xlogistx");
+	}
 	private static final transient Logger log = Logger.getLogger(GPIOTools.class.getName());
 	public static final GPIOTools SINGLETON = new GPIOTools();
 	private Lock lock = new ReentrantLock();
@@ -64,7 +70,7 @@ public class GPIOTools
 	
 	public synchronized void setOutputPinState(Pin pin, PinState state, boolean persist, long durationInMillis, boolean delay)
 	{		
-		log.info(SharedUtil.toCanonicalID(',', pin, state, persist, durationInMillis));
+		log.info(SharedUtil.toCanonicalID(',', Thread.currentThread(), pin, state, persist, durationInMillis));
 		//synchronized(pin)
 		{
 			GpioPin gpioPin = SINGLETON.getGpioController().getProvisionedPin(pin);
@@ -106,6 +112,50 @@ public class GPIOTools
 			}
 		}
 		
+	}
+
+	public long runPWD(PWMConfig pwmConfig)
+	{
+		 float cycleDuration = 1/pwmConfig.getFrequency();
+		 float dutyCycleDuration = (cycleDuration*pwmConfig.getDutyCycle())/100;
+		 float lowDuration = cycleDuration - dutyCycleDuration;
+		 log.info(SharedUtil.toCanonicalID(',', cycleDuration,dutyCycleDuration));
+		 GPIOPin[] all = pwmConfig.getGPIOPins();
+
+		 List<GpioPinDigitalOutput> outputs = new ArrayList<GpioPinDigitalOutput>();
+		 for(GPIOPin pin : all)
+		 {
+		 	outputs.add(SINGLETON.getGpioController().provisionDigitalOutputPin(pin.getValue()));
+		 }
+
+		 long delta = System.currentTimeMillis();
+		 for(int i=0; i < pwmConfig.getCount(); i++)
+		 {
+
+		 	for(GpioPinDigitalOutput gpdo : outputs)
+		 		gpdo.setState(PinState.LOW);
+
+
+			 try {
+				 Thread.sleep((long)(lowDuration*1000));
+			 } catch (InterruptedException e) {
+				 e.printStackTrace();
+			 }
+
+			 for(GpioPinDigitalOutput gpdo : outputs)
+				 gpdo.setState(PinState.HIGH);
+			 try {
+				 Thread.sleep((long)(dutyCycleDuration*1000));
+			 } catch (InterruptedException e) {
+				 e.printStackTrace();
+			 }
+		 }
+		 delta = System.currentTimeMillis() - delta;
+		 if(pwmConfig.getLastState() != null)
+			 for(GpioPinDigitalOutput gpdo : outputs)
+				 gpdo.setState(pwmConfig.getLastState());
+
+		return delta;
 	}
 	
 	
@@ -154,8 +204,9 @@ public class GPIOTools
 
 						GpioPinDigitalInput input = SINGLETON.getGpioController()
 								.provisionDigitalInputPin(gpioPin.getValue());
-
-						input.addListener(new PinStateMonitor(new GPIOMonitor().setMonitor(gpioPin).setFollowers(toSet.toArray(new GPIOPin[0])).setFollowersDelay("4sec"), true));
+						GPIOMonitor gm = new GPIOMonitor().setMonitor(gpioPin).setFollowers(toSet.toArray(new GPIOPin[0])).setFollowersHighDelay("6sec").setFollowersLowDelay("0sec");
+						System.out.println(GSONUtil.DEFAULT_GSON.toJson(gm));
+						input.addListener(new PinStateMonitor(gm, true));
 						//input.addListener(new PinStateListener(toSet.toArray(new GPIOPin[0])));
 						break;
 					case SET:
@@ -183,6 +234,12 @@ public class GPIOTools
 						long millis = waiting != null ? TimeInMillis.toMillis(waiting) : 0;
 						log.info(pin.getName() + " set to " + values + " for " + millis + " millis");
 						SINGLETON.setOutputPinState(pin, state, persist, millis, delay);
+						break;
+					case PWM:
+						String jsonCmd = args[index];
+						PWMConfig pwmConfig = GSONUtil.DEFAULT_GSON.fromJson(IOUtil.inputStreamToString(jsonCmd), PWMConfig.class);
+						long duration = SINGLETON.runPWD(pwmConfig);
+						log.info("It took " + TimeInMillis.toString(duration));
 						break;
 				}
 			}

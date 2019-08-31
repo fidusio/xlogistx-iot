@@ -7,7 +7,8 @@ public enum IOAction implements GetValue<String> {
   READ("-r"),
   MONITOR("-m"),
   SET("-s"),
-  PROVISITION("-p"),
+  PROVISION("-p"),
+  PWM("-pwm"),
   ;
 
   private final String value;

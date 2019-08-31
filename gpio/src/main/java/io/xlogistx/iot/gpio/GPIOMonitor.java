@@ -1,12 +1,16 @@
 package io.xlogistx.iot.gpio;
 
+
 import org.zoxweb.shared.util.Const.TimeInMillis;
 
 public class GPIOMonitor {
 
+
   private GPIOPin toMonitor;
   private GPIOPin[] toFollow;
-  private long delay =0;
+  private long highDelay =0;
+  private long lowDelay = 0;
+  //private long delay = 0;
 
 
   public GPIOMonitor()
@@ -46,15 +50,29 @@ public class GPIOMonitor {
     return this;
   }
 
-  public GPIOMonitor setFollowersDelay(String time){
-    setDelay(TimeInMillis.toMillis(time));
+  public GPIOMonitor setFollowersHighDelay(String time){
+    setHighDelay(TimeInMillis.toMillis(time));
+    return this;
+  }
+  public GPIOMonitor setFollowersLowDelay(String time){
+    setLowDelay(TimeInMillis.toMillis(time));
     return this;
   }
 
-  public void setDelay(long followDelay) {
-    this.delay = followDelay;
-  } public long getDelay() {
-    return delay;
+  public void setHighDelay(long followDelay) {
+    this.highDelay = followDelay;
+  }
+
+  public long getHighDelay() {
+    return highDelay;
+  }
+
+  public void setLowDelay(long followDelay) {
+    this.lowDelay = followDelay;
+  }
+
+  public long getLowDelay() {
+    return lowDelay;
   }
 
 
