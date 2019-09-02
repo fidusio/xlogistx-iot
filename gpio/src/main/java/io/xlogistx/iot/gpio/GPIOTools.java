@@ -1,6 +1,7 @@
 package io.xlogistx.iot.gpio;
 
 
+
 import com.pi4j.io.gpio.GpioPinDigitalInput;
 
 import java.util.ArrayList;
@@ -131,24 +132,10 @@ public class GPIOTools
 		 long delta = System.currentTimeMillis();
 		 for(int i=0; i < pwmConfig.getCount(); i++)
 		 {
-
-		 	for(GpioPinDigitalOutput gpdo : outputs)
-		 		gpdo.setState(PinState.LOW);
-
-
-			 try {
-				 Thread.sleep((long)(lowDuration*1000));
-			 } catch (InterruptedException e) {
-				 e.printStackTrace();
-			 }
-
-			 for(GpioPinDigitalOutput gpdo : outputs)
-				 gpdo.setState(PinState.HIGH);
-			 try {
-				 Thread.sleep((long)(dutyCycleDuration*1000));
-			 } catch (InterruptedException e) {
-				 e.printStackTrace();
-			 }
+			 outputs.forEach((n)->n.setState(PinState.LOW));
+			 TaskUtil.sleep((long)(lowDuration*1000));
+			 outputs.forEach((n)->n.setState(PinState.HIGH));
+			 TaskUtil.sleep((long)(dutyCycleDuration*1000));
 		 }
 		 delta = System.currentTimeMillis() - delta;
 		 if(pwmConfig.getLastState() != null)
