@@ -3,6 +3,7 @@ package io.xlogistx.iot.device.impl;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
 import org.zoxweb.server.security.SSLCheckDisabler;
 import org.zoxweb.server.http.HTTPCall;
 import org.zoxweb.server.http.HTTPUtil;
@@ -181,7 +182,8 @@ public class UBNTEqpt
     {
       int index = 0;
       String command = args[index++].toLowerCase();
-      String url = args[index++];
+
+      String urls[] = args[index++].split(Pattern.quote(","));
       String user = args[index++];
       String password = args[index++];
       InetSocketAddressDAO proxy = null;
@@ -191,23 +193,35 @@ public class UBNTEqpt
         proxy = new InetSocketAddressDAO(args[index++]);
       }
 
-      switch(command)
-      {
-        case "-r":
-          HTTPResponseData rd = reboot(url, user, password, proxy);
-          //System.out.println("Rd:" + rd);
-          System.out.println(new Date() +" reboot result for " + url + " " + HTTPStatusCode.statusByCode(rd.getStatus()));
-          //System.out.println("Rd:" + rd);
-          break;
-        case "-l":
-          NVPair cookie = loginCookie(url, user, password, proxy);
-          //System.out.println("Rd:" + rd);
-          System.out.println(new Date() +" login session cookie " + url + " " + cookie);
-          //System.out.println("Rd:" + rd);
-          break;
-        default:
-          throw new IllegalArgumentException( command + " invalid command.");
+      for (String url: urls) {
+        try {
+
+          switch (command) {
+            case "-r":
+              HTTPResponseData rd = reboot(url, user, password, proxy);
+              //System.out.println("Rd:" + rd);
+              System.out.println(new Date() + " reboot result for " + url + " " + HTTPStatusCode
+                  .statusByCode(rd.getStatus()));
+              //System.out.println("Rd:" + rd);
+              break;
+            case "-l":
+              NVPair cookie = loginCookie(url, user, password, proxy);
+              //System.out.println("Rd:" + rd);
+              System.out.println(new Date() + " login session cookie " + url + " " + cookie);
+              //System.out.println("Rd:" + rd);
+              break;
+            default:
+              throw new IllegalArgumentException(command + " invalid command.");
+          }
+        }
+        catch (Exception e)
+        {
+          e.printStackTrace();
+        }
       }
+
+
+
 
 
     }
