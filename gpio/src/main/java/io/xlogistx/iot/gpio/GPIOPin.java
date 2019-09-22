@@ -25,6 +25,9 @@ import org.zoxweb.shared.util.SharedUtil;
 import com.pi4j.io.gpio.Pin;
 import com.pi4j.io.gpio.RaspiPin;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public enum GPIOPin
 implements GetValue<Pin>, GetName
 
@@ -102,58 +105,62 @@ implements GetValue<Pin>, GetName
 		return null;
 	}
 	
-	public static GPIOPin lookup(String pinID)
+	public static GPIOPin[] lookup(String ...pinIDs)
 	{
-		pinID = SharedStringUtil.trimOrNull(pinID);
-		GPIOPin ret = null;
-		if (pinID != null)
+		if(pinIDs != null && pinIDs.length == 1 && pinIDs[0].equalsIgnoreCase("all"))
 		{
-			pinID = pinID.replace('-', '_');
-			String split[] = pinID.split("_");
-			if (split.length == 2)
-			{
-				try
-				{
-					int n = Integer.parseInt(split[1]);
-					split[1] = String.format("%02d", n);
-					pinID = split[0] + "_" + split[1];
-				}
-				catch(Exception e)
-				{
-					
-				}
-			}
-			ret = SharedUtil.lookupEnum(pinID, values());
+			return GPIOPin.values();
 		}
-		if (ret == null)
-		{
-			try
-			{
-				int index = Integer.parseInt(pinID);
-				if (index>-1 && index < values().length)
-				{
-					ret = values()[index];
+		List<GPIOPin> ret = new ArrayList<GPIOPin>();
+		for (String pinID : pinIDs) {
+			pinID = SharedStringUtil.trimOrNull(pinID);
+			GPIOPin toAdd = null;
+			if (pinID != null) {
+				pinID = pinID.replace('-', '_');
+				String split[] = pinID.split("_");
+				if (split.length == 2) {
+					try {
+						int n = Integer.parseInt(split[1]);
+						split[1] = String.format("%02d", n);
+						pinID = split[0] + "_" + split[1];
+					} catch (Exception e) {
+
+					}
+				}
+				toAdd = SharedUtil.lookupEnum(pinID, values());
+
+			}
+			if (toAdd == null) {
+				try {
+					int index = Integer.parseInt(pinID);
+					if (index > -1 && index < values().length) {
+						ret.add(values()[index]);
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
 			}
-			catch(Exception e)
+			else
 			{
-				e.printStackTrace();
+				ret.add(toAdd);
 			}
 		}
 		
-		return ret;
+		return ret.toArray(new GPIOPin[ret.size()]);
 	}
+
+
+
 	
 	public static Pin lookupPin(String pinID)
 	{
-		GPIOPin ret = lookup(pinID);	
-		return ret != null ? ret.getValue() : null;
+		GPIOPin ret[] = lookup(pinID);
+		return ret.length != 0 ? ret[0].getValue() : null;
 	}
 	
 	public String toString()
 	{
-	  return name() + "-" + bcmPinID;
-	  
+	  return bcmPinID != -1 ? name() + "-" + bcmPinID : name();
 	}
 	
 }

@@ -2,7 +2,7 @@ package io.xlogistx.iot.gpio;
 
 
 
-import com.pi4j.io.gpio.GpioPinDigitalInput;
+import com.pi4j.io.gpio.*;
 
 import java.util.ArrayList;
 
@@ -22,12 +22,6 @@ import org.zoxweb.shared.util.NVCollection;
 import org.zoxweb.shared.util.NVCollectionStringDecoder;
 import org.zoxweb.shared.util.SharedUtil;
 
-import com.pi4j.io.gpio.GpioController;
-import com.pi4j.io.gpio.GpioFactory;
-import com.pi4j.io.gpio.GpioPin;
-import com.pi4j.io.gpio.GpioPinDigitalOutput;
-import com.pi4j.io.gpio.Pin;
-import com.pi4j.io.gpio.PinState;
 import com.pi4j.wiringpi.Gpio;
 
 
@@ -115,6 +109,15 @@ public class GPIOTools
 		
 	}
 
+	public void setInputPin(GPIOPin ...gpios)
+	{
+		for(GPIOPin gpio : gpios)
+		{
+			getGpioController().provisionDigitalInputPin(gpio.getValue());
+		}
+	}
+
+
 	public long runPWD(PWMConfig pwmConfig)
 	{
 		 float cycleDuration = 1/pwmConfig.getFrequency();
@@ -170,22 +173,32 @@ public class GPIOTools
 					else
 						action = IOAction.SET;
 				}
-
+				GPIOPin gpioPin = null;
 				switch (action) {
 
 					case READ:
-						GPIOPin gpioPin = GPIOPin.lookup(args[index]);
-						System.out.println(gpioPin + ", " + SINGLETON.getPinState(gpioPin));
+						GPIOPin[] gpioPins = GPIOPin.lookup(args[index]);
+						for(GPIOPin gpioP: gpioPins) {
+							System.out.println(gpioP + ", " + SINGLETON.getPinState(gpioP));
+						}
+						break;
+					case READ_AS_INPUT:
+						gpioPins = GPIOPin.lookup(args[index]);
+						for(GPIOPin gpioP: gpioPins) {
+							SINGLETON.setInputPin(gpioP);
+							System.out.println(gpioP + ", " + SINGLETON.getPinState(gpioP));
+						}
 						break;
 					case MONITOR:
 						TaskUtil.getDefaultTaskScheduler();
 						String pins[] = args[index].split(Pattern.quote(","));
+						gpioPins = GPIOPin.lookup(pins);
 						log.info("to monitor:" + pins[0]);
-						gpioPin = GPIOPin.lookup(pins[0]);
+						gpioPin = gpioPins[0];
 						ArrayList<GPIOPin> toSet = new ArrayList<GPIOPin>();
-						for (int p = 1; p < pins.length; p++)
+						for (int p = 1; p < gpioPins.length; p++)
 						{
-							toSet.add( GPIOPin.lookup(pins[p]));
+							toSet.add(gpioPins[p]);
 						}
 
 

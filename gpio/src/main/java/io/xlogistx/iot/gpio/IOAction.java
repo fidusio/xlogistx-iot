@@ -5,6 +5,7 @@ import org.zoxweb.shared.util.SharedUtil;
 
 public enum IOAction implements GetValue<String> {
   READ("-r"),
+  READ_AS_INPUT("-ri"),
   MONITOR("-m"),
   SET("-s"),
   PROVISION("-p"),
