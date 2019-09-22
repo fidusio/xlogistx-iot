@@ -175,7 +175,6 @@ public class GPIOTools
 				}
 				GPIOPin gpioPin = null;
 				switch (action) {
-
 					case READ:
 						GPIOPin[] gpioPins = GPIOPin.lookup(args[index]);
 						for(GPIOPin gpioP: gpioPins) {
