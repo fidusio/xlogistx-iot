@@ -3,14 +3,18 @@ package io.xlogistx.iot.gpio;
 import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
 import com.pi4j.io.gpio.event.GpioPinListenerDigital;
+
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 import org.zoxweb.server.task.TaskUtil;
+import org.zoxweb.shared.util.Const;
 
 public class PinStateMonitor
     implements GpioPinListenerDigital
 {
   private static final transient Logger log = Logger.getLogger(PinStateMonitor.class.getName());
   private GPIOMonitor gpiom;
+
 
   private long lastEventTS = 0;
   public PinStateMonitor(GPIOMonitor gpiom, boolean checkOnStart)
@@ -37,7 +41,13 @@ public class PinStateMonitor
         if(scheduled) {
           TaskUtil.getDefaultTaskScheduler()
               .queue(state.isHigh() ? gpiom.getHighDelay() : gpiom.getLowDelay(), (Runnable) () -> {
+                if (state == PinState.HIGH)
+                  gpiom.timestamp.set(System.currentTimeMillis());
                 setFollowersState(state);
+                if (state == PinState.LOW) {
+                  gpiom.timestamp.set(System.currentTimeMillis() - gpiom.timestamp.get());
+                  log.info("It took: " + Const.TimeInMillis.toString(gpiom.timestamp.get()) + " " + gpiom.getName());
+                }
               });
         }
         else{

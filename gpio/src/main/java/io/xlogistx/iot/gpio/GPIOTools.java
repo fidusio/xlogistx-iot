@@ -203,7 +203,7 @@ public class GPIOTools
 
 						GpioPinDigitalInput input = SINGLETON.getGpioController()
 								.provisionDigitalInputPin(gpioPin.getValue());
-						GPIOMonitor gm = new GPIOMonitor().setMonitor(gpioPin).setFollowers(toSet.toArray(new GPIOPin[0])).setFollowersHighDelay("6sec").setFollowersLowDelay("0sec");
+						GPIOMonitor gm = new GPIOMonitor().setMonitor(gpioPin).setFollowers(toSet.toArray(new GPIOPin[0])).setFollowersHighDelay("6sec").setFollowersLowDelay("0sec").name(gpioPin.toString());
 						System.out.println(GSONUtil.DEFAULT_GSON.toJson(gm));
 						input.addListener(new PinStateMonitor(gm, true));
 						//input.addListener(new PinStateListener(toSet.toArray(new GPIOPin[0])));

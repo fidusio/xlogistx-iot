@@ -3,6 +3,8 @@ package io.xlogistx.iot.gpio;
 
 import org.zoxweb.shared.util.Const.TimeInMillis;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 public class GPIOMonitor {
 
 
@@ -10,6 +12,8 @@ public class GPIOMonitor {
   private GPIOPin[] toFollow;
   private long highDelay =0;
   private long lowDelay = 0;
+  private String name;
+  public final transient AtomicLong timestamp = new AtomicLong();
   //private long delay = 0;
 
 
@@ -59,6 +63,11 @@ public class GPIOMonitor {
     return this;
   }
 
+  public GPIOMonitor name(String name) {
+    setName(name);
+    return this;
+  }
+
   public void setHighDelay(long followDelay) {
     this.highDelay = followDelay;
   }
@@ -75,5 +84,7 @@ public class GPIOMonitor {
     return lowDelay;
   }
 
+  public void setName(String name){ this.name = name; }
 
+  public String getName() { return name; }
 }
