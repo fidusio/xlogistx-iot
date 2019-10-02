@@ -4,14 +4,12 @@ import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
 import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 import org.zoxweb.server.task.TaskUtil;
 import org.zoxweb.shared.util.Const;
 
 public class PinStateMonitor
-    implements GpioPinListenerDigital
-{
+    implements GpioPinListenerDigital, AutoCloseable{
   private static final transient Logger log = Logger.getLogger(PinStateMonitor.class.getName());
   private GPIOMonitor gpiom;
 
@@ -76,5 +74,12 @@ public class PinStateMonitor
   public long getLastEventTS()
   {
     return lastEventTS;
+  }
+
+  @Override
+  public void close()
+  {
+    GPIOTools.SINGLETON.getGpioController().removeListener(this);
+    setFollowersState(PinState.LOW);
   }
 }
