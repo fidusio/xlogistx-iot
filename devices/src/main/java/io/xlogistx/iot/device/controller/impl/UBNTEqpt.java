@@ -1,4 +1,4 @@
-package io.xlogistx.iot.device.impl;
+package io.xlogistx.iot.device.controller.impl;
 
 import java.io.IOException;
 import java.util.Date;

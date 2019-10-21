@@ -1,4 +1,4 @@
-package io.xlogistx.iot.device.impl;
+package io.xlogistx.iot.device.controller.impl;
 
 import java.util.regex.Pattern;
 import org.zoxweb.shared.net.InetSocketAddressDAO;
