@@ -1,10 +1,9 @@
 package io.xlogistx.iot.ws.http;
 
 import com.sun.net.httpserver.*;
-import java.util.Arrays;
+
 import java.util.Date;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+
 import org.zoxweb.server.security.CryptoUtil;
 import org.zoxweb.server.task.TaskUtil;
 
@@ -16,7 +15,6 @@ import org.zoxweb.shared.util.SharedStringUtil;
 
 
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLParameters;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

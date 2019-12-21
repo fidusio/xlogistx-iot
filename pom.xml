@@ -26,7 +26,6 @@
 
     <properties>
       <mqtt-paho.version>1.2.1</mqtt-paho.version>
-
     </properties>
 
 
