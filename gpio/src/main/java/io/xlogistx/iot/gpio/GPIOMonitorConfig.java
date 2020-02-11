@@ -5,23 +5,23 @@ import org.zoxweb.shared.util.Const.TimeInMillis;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-public class GPIOMonitor {
+public class GPIOMonitorConfig {
 
 
   private GPIOPin toMonitor;
   private GPIOPin[] toFollow;
-  private long highDelay =0;
+  private long highDelay = 0;
   private long lowDelay = 0;
   private String name;
-  public final transient AtomicLong timestamp = new AtomicLong();
+  public final transient AtomicLong timestamp = new AtomicLong(System.currentTimeMillis());
   //private long delay = 0;
 
 
-  public GPIOMonitor()
+  public GPIOMonitorConfig()
   {
   }
 
-  public GPIOMonitor(GPIOPin toMonitor)
+  public GPIOMonitorConfig(GPIOPin toMonitor)
   {
     setToMonitor(toMonitor);
   }
@@ -44,26 +44,26 @@ public class GPIOMonitor {
     return toFollow;
   }
 
-  public GPIOMonitor setMonitor(GPIOPin toMonitor){
+  public GPIOMonitorConfig setMonitor(GPIOPin toMonitor){
     setToMonitor(toMonitor);
     return this;
   }
 
-  public GPIOMonitor setFollowers(GPIOPin ...toFollow){
+  public GPIOMonitorConfig setFollowers(GPIOPin ...toFollow){
     setToFollow(toFollow);
     return this;
   }
 
-  public GPIOMonitor setFollowersHighDelay(String time){
+  public GPIOMonitorConfig setFollowersHighDelay(String time){
     setHighDelay(TimeInMillis.toMillis(time));
     return this;
   }
-  public GPIOMonitor setFollowersLowDelay(String time){
+  public GPIOMonitorConfig setFollowersLowDelay(String time){
     setLowDelay(TimeInMillis.toMillis(time));
     return this;
   }
 
-  public GPIOMonitor name(String name) {
+  public GPIOMonitorConfig name(String name) {
     setName(name);
     return this;
   }

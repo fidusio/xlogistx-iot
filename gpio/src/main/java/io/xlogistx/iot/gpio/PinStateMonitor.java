@@ -11,13 +11,15 @@ import org.zoxweb.shared.util.Const;
 public class PinStateMonitor
     implements GpioPinListenerDigital, AutoCloseable{
   private static final transient Logger log = Logger.getLogger(PinStateMonitor.class.getName());
-  private GPIOMonitor gpiom;
+  private GPIOMonitorConfig gpiom;
+  private GPIOMonitorConfig gpiomOverride;
 
 
   private long lastEventTS = 0;
-  public PinStateMonitor(GPIOMonitor gpiom, boolean checkOnStart)
+  public PinStateMonitor(GPIOMonitorConfig gpiom, GPIOMonitorConfig override, boolean checkOnStart)
   {
     this.gpiom = gpiom;
+    this.gpiomOverride = override;
     if(checkOnStart)
       setFollowersState(GPIOTools.SINGLETON.getPinState(gpiom.getToMonitor()));
   }
@@ -62,6 +64,12 @@ public class PinStateMonitor
       {
         // if set to high always get the current sensor value
         state = GPIOTools.SINGLETON.getPinState(GPIOPin.lookup(gpiom.getToMonitor().getValue()));
+        if (state == PinState.HIGH && gpiomOverride != null && GPIOTools.SINGLETON.getPinState(GPIOPin.lookup(gpiomOverride.getToMonitor().getValue())) == PinState.HIGH)
+        {
+          // let the override state take control
+          // just return
+          return;
+        }
       }
 
       for (GPIOPin toSet : gpiom.getToFollow()) {
