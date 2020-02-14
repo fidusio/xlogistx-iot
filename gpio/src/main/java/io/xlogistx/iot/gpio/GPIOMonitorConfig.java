@@ -9,7 +9,7 @@ public class GPIOMonitorConfig {
 
 
   private GPIOPin toMonitor;
-  private GPIOPin[] toFollow;
+  private GPIOPin[] followers;
   private long highDelay = 0;
   private long lowDelay = 0;
   private String name;
@@ -35,30 +35,30 @@ public class GPIOMonitorConfig {
     return toMonitor;
   }
 
-  public void setToFollow(GPIOPin ...toFollow)
+  public void setFollowers(GPIOPin ...toFollow)
   {
-    this.toFollow = toFollow;
+    this.followers = toFollow;
   }
 
-  public GPIOPin[] getToFollow(){
-    return toFollow;
+  public GPIOPin[] getFollowers(){
+    return followers;
   }
 
-  public GPIOMonitorConfig setMonitor(GPIOPin toMonitor){
+  public GPIOMonitorConfig monitor(GPIOPin toMonitor){
     setToMonitor(toMonitor);
     return this;
   }
 
-  public GPIOMonitorConfig setFollowers(GPIOPin ...toFollow){
-    setToFollow(toFollow);
+  public GPIOMonitorConfig followers(GPIOPin ...toFollow){
+    setFollowers(toFollow);
     return this;
   }
 
-  public GPIOMonitorConfig setFollowersHighDelay(String time){
+  public GPIOMonitorConfig followersHighDelay(String time){
     setHighDelay(TimeInMillis.toMillis(time));
     return this;
   }
-  public GPIOMonitorConfig setFollowersLowDelay(String time){
+  public GPIOMonitorConfig followersLowDelay(String time){
     setLowDelay(TimeInMillis.toMillis(time));
     return this;
   }
