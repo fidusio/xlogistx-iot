@@ -1,11 +1,11 @@
 package io.xlogistx.iot.gpio;
 
-public enum DevCommand {
+public enum DeviceCommand {
     ACTIVATE,
     ENABLE,
     DISABLE,
     READ,
     WRITE,
     WAIT_FOR_EVENT,
-    
+
 }
