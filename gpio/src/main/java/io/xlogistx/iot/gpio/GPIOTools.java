@@ -205,7 +205,7 @@ public class GPIOTools
 								.provisionDigitalInputPin(gpioPin.getValue());
 						GPIOMonitorConfig gm = new GPIOMonitorConfig().monitor(gpioPin).followers(toSet.toArray(new GPIOPin[0])).followersHighDelay("6sec").followersLowDelay("0sec").name(gpioPin.toString());
 						System.out.println(GSONUtil.DEFAULT_GSON.toJson(gm));
-						input.addListener(new PinStateMonitor(gm, true));
+						input.addListener(new PinStateMonitor(gm));
 						//input.addListener(new PinStateListener(toSet.toArray(new GPIOPin[0])));
 						break;
 					case SET:
