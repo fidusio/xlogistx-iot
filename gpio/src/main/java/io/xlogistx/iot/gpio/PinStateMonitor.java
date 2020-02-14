@@ -12,12 +12,12 @@ import org.zoxweb.shared.util.SharedUtil;
 public class PinStateMonitor
     implements GpioPinListenerDigital, AutoCloseable{
   private static final transient Logger log = Logger.getLogger(PinStateMonitor.class.getName());
-  private GPIOMonitorConfig gpiom;
+  private GPIOConfig gpiom;
 
   private boolean enabled = false;
 
   private long lastEventTS = 0;
-  public PinStateMonitor(GPIOMonitorConfig gpiom)
+  public PinStateMonitor(GPIOConfig gpiom)
   {
     SharedUtil.checkIfNulls("GPIOM can't be null.", gpiom);
     this.gpiom = gpiom;
@@ -42,7 +42,7 @@ public class PinStateMonitor
               .queue(state.isHigh() ? gpiom.getHighDelay() : gpiom.getLowDelay(), (Runnable) () -> {
                 if (state == PinState.HIGH)
                   gpiom.timestamp.set(System.currentTimeMillis());
-                setFollowersState(state);
+                gpiom.setFollowersState(state, true);
                 if (state == PinState.LOW) {
                   gpiom.timestamp.set(System.currentTimeMillis() - gpiom.timestamp.get());
                   log.info("It took: " + Const.TimeInMillis.toString(gpiom.timestamp.get()) + " " + gpiom.getName());
@@ -50,27 +50,27 @@ public class PinStateMonitor
               });
         }
         else{
-          setFollowersState(state);
+          gpiom.setFollowersState(state, true);
         }
     }
   }
 
-  public synchronized void setFollowersState(PinState state)
-  {
-    if (gpiom != null && gpiom.getFollowers() != null && state != null) {
-      if (state == PinState.HIGH) {
-        // if set to high always get the current sensor value
-        state = GPIOTools.SINGLETON.getPinState(GPIOPin.lookup(gpiom.getToMonitor().getValue()));
-      }
-
-      GPIOPin followers[] =  gpiom.getFollowers();
-      if (followers != null) {
-        for (GPIOPin toSet : followers) {
-          GPIOTools.SINGLETON.setOutputPinState(toSet.getValue(), state, false, 0, false);
-        }
-      }
-    }
-  }
+//  public synchronized void setFollowersState(PinState state)
+//  {
+//    if (gpiom != null && gpiom.getFollowers() != null && state != null) {
+//      if (state == PinState.HIGH) {
+//        // if set to high always get the current sensor value
+//        state = GPIOTools.SINGLETON.getPinState(GPIOPin.lookup(gpiom.getToMonitor().getValue()));
+//      }
+//
+//      GPIOPin followers[] =  gpiom.getFollowers();
+//      if (followers != null) {
+//        for (GPIOPin toSet : followers) {
+//          GPIOTools.SINGLETON.setOutputPinState(toSet.getValue(), state, false, 0, false);
+//        }
+//      }
+//    }
+//  }
 
 
   public boolean isEnabled() {
@@ -80,13 +80,13 @@ public class PinStateMonitor
   public synchronized void setEnabled(boolean enabled) {
     this.enabled = enabled;
     if(enabled)
-      setFollowersState(GPIOTools.SINGLETON.getPinState(GPIOPin.lookup(gpiom.getToMonitor().getValue())));
+      gpiom.setFollowersState(GPIOTools.SINGLETON.getPinState(GPIOPin.lookup(gpiom.getToMonitor().getValue())), true);
     else
-      setFollowersState(PinState.LOW);
+      gpiom.setFollowersState(PinState.LOW);
   }
 
 
-  public GPIOMonitorConfig getMonitorConfig()
+  public GPIOConfig getMonitorConfig()
   {
     return gpiom;
   }
@@ -100,6 +100,6 @@ public class PinStateMonitor
   public void close()
   {
     GPIOTools.SINGLETON.getGpioController().removeListener(this);
-    setFollowersState(PinState.LOW);
+    gpiom.setFollowersState(PinState.LOW);
   }
 }
