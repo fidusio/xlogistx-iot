@@ -12,8 +12,10 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 import java.util.regex.Pattern;
+
 import org.zoxweb.server.io.IOUtil;
 import org.zoxweb.server.logging.LoggerUtil;
+import org.zoxweb.server.task.TaskSchedulerProcessor;
 import org.zoxweb.server.task.TaskUtil;
 import org.zoxweb.server.util.GSONUtil;
 import org.zoxweb.shared.util.Const.Bool;
@@ -203,9 +205,11 @@ public class GPIOTools
 
 						GpioPinDigitalInput input = SINGLETON.getGpioController()
 								.provisionDigitalInputPin(gpioPin.getValue());
-						GPIOConfig gm = new GPIOConfig().monitor(gpioPin).followers(toSet.toArray(new GPIOPin[0])).followersHighDelay("6sec").followersLowDelay("0sec").name(gpioPin.toString());
+						GPIOConfig gm = new GPIOConfig().monitorSetter(gpioPin).followersSetter(toSet.toArray(new GPIOPin[0])).followersHighDelaySetter("10sec").followersLowDelaySetter("0sec").nameSetter(gpioPin.toString());
 						System.out.println(GSONUtil.DEFAULT_GSON.toJson(gm));
-						input.addListener(new PinStateMonitor(gm));
+						PinStateMonitor psm = new PinStateMonitor(gm, null);
+						input.addListener(psm);
+						psm.setEnabled(true);
 						//input.addListener(new PinStateListener(toSet.toArray(new GPIOPin[0])));
 						break;
 					case SET:
@@ -240,6 +244,28 @@ public class GPIOTools
 						long duration = SINGLETON.runPWD(pwmConfig);
 						log.info("It took " + TimeInMillis.toString(duration));
 						break;
+					case FLOW:
+						jsonCmd = args[index++];
+						String jsonConfig = IOUtil.inputStreamToString(jsonCmd);
+						log.info("Flow Config: " + jsonConfig);
+						TaskSchedulerProcessor tsp = null;
+						if (args.length > index)
+						{
+							if (args[index++].equalsIgnoreCase("-m"))
+							{
+								tsp = TaskUtil.getDefaultTaskScheduler();
+								log.info("Parallel scheduler");
+							}
+						}
+						if ( tsp == null )
+						{
+							tsp = TaskUtil.getSimpleTaskScheduler();
+							log.info("Single threaded scheduler");
+						}
+						PinStateMonitorConfig pinStateMonitorConfig = GSONUtil.DEFAULT_GSON.fromJson(jsonConfig, PinStateMonitorConfig.class);
+						new GPIOFlowProcessor(pinStateMonitorConfig, tsp).init();
+
+						break;
 				}
 			}
 
@@ -253,5 +279,8 @@ public class GPIOTools
 		    System.err.println("usage: [GPIO=Low/High,true/false,[duration]...");
 		}
 	}
+
+
+
 	
 }

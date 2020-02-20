@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.xlogistx.iot.sensors;
+package io.xlogistx.iot.device.controller.impl;
 
 import java.util.List;
 

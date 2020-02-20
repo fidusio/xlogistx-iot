@@ -1,6 +1,7 @@
 package io.xlogistx.iot.gpio;
 
 
+import com.google.gson.annotations.SerializedName;
 import com.pi4j.io.gpio.PinState;
 import org.zoxweb.shared.util.Const.TimeInMillis;
 
@@ -8,14 +9,17 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class GPIOConfig {
 
-
+  @SerializedName("to_monitor")
   private GPIOPin toMonitor;
   private GPIOPin[] followers;
+  @SerializedName("high_delay")
   private long highDelay = 0;
+  @SerializedName("low_delay")
   private long lowDelay = 0;
   private String name;
+  @SerializedName("is_master")
+  private boolean isMaster;
   public final transient AtomicLong timestamp = new AtomicLong(System.currentTimeMillis());
-  //private long delay = 0
 
 
   public GPIOConfig() { }
@@ -56,6 +60,10 @@ public class GPIOConfig {
 
   public String getName() { return name; }
 
+  public boolean isMaster() { return isMaster; }
+
+  public void setMaster(boolean master) { isMaster = master; }
+
 
 
   // Actions
@@ -85,28 +93,33 @@ public class GPIOConfig {
 
   // Builder
 
-  public GPIOConfig monitor(GPIOPin toMonitor) {
+  public GPIOConfig monitorSetter(GPIOPin toMonitor) {
     setToMonitor(toMonitor);
     return this;
   }
 
-  public GPIOConfig followers(GPIOPin... toFollow) {
+  public GPIOConfig followersSetter(GPIOPin... toFollow) {
     setFollowers(toFollow);
     return this;
   }
 
-  public GPIOConfig followersHighDelay(String time) {
+  public GPIOConfig followersHighDelaySetter(String time) {
     setHighDelay(TimeInMillis.toMillis(time));
     return this;
   }
 
-  public GPIOConfig followersLowDelay(String time) {
+  public GPIOConfig followersLowDelaySetter(String time) {
     setLowDelay(TimeInMillis.toMillis(time));
     return this;
   }
 
-  public GPIOConfig name(String name) {
+  public GPIOConfig nameSetter(String name) {
     setName(name);
+    return this;
+  }
+
+  public GPIOConfig masterSetter(boolean master) {
+    setMaster(master);
     return this;
   }
 }

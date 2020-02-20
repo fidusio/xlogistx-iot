@@ -7,6 +7,7 @@ public enum IOAction implements GetValue<String> {
   READ("-r"),
   READ_AS_INPUT("-ri"),
   MONITOR("-m"),
+  FLOW("-f"),
   SET("-s"),
   PROVISION("-p"),
   // pulse width modulation
