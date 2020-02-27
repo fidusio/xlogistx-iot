@@ -6,6 +6,7 @@ import com.pi4j.io.gpio.*;
 
 import java.util.ArrayList;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -155,7 +156,8 @@ public class GPIOTools
 	{
 	  return Gpio.digitalRead(pin.getBCMID()) == 1 ? PinState.HIGH : PinState.LOW;
 	}
-	
+
+
 
 	
 	public static void main(String ...args)
@@ -192,23 +194,34 @@ public class GPIOTools
 						break;
 					case MONITOR:
 						TaskUtil.getDefaultTaskScheduler();
+						boolean inverse = false;
+
 						String pins[] = args[index].split(Pattern.quote(","));
+						if("-i".equalsIgnoreCase(pins[0]))
+						{
+							inverse = true;
+							pins = Arrays.copyOfRange(pins, 1, pins.length);
+						}
+
+
 						gpioPins = GPIOPin.lookup(pins);
 						log.info("to monitor:" + pins[0]);
 						gpioPin = gpioPins[0];
 						ArrayList<GPIOPin> toSet = new ArrayList<GPIOPin>();
+
 						for (int p = 1; p < gpioPins.length; p++)
 						{
 							toSet.add(gpioPins[p]);
 						}
-
-
 						GpioPinDigitalInput input = SINGLETON.getGpioController()
 								.provisionDigitalInputPin(gpioPin.getValue());
-						GPIOConfig gm = new GPIOConfig().monitorSetter(gpioPin).followersSetter(toSet.toArray(new GPIOPin[0])).followersHighDelaySetter("10sec").followersLowDelaySetter("0sec").nameSetter(gpioPin.toString());
+						GPIOConfig gm = new GPIOConfig().monitorSetter(gpioPin).followersSetter(toSet.toArray(new GPIOPin[0])).followersHighDelaySetter("10sec").followersLowDelaySetter("0sec").nameSetter(gpioPin.toString()).inverseSetter(inverse);
+
 						System.out.println(GSONUtil.DEFAULT_GSON.toJson(gm));
 						PinStateMonitor psm = new PinStateMonitor(gm, null);
+
 						input.addListener(psm);
+
 						psm.setEnabled(true);
 						//input.addListener(new PinStateListener(toSet.toArray(new GPIOPin[0])));
 						break;
@@ -222,8 +235,7 @@ public class GPIOTools
 						PinState state = PinState.getState(Bool.lookupValue(values.get(valuesIndex++)));
 						//	SharedUtil.lookupEnum(values.get(valuesIndex++), PinState.values());
 
-						boolean persist =
-								values.size() > valuesIndex ? Bool.lookupValue(values.get(valuesIndex++)) : false;
+						boolean persist = values.size() > valuesIndex ? Bool.lookupValue(values.get(valuesIndex++)) : false;
 
 						String waiting = values.size() > valuesIndex ? values.get(valuesIndex++) : null;
 						boolean delay = false;

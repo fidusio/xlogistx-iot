@@ -19,6 +19,11 @@ public class GPIOConfig {
   private String name;
   @SerializedName("is_master")
   private boolean isMaster;
+
+
+  @SerializedName("is_flipped")
+  private boolean isInverse;
+
   public final transient AtomicLong timestamp = new AtomicLong(System.currentTimeMillis());
 
 
@@ -63,7 +68,9 @@ public class GPIOConfig {
   public boolean isMaster() { return isMaster; }
 
   public void setMaster(boolean master) { isMaster = master; }
+  public boolean isInverse() { return isInverse; }
 
+  public void setInverse(boolean inverse) { isInverse = inverse; }
 
 
   // Actions
@@ -83,7 +90,10 @@ public class GPIOConfig {
         // if set to high always get the current sensor value
         state = GPIOTools.SINGLETON.getPinState(GPIOPin.lookup(getToMonitor().getValue()));
       }
-
+      if (isInverse())
+      {
+        state = PinState.getInverseState(state);
+      }
       for (GPIOPin toSet : followers)
       {
        GPIOTools.SINGLETON.setOutputPinState(toSet.getValue(), state, false, 0, false);
@@ -122,5 +132,11 @@ public class GPIOConfig {
     setMaster(master);
     return this;
   }
+
+  public GPIOConfig inverseSetter(boolean flipped) {
+    setInverse(flipped);
+    return this;
+  }
+
 }
 
