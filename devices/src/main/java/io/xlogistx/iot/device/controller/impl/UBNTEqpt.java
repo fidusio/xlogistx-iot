@@ -19,7 +19,7 @@ import org.zoxweb.shared.util.NVPair;
 import org.zoxweb.shared.util.SetNameValue;
 
 /**
- * This class communicates with Ubiqutiti equipments 
+ * This class communicates with Ubiqutiti equipments
  */
 public class UBNTEqpt
 {
