@@ -1,13 +1,14 @@
 package io.xlogistx.iot.gpio;
 
-import static org.junit.Assert.*;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.zoxweb.shared.util.Const.TimeInMillis;
 import org.zoxweb.shared.util.NVCollection;
 import org.zoxweb.shared.util.NVCollectionStringDecoder;
 
 import com.pi4j.io.gpio.Pin;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class PinTest {
 

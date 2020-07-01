@@ -40,5 +40,24 @@
     </resources>
   </build>
 
+   <dependencies>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <version>${junit.version}</version>
+    </dependency>
+
+     <dependency>
+       <groupId>org.zoxweb</groupId>
+       <artifactId>zoxweb-core</artifactId>
+       <version>${zoxweb-core.version}</version>
+     </dependency>
+
+     <dependency>
+       <groupId>com.google.code.gson</groupId>
+       <artifactId>gson</artifactId>
+       <version>${gson.version}</version>
+     </dependency>
+  </dependencies>
 
 </project>
