@@ -39,6 +39,8 @@ public class GPIOTools
 	private Lock lock = new ReentrantLock();
 	private volatile GpioController gpioController = null;
 	private static final Logger Log = Logger.getLogger(GPIOTools.class.getName());
+	public static final int PWM_RANGE = 1000;
+
 
 	
 	private GPIOTools() {
@@ -121,7 +123,7 @@ public class GPIOTools
 	}
 
 
-	public long runPWD(PWMConfig pwmConfig)
+	public long setPWM(PWMConfig pwmConfig)
 	{
 		 float cycleDuration = 1/pwmConfig.getFrequency();
 		 float dutyCycleDuration = (cycleDuration*pwmConfig.getDutyCycle())/100;
@@ -129,26 +131,40 @@ public class GPIOTools
 		 log.info(SharedUtil.toCanonicalID(',', cycleDuration,dutyCycleDuration));
 		 GPIOPin[] all = pwmConfig.getGPIOPins();
 
-		 List<GpioPinDigitalOutput> outputs = new ArrayList<GpioPinDigitalOutput>();
+		 List<GpioPinPwmOutput> outputs = new ArrayList<GpioPinPwmOutput>();
 		 for(GPIOPin pin : all)
 		 {
-		 	outputs.add(SINGLETON.getGpioController().provisionDigitalOutputPin(pin.getValue()));
+		 	outputs.add(SINGLETON.getGpioController().provisionPwmOutputPin(pin.getValue()));
 		 }
+
+
+		com.pi4j.wiringpi.Gpio.pwmSetMode(com.pi4j.wiringpi.Gpio.PWM_MODE_MS);
+		com.pi4j.wiringpi.Gpio.pwmSetRange(PWM_RANGE);
+		com.pi4j.wiringpi.Gpio.pwmSetClock((int)pwmConfig.getFrequency());
 
 		 long delta = System.currentTimeMillis();
-		 for(int i=0; i < pwmConfig.getCount(); i++)
-		 {
-			 outputs.forEach((n)->n.setState(PinState.LOW));
-			 TaskUtil.sleep((long)(lowDuration*1000));
-			 outputs.forEach((n)->n.setState(PinState.HIGH));
-			 TaskUtil.sleep((long)(dutyCycleDuration*1000));
-		 }
+		outputs.forEach((pwm)-> pwm.setPwm((int) (pwmConfig.getDutyCycle()*10)));
+//		 for(int i=0; i < pwmConfig.getCount(); i++)
+//		 {
+//			 outputs.forEach((n)->n.setState(PinState.LOW));
+//			 TaskUtil.sleep((long)(lowDuration*1000));
+//			 outputs.forEach((n)->n.setState(PinState.HIGH));
+//			 TaskUtil.sleep((long)(dutyCycleDuration*1000));
+//		 }
+//
+		 TaskUtil.getDefaultTaskScheduler().queue(pwmConfig.getDuration(), ()->{
+			 if(pwmConfig.getLastState() != null) {
+				 for (GpioPinPwmOutput gpdo : outputs) {
+					 gpdo.setPwm((pwmConfig.getLastState().isHigh() ? PWM_RANGE : 0));
+				 }
+				 log.info("PWM set to last state:" + pwmConfig.getLastState());
+			 }
+		 });
 		 delta = System.currentTimeMillis() - delta;
-		 if(pwmConfig.getLastState() != null)
-			 for(GpioPinDigitalOutput gpdo : outputs)
-				 gpdo.setState(pwmConfig.getLastState());
+		 log.info("It took " + TimeInMillis.toString(delta));
 
-		return delta;
+
+		return pwmConfig.getDuration();
 	}
 	
 	
@@ -165,6 +181,7 @@ public class GPIOTools
 		try
 		{
 			int index = 0;
+			long durationBeforeExit = -1;
 			long delta = System.currentTimeMillis();
 			NVCollectionStringDecoder decoder = new NVCollectionStringDecoder("=", "," ,true);
 			IOAction action = null;
@@ -253,8 +270,7 @@ public class GPIOTools
 					case PWM:
 						String jsonCmd = args[index];
 						PWMConfig pwmConfig = GSONUtil.DEFAULT_GSON.fromJson(IOUtil.inputStreamToString(jsonCmd), PWMConfig.class);
-						long duration = SINGLETON.runPWD(pwmConfig);
-						log.info("It took " + TimeInMillis.toString(duration));
+						durationBeforeExit = SINGLETON.setPWM(pwmConfig);
 						break;
 					case FLOW:
 						jsonCmd = args[index++];
@@ -284,6 +300,11 @@ public class GPIOTools
 
 			delta = System.currentTimeMillis() - delta;
 			log.info("It took : " + TimeInMillis.toString(delta));
+			if(durationBeforeExit >= 0) {
+				TaskUtil.sleep(durationBeforeExit);
+				TaskUtil.close();
+			}
+
 		}
 		catch(Exception e)
 		{

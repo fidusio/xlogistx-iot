@@ -2,6 +2,7 @@ package io.xlogistx.iot.gpio;
 
 import com.google.gson.annotations.SerializedName;
 import com.pi4j.io.gpio.PinState;
+import org.zoxweb.shared.util.Const;
 
 public class PWMConfig {
 
@@ -11,7 +12,7 @@ public class PWMConfig {
   private float frequency;
   @SerializedName("duty_cycle")
   private float dutyCycle;
-  private long count;
+  private String duration;
   @SerializedName("last_state")
   private PinState lastState;
 
@@ -40,16 +41,18 @@ public class PWMConfig {
     this.dutyCycle = dutyCycle;
   }
 
-  public long getCount() {
-    return count;
+  public long getDuration() {
+    return Const.TimeInMillis.toMillis(duration);
   }
 
-  public void setCount(long count) {
-    if (count < 1)
-    {
-      throw new IllegalArgumentException("Invalid count " + count);
-    }
-    this.count = count;
+  public void setDuration(long duration) {
+
+    this.duration = "" + duration;
+  }
+
+  public void setDuration(String duration) {
+
+    this.duration = duration;
   }
 
   public PinState getLastState() {
@@ -76,9 +79,9 @@ public class PWMConfig {
     setDutyCycle(dutyCycle);
     return this;
   }
-  public PWMConfig countSetter(long count)
+  public PWMConfig durationSetter(String duration)
   {
-    setCount(count);
+    setDuration(duration);
     return this;
   }
 
