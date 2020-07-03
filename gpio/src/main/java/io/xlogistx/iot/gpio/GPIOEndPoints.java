@@ -13,7 +13,7 @@ import org.zoxweb.shared.util.Const;
 
 public class GPIOEndPoints {
 
-    @EndPointProp(methods = {HTTPMethod.GET}, name="gpio", uris="/output-pin/{gpio}/{state}/{duration}")
+    @EndPointProp(methods = {HTTPMethod.GET}, name="gpio-on/off", uris="/output-pin/{gpio}/{state}/{duration}")
     @SecurityProp(authentications = {SecurityConsts.AuthenticationType.ALL})
     public SimpleMessage outputPin(@ParamProp(name="gpio") String gpio,
                                    @ParamProp(name="state") boolean state,
@@ -24,5 +24,31 @@ public class GPIOEndPoints {
         SimpleMessage response = new SimpleMessage(pin + " set successfully: " + (state ? Const.Bool.ON : Const.Bool.OFF),
                                                    HTTPStatusCode.OK.CODE);
         return response;
+    }
+
+    @EndPointProp(methods = {HTTPMethod.GET}, name="gpio-pwm", uris="/output-pwm/{gpio}/{frequency}/{duty-cycle}/{duration}")
+    @SecurityProp(authentications = {SecurityConsts.AuthenticationType.ALL})
+    public SimpleMessage outputPWM(@ParamProp(name="gpio") String gpio,
+                                   @ParamProp(name="frequency") float freq,
+                                   @ParamProp(name="duty-cycle") float ductycycle,
+                                   @ParamProp(name="duration", optional = true) String duration)
+    {
+
+        GPIOPin pin = GPIOPin.lookupGPIO(gpio);
+
+        if (duration != null) {
+
+            duration = "" + Const.TimeInMillis.toMillis(duration);
+
+        } else {
+            duration = "" + 0;
+        }
+
+        PWMConfig pwmConfig = new PWMConfig().gpioPinSetter(pin).frequencySetter(freq).dutyCycleSetter(ductycycle).durationSetter(duration);
+        GPIOTools.SINGLETON.setPWM(pwmConfig);
+        SimpleMessage response = new SimpleMessage(pin + " pwm set successfully.",
+                HTTPStatusCode.OK.CODE);
+        return response;
+
     }
 }

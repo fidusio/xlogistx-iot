@@ -157,6 +157,12 @@ implements GetValue<Pin>, GetName
 		GPIOPin ret[] = lookup(pinID);
 		return ret.length != 0 ? ret[0].getValue() : null;
 	}
+
+	public static GPIOPin lookupGPIO(String pinID)
+	{
+		GPIOPin ret[] = lookup(pinID);
+		return ret.length != 0 ? ret[0] : null;
+	}
 	
 	public String toString()
 	{

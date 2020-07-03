@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import org.zoxweb.server.logging.LoggerUtil;
 import org.zoxweb.server.security.SSLCheckDisabler;
 import org.zoxweb.server.http.HTTPCall;
 import org.zoxweb.server.http.HTTPUtil;
@@ -23,6 +25,9 @@ import org.zoxweb.shared.util.SetNameValue;
  */
 public class UBNTEqpt
 {
+  static {
+    LoggerUtil.enableDefaultLogger("io.xlogistx");
+  }
 
   public static NVPair loginCookie(String url, String user, String passwd, InetSocketAddressDAO proxy) throws IOException
   {

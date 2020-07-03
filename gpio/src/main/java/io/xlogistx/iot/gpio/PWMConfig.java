@@ -34,7 +34,7 @@ public class PWMConfig {
   }
 
   public void setDutyCycle(float dutyCycle) {
-    if(dutyCycle <=0 || dutyCycle >=100)
+    if(dutyCycle <0 || dutyCycle >100)
     {
       throw new IllegalArgumentException("Invalid duty cycle " + dutyCycle);
     }
@@ -42,6 +42,7 @@ public class PWMConfig {
   }
 
   public long getDuration() {
+
     return Const.TimeInMillis.toMillis(duration);
   }
 

@@ -39,7 +39,7 @@ public class GPIOTools
 	private Lock lock = new ReentrantLock();
 	private volatile GpioController gpioController = null;
 	private static final Logger Log = Logger.getLogger(GPIOTools.class.getName());
-	public static final int PWM_RANGE = 1000;
+	public static final int PWM_RANGE = 4095;
 
 
 	
@@ -67,17 +67,23 @@ public class GPIOTools
 		
 		return gpioController;
 	}
+
+	public synchronized void resetPin(Pin pin)
+	{
+		GpioPin gpioPin = getGpioController().getProvisionedPin(pin);
+		if(gpioPin != null)
+		{
+			SINGLETON.getGpioController().unprovisionPin(gpioPin);
+		}
+	}
 	
 	public synchronized void setOutputPinState(Pin pin, PinState state, boolean persist, long durationInMillis, boolean delay)
 	{		
 		log.info(SharedUtil.toCanonicalID(',', Thread.currentThread(), pin, state, persist, durationInMillis));
 		//synchronized(pin)
 		{
-			GpioPin gpioPin = SINGLETON.getGpioController().getProvisionedPin(pin);
-			if(gpioPin != null)
-			{
-				SINGLETON.getGpioController().unprovisionPin(gpioPin);
-			}
+
+			resetPin(pin);
 			
 			if (delay && durationInMillis > 0 )
 			{
@@ -114,7 +120,7 @@ public class GPIOTools
 		
 	}
 
-	public void setInputPin(GPIOPin ...gpios)
+	public synchronized void setInputPin(GPIOPin ...gpios)
 	{
 		for(GPIOPin gpio : gpios)
 		{
@@ -123,43 +129,50 @@ public class GPIOTools
 	}
 
 
-	public long setPWM(PWMConfig pwmConfig)
+	public synchronized long setPWM(PWMConfig pwmConfig)
 	{
-		 float cycleDuration = 1/pwmConfig.getFrequency();
-		 float dutyCycleDuration = (cycleDuration*pwmConfig.getDutyCycle())/100;
-		 float lowDuration = cycleDuration - dutyCycleDuration;
-		 log.info(SharedUtil.toCanonicalID(',', cycleDuration,dutyCycleDuration));
+
 		 GPIOPin[] all = pwmConfig.getGPIOPins();
 
 		 List<GpioPinPwmOutput> outputs = new ArrayList<GpioPinPwmOutput>();
 		 for(GPIOPin pin : all)
 		 {
-		 	outputs.add(SINGLETON.getGpioController().provisionPwmOutputPin(pin.getValue()));
+		 	resetPin(pin.getValue());
+		 	outputs.add(getGpioController().provisionPwmOutputPin(pin.getValue()));
 		 }
 
+		float pwm = (PWM_RANGE*pwmConfig.getDutyCycle())/100;
+		float clock = 19200000/(pwmConfig.getFrequency() * PWM_RANGE);
+		log.info("Clock:" +  clock + ", pwm:" + pwm + ", duration:" + TimeInMillis.toString(pwmConfig.getDuration()));
+		Gpio.pwmSetMode(Gpio.PWM_MODE_MS);
+		Gpio.pwmSetRange(PWM_RANGE);
 
-		com.pi4j.wiringpi.Gpio.pwmSetMode(com.pi4j.wiringpi.Gpio.PWM_MODE_MS);
-		com.pi4j.wiringpi.Gpio.pwmSetRange(PWM_RANGE);
-		com.pi4j.wiringpi.Gpio.pwmSetClock((int)pwmConfig.getFrequency());
+		Gpio.pwmSetClock((int)clock);
 
-		 long delta = System.currentTimeMillis();
-		outputs.forEach((pwm)-> pwm.setPwm((int) (pwmConfig.getDutyCycle()*10)));
-//		 for(int i=0; i < pwmConfig.getCount(); i++)
-//		 {
-//			 outputs.forEach((n)->n.setState(PinState.LOW));
-//			 TaskUtil.sleep((long)(lowDuration*1000));
-//			 outputs.forEach((n)->n.setState(PinState.HIGH));
-//			 TaskUtil.sleep((long)(dutyCycleDuration*1000));
-//		 }
-//
-		 TaskUtil.getDefaultTaskScheduler().queue(pwmConfig.getDuration(), ()->{
-			 if(pwmConfig.getLastState() != null) {
-				 for (GpioPinPwmOutput gpdo : outputs) {
-					 gpdo.setPwm((pwmConfig.getLastState().isHigh() ? PWM_RANGE : 0));
-				 }
-				 log.info("PWM set to last state:" + pwmConfig.getLastState());
-			 }
-		 });
+		// dutycycle is the in percentage of the frequency
+		// in RPI is set via a int range 2-4085
+		// configDutyCycle is percentile 0-100 %
+		// conversion formula = (range*configDutyCycle)/100
+
+		long delta = System.currentTimeMillis();
+		outputs.forEach((pwmPin)-> pwmPin.setPwm((int) pwm));
+
+		outputs.forEach((pwmPin)-> log.info(pwmPin.getName()+ " pwm set to :"+pwmPin.getPwm()));
+
+		 if(pwmConfig.getDuration() > 0) {
+			 TaskUtil.getDefaultTaskScheduler().queue(pwmConfig.getDuration(), () -> {
+					outputs.forEach((gppo)->{
+						try{
+							gppo.setPwm(0);
+							log.info("PWM:" + gppo.getName() + " set to 0" );
+						}
+						catch (Exception e)
+						{
+							log.info("Error setting pwm pin " + gppo.getName() + " to 0.");
+						}
+					});
+			 });
+		 }
 		 delta = System.currentTimeMillis() - delta;
 		 log.info("It took " + TimeInMillis.toString(delta));
 
