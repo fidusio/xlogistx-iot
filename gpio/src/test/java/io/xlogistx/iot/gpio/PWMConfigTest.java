@@ -9,7 +9,7 @@ public class PWMConfigTest {
   @Test
   public void jsonTest()
   {
-    PWMConfig pwmConfig = new PWMConfig().frequencySetter(2).dutyCycleSetter(50).countSetter(5).gpioPinSetter(GPIOPin.GPIO_02);
+    PWMConfig pwmConfig = new PWMConfig().frequencySetter(2).dutyCycleSetter(50).durationSetter("5sec").gpioPinSetter(GPIOPin.GPIO_02);
     System.out.println(GSONUtil.DEFAULT_GSON.toJson(pwmConfig));
 
   }

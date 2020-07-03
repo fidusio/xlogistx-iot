@@ -32,7 +32,7 @@ public class UBNTEqpt
     HTTPMessageConfigInterface hcc = new HTTPMessageConfig();
     hcc.setURL(url);
     hcc.setURI(uri);
-    hcc.setMethod( HTTPMethod.POST);
+    hcc.setMethod(HTTPMethod.POST);
     hcc.setProxyAddress(proxy);
     hcc.setRedirectEnabled(false);
     //hcc.setMultiPartEncoding(true);
@@ -100,14 +100,14 @@ public class UBNTEqpt
     return cookie;
   }
 
-  public static String controlPort(String url, String user, String passwd, int port, boolean on, InetSocketAddressDAO proxy) throws IOException
+  public static HTTPResponseData controlPort(String url, String user, String passwd, int port, boolean on, InetSocketAddressDAO proxy) throws IOException
   {
     NVPair cookie = loginCookie(url, user, passwd, proxy);
     return controlPort(url, cookie, port, on, proxy);
   }
 
 
-  public static String controlPort(String url, NVPair sessionCookie, int port, boolean on, InetSocketAddressDAO proxy) throws IOException
+  public static HTTPResponseData controlPort(String url, NVPair sessionCookie, int port, boolean on, InetSocketAddressDAO proxy) throws IOException
   {
 
     // create the control message
@@ -121,13 +121,10 @@ public class UBNTEqpt
     //System.out.println( ""+setSensor);
     setSensor.setRedirectEnabled(false);
     HTTPCall hc = new HTTPCall(setSensor);
-
-    HTTPResponseData rd =  hc.sendRequest();
-
-    return new String(rd.getData());
+    return hc.sendRequest();
   }
 
-  public static String getSensorsStatus(String url, NVPair sessionCookie, InetSocketAddressDAO proxy) throws IOException
+  public static HTTPResponseData getSensorsStatus(String url, NVPair sessionCookie, InetSocketAddressDAO proxy) throws IOException
   {
 
     // create the control message
@@ -141,23 +138,18 @@ public class UBNTEqpt
     getSensorsStatus.getParameters().add( new NVPair("t", "0."+System.currentTimeMillis() ));
     System.out.println( ""+getSensorsStatus);
     HTTPCall hc = new HTTPCall(getSensorsStatus, SSLCheckDisabler.SINGLETON);
-    HTTPResponseData rd =  hc.sendRequest();
-
-    return new String( rd.getData());
-
+    return  hc.sendRequest();
   }
 
 
-  public static String reboot(String url, NVPair sessionCookie) throws IOException
+  public static HTTPResponseData reboot(String url, NVPair sessionCookie) throws IOException
   {
     HTTPMessageConfigInterface reboot = HTTPMessageConfig.createAndInit(url, "reboot.cgi", HTTPMethod.POST);
     reboot.getHeaderParameters().add(sessionCookie);
     reboot.setContentType(HTTPMimeType.MULTIPART_FORM_DATA);
     //System.out.println( ""+reboot);
     HTTPCall hc = new HTTPCall(reboot, SSLCheckDisabler.SINGLETON);
-    HTTPResponseData rd =  hc.sendRequest();
-
-    return new String( rd.getData());
+    return hc.sendRequest();
   }
 
 

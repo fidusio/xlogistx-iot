@@ -1,6 +1,8 @@
 package io.xlogistx.iot.device.controller.impl;
 
 import java.util.regex.Pattern;
+
+import org.zoxweb.shared.http.HTTPResponseData;
 import org.zoxweb.shared.net.InetSocketAddressDAO;
 import org.zoxweb.shared.util.Const.Bool;
 import org.zoxweb.shared.util.NVPair;
@@ -43,7 +45,7 @@ public class MPowerController
 
           //System.exit(-1);
 
-          String response = null;
+          HTTPResponseData response = null;
 
           response = UBNTEqpt.controlPort(url, sessionCookie, port, on, proxy);
           System.out.println(response);
