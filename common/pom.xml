@@ -20,7 +20,6 @@
     <dependency>
       <groupId>org.jsoup</groupId>
       <artifactId>jsoup</artifactId>
-      <scope>compile</scope>
     </dependency>
 
 
