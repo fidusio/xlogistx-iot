@@ -19,6 +19,7 @@ import org.zoxweb.server.logging.LoggerUtil;
 import org.zoxweb.server.task.TaskSchedulerProcessor;
 import org.zoxweb.server.task.TaskUtil;
 import org.zoxweb.server.util.GSONUtil;
+import org.zoxweb.server.util.RunSupplier;
 import org.zoxweb.shared.util.Const.Bool;
 import org.zoxweb.shared.util.Const.TimeInMillis;
 import org.zoxweb.shared.util.NVCollection;
@@ -74,6 +75,28 @@ public class GPIOTools
 		if(gpioPin != null)
 		{
 			SINGLETON.getGpioController().unprovisionPin(gpioPin);
+		}
+	}
+
+	public synchronized void setOutputPin(Pin pin, PinState state, long durationInMillis)
+	{
+		log.info(SharedUtil.toCanonicalID(',', Thread.currentThread(), pin, state,  durationInMillis));
+		resetPin(pin);
+		GpioPinDigitalOutput output = SINGLETON.getGpioController().provisionDigitalOutputPin(pin, state);
+		output.setShutdownOptions(false);
+		output.setState(state);
+		if(durationInMillis > 0)
+		{
+			TaskUtil.getDefaultTaskScheduler().queue(durationInMillis, new RunSupplier<GpioPinDigitalOutput>(output)
+		    {
+				@Override
+				public void run() {
+					GpioPinDigitalOutput gpdo = get();
+					PinState toBeSet = PinState.getInverseState(gpdo.getState());
+					gpdo.setState(toBeSet);
+					log.info(gpdo.getName() + " set to " + toBeSet);
+				}
+			});
 		}
 	}
 	

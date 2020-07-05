@@ -25,7 +25,8 @@
 
 
     <properties>
-      <mqtt-paho.version>1.2.1</mqtt-paho.version>
+        <mqtt-paho.version>1.2.1</mqtt-paho.version>
+        <xlgositx-common.version>1.0.0</xlgositx-common.version>
     </properties>
 
 
@@ -111,6 +112,13 @@
        <artifactId>zoxweb-core</artifactId>
        <version>${zoxweb-core.version}</version>
      </dependency>
+
+
+       <dependency>
+           <groupId>io.xlogistx</groupId>
+           <artifactId>xlogistx-common</artifactId>
+           <version>${xlgositx-common.version}</version>
+       </dependency>
 
      <dependency>
        <groupId>com.google.code.gson</groupId>

@@ -26,7 +26,9 @@ import com.pi4j.io.gpio.Pin;
 import com.pi4j.io.gpio.RaspiPin;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public enum GPIOPin
 implements GetValue<Pin>, GetName
@@ -65,8 +67,12 @@ implements GetValue<Pin>, GetName
 	GPIO_30(RaspiPin.GPIO_30),
 	GPIO_31(RaspiPin.GPIO_31)
 	;
+
+	private final static Map<String, GPIOPin> namedGPIOs = new HashMap<String, GPIOPin>();
 	private final Pin PIN;
 	private final int bcmPinID;
+
+
 	GPIOPin(Pin p)
 	{
 		this(p, -1);
@@ -130,6 +136,12 @@ implements GetValue<Pin>, GetName
 				toAdd = SharedUtil.lookupEnum(pinID, values());
 
 			}
+			if(toAdd == null)
+			{
+				// maybe mapped
+				toAdd = namedGPIOs.get(pinID);
+			}
+
 			if (toAdd == null) {
 				try {
 					int index = Integer.parseInt(pinID);
@@ -137,7 +149,7 @@ implements GetValue<Pin>, GetName
 						ret.add(values()[index]);
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					//e.printStackTrace();
 				}
 			}
 			else
@@ -149,6 +161,28 @@ implements GetValue<Pin>, GetName
 		return ret.toArray(new GPIOPin[ret.size()]);
 	}
 
+
+	public static GPIOPin mapGIOName(String userDefinedName, GPIOPin gpio)
+	{
+		return mapGIOName(userDefinedName, gpio.getName());
+	}
+
+	public static GPIOPin mapGIOName(String userDefinedName, String gpioName)
+	{
+		userDefinedName = SharedStringUtil.trimOrNull(userDefinedName);
+		SharedUtil.checkIfNulls("GPIO name or GIPIO can't be null", userDefinedName, gpioName);
+		GPIOPin gpio = lookupGPIO(gpioName);
+		if(gpio == null)
+			throw new IllegalArgumentException(gpioName + " not found");
+
+		namedGPIOs.put(userDefinedName, gpio);
+		return gpio;
+	}
+
+	public static GPIOPin unmapGIOName(String userDefinedName)
+	{
+		return namedGPIOs.remove(userDefinedName);
+	}
 
 
 	
