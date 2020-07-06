@@ -3,7 +3,7 @@
   "description" : "",
 #  "application_env_var": "entry directory for application config files",
   "thread_pool_size" : 32,
-  "base_uri": "/v1/",
+#  "base_uri": "/v1/",
 
   "connections":
   [
@@ -52,10 +52,35 @@
       "bean":  "io.xlogistx.http.services.CurrentTimestamp"
     },
     {
-      "bean":  "io.xlogistx.http.services.TestEndPoint"
+      "bean":  "io.xlogistx.iot.gpio.GPIOEndPoints",
+      "properties":
+      {
+
+	"gpios-map":
+        {
+		"light"	: 1,
+        	"modem"	: 2,
+		"cigar" : 3
+      	},
+	"gpios-init":
+        {
+		"modem":{
+		  "state": "on"
+		}
+        }
+      }
     },
     {
-      "bean":  "io.xlogistx.iot.gpio.GPIOEndPoints"
-    }
+      "bean":  "io.xlogistx.iot.device.controller.impl.UBNTEndPoints"
+    },
+    {
+       "bean":  "io.xlogistx.http.services.SysCommand",
+       "properties":{
+         "reboot-command" : "reboot",
+         "reboot-delay" : "00:00:05",
+         "shutdown-command" : "shutdown -h now",
+         "shutdown-delay" : "00:00:05"
+	}
+     }
   ]
 }
