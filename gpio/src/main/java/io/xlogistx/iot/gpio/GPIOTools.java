@@ -14,6 +14,8 @@ import java.util.logging.Logger;
 
 import java.util.regex.Pattern;
 
+import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
+import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 import org.zoxweb.server.io.IOUtil;
 import org.zoxweb.server.logging.LoggerUtil;
 import org.zoxweb.server.task.TaskSchedulerProcessor;
@@ -150,9 +152,49 @@ public class GPIOTools
 	}
 
 
+	public synchronized GpioPinPwmOutput setPWM(Pin pin, float frequency, float dutyCycle, long duration)
+	{
+		resetPin(pin);
+		GpioPinPwmOutput pwmOutputPin = getGpioController().provisionPwmOutputPin(pin);
+		float pwm = (PWM_RANGE*dutyCycle)/100;
+		float clock = 19200000/(frequency * PWM_RANGE);
+		log.info("Clock:" +  clock + ", pwm:" + pwm + ", duration:" + TimeInMillis.toString(duration));
+		Gpio.pwmSetMode(Gpio.PWM_MODE_MS);
+		Gpio.pwmSetRange(PWM_RANGE);
+
+		Gpio.pwmSetClock((int)clock);
+		pwmOutputPin.setPwm((int)pwm);
+		if(duration > 0) {
+			TaskUtil.getDefaultTaskScheduler().queue(duration, () -> {
+				try{
+					pwmOutputPin.setPwm(0);
+					pwmOutputPin.removeAllListeners();
+					log.info("PWM:" + pwmOutputPin.getName() + " set to 0" );
+				}
+				catch (Exception e)
+				{
+					log.info("Error setting pwm pin " + pwmOutputPin.getName() + " to 0.");
+				}
+
+			});
+		}
+
+
+//		if(monitor)
+//			pwmOutputPin.addListener(new GpioPinListenerDigital()
+//			{
+//
+//				@Override
+//				public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent event) {
+//					log.info(event.getPin() + ":" + event.getState());
+//				}
+//			});
+
+		return pwmOutputPin;
+	}
+
 	public synchronized long setPWM(PWMConfig pwmConfig)
 	{
-		 LoggerUtil.enableDefaultLogger("io.xlogistx");
 		 GPIOPin[] all = pwmConfig.getGPIOPins();
 
 		 List<GpioPinPwmOutput> outputs = new ArrayList<GpioPinPwmOutput>();
@@ -177,6 +219,7 @@ public class GPIOTools
 
 		long delta = System.currentTimeMillis();
 		outputs.forEach((pwmPin)-> pwmPin.setPwm((int) pwm));
+
 
 		outputs.forEach((pwmPin)-> log.info(pwmPin.getName()+ " pwm set to :"+pwmPin.getPwm()));
 

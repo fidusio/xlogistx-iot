@@ -1,6 +1,6 @@
 {
-  "name" : "IOTGatewat",
-  "description" : "",
+  "name" : "IOTGateway",
+  "description" : "IOT Gateway for Raspberry PI and UBNT devices",
 #  "application_env_var": "entry directory for application config files",
   "thread_pool_size" : 32,
 #  "base_uri": "/v1/",
@@ -55,18 +55,16 @@
       "bean":  "io.xlogistx.iot.gpio.GPIOEndPoints",
       "properties":
       {
-
-	"gpios-map":
+        "gpios-map":
         {
-		"light"	: 1,
-        	"modem"	: 2,
-		"cigar" : 3
-      	},
-	"gpios-init":
-        {
-		"modem":{
-		  "state": "on"
-		}
+          "light": 1,
+          "modem": 2,
+          "cigar": 3
+        },
+        "gpios-init": {
+          "modem": {
+            "state": "on"
+          }
         }
       }
     },

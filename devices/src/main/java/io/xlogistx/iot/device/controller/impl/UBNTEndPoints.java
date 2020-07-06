@@ -14,26 +14,26 @@ import java.io.IOException;
 
 public class UBNTEndPoints {
 
-    @EndPointProp(methods = {HTTPMethod.GET}, name="ubnt-power", uris="/ubnt-power/{ip}/{user}/{password}/{port}/{state}")
+    @EndPointProp(methods = {HTTPMethod.GET}, name="ubnt-power", uris="/ubnt/power/{ip}/{user}/{password}/{port}/{state}")
     @SecurityProp(authentications = {SecurityConsts.AuthenticationType.ALL})
     public SimpleMessage ubntPortController(@ParamProp(name="ip") String ip,
                                             @ParamProp(name="user") String user,
                                             @ParamProp(name="password") String password,
                                             @ParamProp(name="port") int port,
-                                            @ParamProp(name="state") boolean state) throws IOException
+                                            @ParamProp(name="state") String state) throws IOException
     {
 
 
         String url = "https://"+ip;
         NVPair sessionCookie = UBNTEqpt.loginCookie(url, user, password, null);
-        UBNTEqpt.controlPort(url, sessionCookie, port, state, null);
+        UBNTEqpt.controlPort(url, sessionCookie, port, Const.Bool.lookupValue(state), null);
         UBNTEqpt.getSensorsStatus(url, sessionCookie, null);
-        SimpleMessage ret = new SimpleMessage("port: " + port  + "@" + ip + " set successfully to: " + (state ? Const.Bool.ON : Const.Bool.OFF), HTTPStatusCode.OK.CODE);
+        SimpleMessage ret = new SimpleMessage("port: " + port  + "@" + ip + " set successfully to: " + state, HTTPStatusCode.OK.CODE);
         return ret;
     }
 
 
-    @EndPointProp(methods = {HTTPMethod.GET}, name="ubnt-reboot", uris="/ubnt-reboot/{ip}/{user}/{password}")
+    @EndPointProp(methods = {HTTPMethod.GET}, name="ubnt-reboot", uris="/ubnt/reboot/{ip}/{user}/{password}")
     @SecurityProp(authentications = {SecurityConsts.AuthenticationType.ALL})
     public SimpleMessage ubntSwitchReboot(@ParamProp(name="ip") String ip,
                                           @ParamProp(name="user") String user,

@@ -47,8 +47,9 @@ extends PropertyHolder
     @EndPointProp(methods = {HTTPMethod.GET, HTTPMethod.POST}, name="output-pwm", uris="/output/pwm/{gpio}/{frequency}/{duty-cycle}/{duration}")
     public SimpleMessage outputPWM(@ParamProp(name="gpio") String gpio,
                                    @ParamProp(name="frequency") float freq,
-                                   @ParamProp(name="duty-cycle") float ductycycle,
-                                   @ParamProp(name="duration", optional = true) String duration)
+                                   @ParamProp(name="duty-cycle") float ductyCycle,
+                                   @ParamProp(name="duration", optional = true) String duration,
+                                   @ParamProp(name="monitor", optional = true) boolean monitor)
     {
 
         GPIOPin pin = GPIOPin.lookupGPIO(gpio);
@@ -60,9 +61,10 @@ extends PropertyHolder
         } else {
             duration = "" + 0;
         }
+        GPIOTools.SINGLETON.setPWM(pin.getValue(), freq, ductyCycle, Const.TimeInMillis.toMillis(duration));
 
-        PWMConfig pwmConfig = new PWMConfig().gpioPinSetter(pin).frequencySetter(freq).dutyCycleSetter(ductycycle).durationSetter(duration);
-        GPIOTools.SINGLETON.setPWM(pwmConfig);
+//        PWMConfig pwmConfig = new PWMConfig().gpioPinSetter(pin).frequencySetter(freq).dutyCycleSetter(ductycycle).durationSetter(duration);
+//        GPIOTools.SINGLETON.setPWM(pwmConfig);
         SimpleMessage response = new SimpleMessage(pin + " pwm set successfully.",
                 HTTPStatusCode.OK.CODE);
         return response;
