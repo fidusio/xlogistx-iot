@@ -32,9 +32,7 @@ import com.pi4j.wiringpi.Gpio;
 
 public class GPIOTools 
 {
-	static {
-		LoggerUtil.enableDefaultLogger("io.xlogistx");
-	}
+
 	private static final transient Logger log = Logger.getLogger(GPIOTools.class.getName());
 	public static final GPIOTools SINGLETON = new GPIOTools();
 	private Lock lock = new ReentrantLock();
@@ -101,7 +99,7 @@ public class GPIOTools
 	}
 	
 	public synchronized void setOutputPinState(Pin pin, PinState state, boolean persist, long durationInMillis, boolean delay)
-	{		
+	{
 		log.info(SharedUtil.toCanonicalID(',', Thread.currentThread(), pin, state, persist, durationInMillis));
 		//synchronized(pin)
 		{
@@ -154,7 +152,7 @@ public class GPIOTools
 
 	public synchronized long setPWM(PWMConfig pwmConfig)
 	{
-
+		 LoggerUtil.enableDefaultLogger("io.xlogistx");
 		 GPIOPin[] all = pwmConfig.getGPIOPins();
 
 		 List<GpioPinPwmOutput> outputs = new ArrayList<GpioPinPwmOutput>();

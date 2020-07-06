@@ -97,13 +97,13 @@ extends PropertyHolder
         log.info("WE MUST UPDATE");
         if(getProperties() != null)
         {
-            NVGenericMap gpioMaps = (NVGenericMap) getProperties().get("gpio-maps");
-            if (gpioMaps != null) {
-                for (GetNameValue<?> gnv : gpioMaps.values()) {
+            NVGenericMap gpiosMap = (NVGenericMap) getProperties().get("gpios-map");
+            if (gpiosMap != null) {
+                for (GetNameValue<?> pinInfo : gpiosMap.values()) {
                     try
                     {
-                        GPIOPin gpio = GPIOPin.mapGIOName(gnv.getName(), ""+gnv.getValue());
-                        log.info(gpio.getName() +" --> " + gnv.getName());
+                        GPIOPin gpio = GPIOPin.mapGIOName(pinInfo.getName(), ""+pinInfo.getValue());
+                        log.info(gpio.getName() +" --> " + pinInfo.getName());
                     }
                     catch (Exception e)
                     {
@@ -114,6 +114,40 @@ extends PropertyHolder
             else
             {
                 log.info("GPIO-MAPS NOT FOUND");
+            }
+
+            NVGenericMap gpiosInit = (NVGenericMap) getProperties().get("gpios-init");
+            if(gpiosInit != null)
+            {
+                for (GetNameValue<?> gnv : gpiosInit.values()) {
+                    try
+                    {
+                        NVGenericMap pinConfig = (NVGenericMap) gnv;
+
+                        GPIOPin pin = GPIOPin.lookupGPIO(pinConfig.getName());
+                        log.info("Pin lookup:" + pinConfig + " pin:" +pin);
+
+                        if(pin != null)
+                        {
+
+                            boolean state = Const.Bool.lookupValue("" + pinConfig.getValue("state"));
+                            long duration = pinConfig.get("duration") != null ? Const.TimeInMillis.toMillis("" + pinConfig.getValue("duration")) : 0;
+
+                            GPIOTools.SINGLETON.setOutputPin(pin.getValue(), PinState.getState(state), duration);
+                            log.info(pin + " set " + state + " duration " + duration);
+
+                        }
+                        else
+                        {
+                            log.info("Pin not found:" + pinConfig.getName());
+                        }
+
+                    }
+                    catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
         else
