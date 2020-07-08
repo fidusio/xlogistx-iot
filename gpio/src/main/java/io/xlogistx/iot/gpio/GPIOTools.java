@@ -14,10 +14,7 @@ import java.util.logging.Logger;
 
 import java.util.regex.Pattern;
 
-import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
-import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 import org.zoxweb.server.io.IOUtil;
-import org.zoxweb.server.logging.LoggerUtil;
 import org.zoxweb.server.task.TaskSchedulerProcessor;
 import org.zoxweb.server.task.TaskUtil;
 import org.zoxweb.server.util.GSONUtil;
@@ -40,32 +37,18 @@ public class GPIOTools
 	private Lock lock = new ReentrantLock();
 	private volatile GpioController gpioController = null;
 	private static final Logger Log = Logger.getLogger(GPIOTools.class.getName());
-	public static final int PWM_RANGE = 4095;
+	private  int pwmRangeValue;
 
 
 	
 	private GPIOTools() {
 	  log.info("Wiring Pi setup:" + Gpio.wiringPiSetup());
+	  setPWMRangeMod(4095, 0);
+	  gpioController = GpioFactory.getInstance();
 	}
 	
 	public GpioController getGpioController()
 	{
-		if (gpioController == null)
-		{
-			try
-			{
-				lock.lock();
-				if(gpioController == null)
-				{
-					gpioController = GpioFactory.getInstance();
-				}
-			}
-			finally
-			{
-				lock.unlock();
-			}
-		}
-		
 		return gpioController;
 	}
 
@@ -74,7 +57,7 @@ public class GPIOTools
 		GpioPin gpioPin = getGpioController().getProvisionedPin(pin);
 		if(gpioPin != null)
 		{
-			SINGLETON.getGpioController().unprovisionPin(gpioPin);
+			getGpioController().unprovisionPin(gpioPin);
 		}
 	}
 
@@ -82,7 +65,7 @@ public class GPIOTools
 	{
 		log.info(SharedUtil.toCanonicalID(',', Thread.currentThread(), pin, state,  durationInMillis));
 		resetPin(pin);
-		GpioPinDigitalOutput output = SINGLETON.getGpioController().provisionDigitalOutputPin(pin, state);
+		GpioPinDigitalOutput output = getGpioController().provisionDigitalOutputPin(pin, state);
 		output.setShutdownOptions(false);
 		output.setState(state);
 		if(durationInMillis > 0)
@@ -118,7 +101,7 @@ public class GPIOTools
               }
 			}
 			
-			GpioPinDigitalOutput output = SINGLETON.getGpioController().provisionDigitalOutputPin(pin, state);
+			GpioPinDigitalOutput output = getGpioController().provisionDigitalOutputPin(pin, state);
 	
 			if (persist)
 				output.setShutdownOptions(false, state);
@@ -151,19 +134,48 @@ public class GPIOTools
 		}
 	}
 
+	public synchronized void setPWMRangeMod(int range, int mod)
+	{
+		if(!(range > 1 && range < 4096))
+			throw new IllegalArgumentException(range + " value out of range [2-4095]");
+		this.pwmRangeValue = range;
+		Gpio.pwmSetMode(Gpio.PWM_MODE_MS);
+	}
+
+	public int getPWMRange()
+	{
+		return pwmRangeValue;
+	}
 
 	public synchronized GpioPinPwmOutput setPWM(Pin pin, float frequency, float dutyCycle, long duration)
 	{
+		log.info(SharedUtil.toCanonicalID(',', pin, frequency, dutyCycle, TimeInMillis.toString(duration)));
+
+		if(dutyCycle <0 || dutyCycle > 100)
+		{
+			throw new IllegalArgumentException(dutyCycle + " duty cycle out of range [0-100]");
+		}
 		resetPin(pin);
 		GpioPinPwmOutput pwmOutputPin = getGpioController().provisionPwmOutputPin(pin);
-		float pwm = (PWM_RANGE*dutyCycle)/100;
-		float clock = 19200000/(frequency * PWM_RANGE);
-		log.info("Clock:" +  clock + ", pwm:" + pwm + ", duration:" + TimeInMillis.toString(duration));
-		Gpio.pwmSetMode(Gpio.PWM_MODE_MS);
-		Gpio.pwmSetRange(PWM_RANGE);
 
+
+		float clock = 19200000/(frequency * (float)getPWMRange());
+		float calculatedFreq = 19200000/(clock * (float)getPWMRange());
+		float pwm = ((float)getPWMRange() *dutyCycle)/100;
+		log.info("Clock:" +  clock + ", pwm-range:" + getPWMRange() + ", pwm:" + pwm);
+		log.info("Freq:" + frequency +", calculated-freq:" + calculatedFreq);
+
+
+		// setup the clock divider
 		Gpio.pwmSetClock((int)clock);
+//		Gpio.pwmSetRange(getPWMRange());
+//		Gpio.pinMode(pin.getAddress(), Gpio.PWM_OUTPUT);
+//		Gpio.pwmWrite(pin.getAddress(), (int)pwm);
+		pwmOutputPin.setPwmRange(getPWMRange());
+		// execution
 		pwmOutputPin.setPwm((int)pwm);
+
+
 		if(duration > 0) {
 			TaskUtil.getDefaultTaskScheduler().queue(duration, () -> {
 				try{
@@ -204,13 +216,13 @@ public class GPIOTools
 		 	outputs.add(getGpioController().provisionPwmOutputPin(pin.getValue()));
 		 }
 
-		float pwm = (PWM_RANGE*pwmConfig.getDutyCycle())/100;
-		float clock = 19200000/(pwmConfig.getFrequency() * PWM_RANGE);
+		float pwm = (getPWMRange() *pwmConfig.getDutyCycle())/100;
+		float clock = 19200000/(pwmConfig.getFrequency() * getPWMRange());
 		log.info("Clock:" +  clock + ", pwm:" + pwm + ", duration:" + TimeInMillis.toString(pwmConfig.getDuration()));
-		Gpio.pwmSetMode(Gpio.PWM_MODE_MS);
-		Gpio.pwmSetRange(PWM_RANGE);
+
 
 		Gpio.pwmSetClock((int)clock);
+
 
 		// dutycycle is the in percentage of the frequency
 		// in RPI is set via a int range 2-4085
@@ -218,7 +230,10 @@ public class GPIOTools
 		// conversion formula = (range*configDutyCycle)/100
 
 		long delta = System.currentTimeMillis();
-		outputs.forEach((pwmPin)-> pwmPin.setPwm((int) pwm));
+		outputs.forEach((pwmPin) -> {
+			pwmPin.setPwmRange(getPWMRange());
+			pwmPin.setPwm((int) pwm);
+		});
 
 
 		outputs.forEach((pwmPin)-> log.info(pwmPin.getName()+ " pwm set to :"+pwmPin.getPwm()));

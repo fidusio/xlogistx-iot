@@ -10,9 +10,7 @@ import org.zoxweb.shared.data.SimpleMessage;
 import org.zoxweb.shared.http.HTTPMethod;
 import org.zoxweb.shared.http.HTTPStatusCode;
 import org.zoxweb.shared.security.SecurityConsts;
-import org.zoxweb.shared.util.Const;
-import org.zoxweb.shared.util.GetNameValue;
-import org.zoxweb.shared.util.NVGenericMap;
+import org.zoxweb.shared.util.*;
 
 import java.util.logging.Logger;
 
@@ -68,6 +66,22 @@ extends PropertyHolder
         SimpleMessage response = new SimpleMessage(pin + " pwm set successfully.",
                 HTTPStatusCode.OK.CODE);
         return response;
+    }
+
+
+    @EndPointProp(methods = {HTTPMethod.GET, HTTPMethod.POST}, name="config-pwm", uris="/config/pwm/{range}")
+    public void configPWM(@ParamProp(name="range") int range)
+    {
+        GPIOTools.SINGLETON.setPWMRangeMod(range, -1);
+    }
+
+
+    @EndPointProp(methods = {HTTPMethod.GET, HTTPMethod.POST}, name="read-pwm-config", uris="/lookup/pwm")
+    public NVGenericMap pwmConfig()
+    {
+        NVGenericMap ret = new NVGenericMap();
+        ret.add(new NVInt("pwm_range", GPIOTools.SINGLETON.getPWMRange()));
+        return ret;
     }
 
     @EndPointProp(methods = {HTTPMethod.GET, HTTPMethod.POST}, name="map-gpio", uris="/gpio/map/{gpio}/{name}")
