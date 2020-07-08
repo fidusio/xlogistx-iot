@@ -16,29 +16,23 @@
         "backlog": 64
       }
     }
-    //  ,
-    //    {
-    //      "name": "https",
-    //      "schemes": ["https"],
-    //      "socket_config":
-    //      {
-    //        "port": 443,
-    //        "backlog": 250
-    //      },
-    //      "ssl_config":
-    //      {
-    //        "name": "SSLCONFIG",
-    //        "key_store": "filename.jks",
-    //        "key_store_type": "pksc12",
-    //        "key_store_password": "password",
-    //        "protocols": [
-    //          "TLSv1.2",
-    //          "TLSv1.3"
-    //        ],
-    //        "ciphers": [
-    //        ]
-    //      }
-    //    }
+      ,
+        {
+          "name": "https",
+          "schemes": ["https"],
+          "socket_config":
+          {
+            "port": 443,
+            "backlog": 250
+          },
+          "ssl_config":
+          {
+            "name": "SSLCONFIG",
+            "keystore_file": "/IdeaProjects/projects/io-xlogistx/http/src/main/resources/test.xlogistx.io.jks",
+            "keystore_type": "pksc12",
+            "keystore_password": "password"
+          }
+        }
   ],
   "endpoints":
   [
