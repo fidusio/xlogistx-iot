@@ -6,16 +6,18 @@ import org.zoxweb.shared.annotation.SecurityProp;
 import org.zoxweb.shared.data.SimpleMessage;
 import org.zoxweb.shared.http.HTTPMethod;
 import org.zoxweb.shared.http.HTTPStatusCode;
+import org.zoxweb.shared.http.URIScheme;
 import org.zoxweb.shared.security.SecurityConsts;
 import org.zoxweb.shared.util.Const;
 import org.zoxweb.shared.util.NVPair;
 
 import java.io.IOException;
 
+@SecurityProp(authentications = {SecurityConsts.AuthenticationType.ALL}, protocols = {URIScheme.HTTPS})
 public class UBNTEndPoints {
 
     @EndPointProp(methods = {HTTPMethod.GET}, name="ubnt-power", uris="/ubnt/power/{ip}/{user}/{password}/{port}/{state}")
-    @SecurityProp(authentications = {SecurityConsts.AuthenticationType.ALL})
+
     public SimpleMessage ubntPortController(@ParamProp(name="ip") String ip,
                                             @ParamProp(name="user") String user,
                                             @ParamProp(name="password") String password,
@@ -34,7 +36,6 @@ public class UBNTEndPoints {
 
 
     @EndPointProp(methods = {HTTPMethod.GET}, name="ubnt-reboot", uris="/ubnt/reboot/{ip}/{user}/{password}")
-    @SecurityProp(authentications = {SecurityConsts.AuthenticationType.ALL})
     public SimpleMessage ubntSwitchReboot(@ParamProp(name="ip") String ip,
                                           @ParamProp(name="user") String user,
                                           @ParamProp(name="password") String password) throws IOException

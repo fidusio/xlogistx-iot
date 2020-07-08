@@ -9,6 +9,7 @@ import org.zoxweb.shared.annotation.SecurityProp;
 import org.zoxweb.shared.data.SimpleMessage;
 import org.zoxweb.shared.http.HTTPMethod;
 import org.zoxweb.shared.http.HTTPStatusCode;
+import org.zoxweb.shared.http.URIScheme;
 import org.zoxweb.shared.security.SecurityConsts;
 import org.zoxweb.shared.util.*;
 
@@ -77,6 +78,11 @@ extends PropertyHolder
 
 
     @EndPointProp(methods = {HTTPMethod.GET, HTTPMethod.POST}, name="read-pwm-config", uris="/lookup/pwm")
+    @SecurityProp(authentications = {SecurityConsts.AuthenticationType.BASIC,
+            SecurityConsts.AuthenticationType.BEARER,
+            SecurityConsts.AuthenticationType.JWT},
+            roles = "local-admin,remote-admin",
+            protocols = {URIScheme.HTTPS})
     public NVGenericMap pwmConfig()
     {
         NVGenericMap ret = new NVGenericMap();
