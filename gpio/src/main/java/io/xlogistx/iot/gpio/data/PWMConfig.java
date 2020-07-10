@@ -1,7 +1,8 @@
-package io.xlogistx.iot.gpio;
+package io.xlogistx.iot.gpio.data;
 
 import com.google.gson.annotations.SerializedName;
 import com.pi4j.io.gpio.PinState;
+import io.xlogistx.iot.gpio.GPIOPin;
 import org.zoxweb.shared.util.Const;
 
 public class PWMConfig {

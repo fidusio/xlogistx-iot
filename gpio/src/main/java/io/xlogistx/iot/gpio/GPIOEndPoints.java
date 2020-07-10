@@ -6,6 +6,7 @@ import io.xlogistx.common.data.PropertyHolder;
 import org.zoxweb.shared.annotation.EndPointProp;
 import org.zoxweb.shared.annotation.ParamProp;
 import org.zoxweb.shared.annotation.SecurityProp;
+import org.zoxweb.shared.data.Range;
 import org.zoxweb.shared.data.SimpleMessage;
 import org.zoxweb.shared.http.HTTPMethod;
 import org.zoxweb.shared.http.HTTPStatusCode;
@@ -24,7 +25,13 @@ public class GPIOEndPoints
 extends PropertyHolder
 {
 
+
+
     private static final Logger log = Logger.getLogger(GPIOEndPoints.class.getName());
+
+
+
+
     @EndPointProp(methods = {HTTPMethod.GET, HTTPMethod.POST}, name="output-pin", uris="/output/pin/{gpio}/{state}/{duration}")
     public SimpleMessage outputPin(@ParamProp(name="gpio") String gpio,
                                    @ParamProp(name="state") boolean state,
@@ -62,8 +69,28 @@ extends PropertyHolder
         }
         GPIOTools.SINGLETON.setPWM(pin.getValue(), freq, ductyCycle, Const.TimeInMillis.toMillis(duration));
 
-//        PWMConfig pwmConfig = new PWMConfig().gpioPinSetter(pin).frequencySetter(freq).dutyCycleSetter(ductycycle).durationSetter(duration);
-//        GPIOTools.SINGLETON.setPWM(pwmConfig);
+        SimpleMessage response = new SimpleMessage(pin + " pwm set successfully.",
+                HTTPStatusCode.OK.CODE);
+        return response;
+    }
+
+
+    @EndPointProp(methods = {HTTPMethod.GET, HTTPMethod.POST}, name="output-pwm-scan", uris="/output/pwm/scan/{gpio}/{frequency}/{lower-level}/{upper-level}/{delay}/{count}")
+    public SimpleMessage outputPWM(@ParamProp(name="gpio") String gpio,
+                                   @ParamProp(name="frequency") float freq,
+                                   @ParamProp(name="lower-level") float lower,
+                                   @ParamProp(name="upper-level") float upper,
+                                   @ParamProp(name="delay") String delayParam,
+                                   @ParamProp(name="count") int count)
+    {
+
+        GPIOPin pin = GPIOPin.lookupGPIO(gpio);
+        Range<Float> dutyCycle = new Range<Float>(lower, upper);
+        long delay = Const.TimeInMillis.toMillis(delayParam);
+
+
+        GPIOTools.SINGLETON.setPWM(pin.getValue(), freq, dutyCycle, delay, count);
+
         SimpleMessage response = new SimpleMessage(pin + " pwm set successfully.",
                 HTTPStatusCode.OK.CODE);
         return response;
@@ -86,7 +113,9 @@ extends PropertyHolder
     public NVGenericMap pwmConfig()
     {
         NVGenericMap ret = new NVGenericMap();
-        ret.add(new NVInt("pwm_range", GPIOTools.SINGLETON.getPWMRange()));
+        ret.add(new NVInt("pwm_max_steps", GPIOTools.SINGLETON.getPWMRange()));
+        ret.add(new NVPair("pwm_range", GPIOTools.PWM_RANGE.toString()));
+
         return ret;
     }
 
@@ -147,7 +176,7 @@ extends PropertyHolder
                         NVGenericMap pinConfig = (NVGenericMap) gnv;
 
                         GPIOPin pin = GPIOPin.lookupGPIO(pinConfig.getName());
-                        log.info("Pin lookup:" + pinConfig + " pin:" +pin);
+                        log.info(getID()+" *********************************************Pin lookup:" + pinConfig + " pin:" +pin);
 
                         if(pin != null)
                         {

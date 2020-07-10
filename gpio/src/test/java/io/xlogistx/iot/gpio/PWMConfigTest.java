@@ -2,6 +2,7 @@ package io.xlogistx.iot.gpio;
 
 
 
+import io.xlogistx.iot.gpio.data.PWMConfig;
 import org.junit.jupiter.api.Test;
 import org.zoxweb.server.util.GSONUtil;
 

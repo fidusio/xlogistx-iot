@@ -14,11 +14,13 @@ import java.util.logging.Logger;
 
 import java.util.regex.Pattern;
 
+import io.xlogistx.iot.gpio.data.PWMConfig;
 import org.zoxweb.server.io.IOUtil;
 import org.zoxweb.server.task.TaskSchedulerProcessor;
 import org.zoxweb.server.task.TaskUtil;
 import org.zoxweb.server.util.GSONUtil;
 import org.zoxweb.server.util.RunSupplier;
+import org.zoxweb.shared.data.Range;
 import org.zoxweb.shared.util.Const.Bool;
 import org.zoxweb.shared.util.Const.TimeInMillis;
 import org.zoxweb.shared.util.NVCollection;
@@ -27,24 +29,27 @@ import org.zoxweb.shared.util.SharedUtil;
 
 import com.pi4j.wiringpi.Gpio;
 
+import javax.swing.plaf.IconUIResource;
 
 
-public class GPIOTools 
+public class GPIOTools
 {
-
+	public static final  Range<Integer> PWM_RANGE = new Range<Integer>(2, 4095);
 	private static final transient Logger log = Logger.getLogger(GPIOTools.class.getName());
+
+	// This statement must be the last static code
 	public static final GPIOTools SINGLETON = new GPIOTools();
 	private Lock lock = new ReentrantLock();
 	private volatile GpioController gpioController = null;
-	private static final Logger Log = Logger.getLogger(GPIOTools.class.getName());
 	private  int pwmRangeValue;
+
 
 
 	
 	private GPIOTools() {
 	  log.info("Wiring Pi setup:" + Gpio.wiringPiSetup());
-	  setPWMRangeMod(4095, 0);
 	  gpioController = GpioFactory.getInstance();
+	  setPWMRangeMod(4095, 0);
 	}
 	
 	public GpioController getGpioController()
@@ -136,7 +141,7 @@ public class GPIOTools
 
 	public synchronized void setPWMRangeMod(int range, int mod)
 	{
-		if(!(range > 1 && range < 4096))
+		if(!PWM_RANGE.contains(range))
 			throw new IllegalArgumentException(range + " value out of range [2-4095]");
 		this.pwmRangeValue = range;
 		Gpio.pwmSetMode(Gpio.PWM_MODE_MS);
@@ -145,6 +150,42 @@ public class GPIOTools
 	public int getPWMRange()
 	{
 		return pwmRangeValue;
+	}
+
+
+	public synchronized GpioPinPwmOutput setPWM(Pin pin, float frequency, Range<Float> dutyCycle, long cycleDelay, int repeat)
+	{
+		log.info(SharedUtil.toCanonicalID(',', pin, frequency, dutyCycle, cycleDelay, repeat));
+
+		if(dutyCycle.getStart() <0 || dutyCycle.getEnd() > 100)
+		{
+			throw new IllegalArgumentException(dutyCycle + " duty cycle out of range [0-100]");
+		}
+		resetPin(pin);
+		GpioPinPwmOutput pwmOutputPin = getGpioController().provisionPwmOutputPin(pin);
+
+
+		float clock = 19200000/(frequency * (float)getPWMRange());
+		float calculatedFreq = 19200000/(clock * (float)getPWMRange());
+
+		log.info("Clock:" +  clock + ", pwm-range:" + getPWMRange());
+		log.info("Freq:" + frequency +", calculated-freq:" + calculatedFreq);
+
+
+		// setup the clock divider
+		Gpio.pwmSetClock((int)clock);
+		pwmOutputPin.setPwmRange(getPWMRange());
+
+		TaskUtil.getDefaultTaskScheduler().queue(0, new PWMRangeExec(pwmOutputPin, new Range<Integer>(dutyCycleToPWM(dutyCycle.getStart()), dutyCycleToPWM(dutyCycle.getEnd())), cycleDelay, repeat) );
+
+
+		return pwmOutputPin;
+	}
+
+	public int dutyCycleToPWM(float dutyCycle)
+	{
+		float pwm = ((float)getPWMRange() *dutyCycle)/100;
+		return (int)pwm;
 	}
 
 	public synchronized GpioPinPwmOutput setPWM(Pin pin, float frequency, float dutyCycle, long duration)
@@ -161,20 +202,15 @@ public class GPIOTools
 
 		float clock = 19200000/(frequency * (float)getPWMRange());
 		float calculatedFreq = 19200000/(clock * (float)getPWMRange());
-		float pwm = ((float)getPWMRange() *dutyCycle)/100;
+		int pwm = dutyCycleToPWM(dutyCycle);
 		log.info("Clock:" +  clock + ", pwm-range:" + getPWMRange() + ", pwm:" + pwm);
 		log.info("Freq:" + frequency +", calculated-freq:" + calculatedFreq);
 
 
 		// setup the clock divider
 		Gpio.pwmSetClock((int)clock);
-//		Gpio.pwmSetRange(getPWMRange());
-//		Gpio.pinMode(pin.getAddress(), Gpio.PWM_OUTPUT);
-//		Gpio.pwmWrite(pin.getAddress(), (int)pwm);
 		pwmOutputPin.setPwmRange(getPWMRange());
-		// execution
-		pwmOutputPin.setPwm((int)pwm);
-
+		pwmOutputPin.setPwm(pwm);
 
 		if(duration > 0) {
 			TaskUtil.getDefaultTaskScheduler().queue(duration, () -> {
@@ -190,18 +226,6 @@ public class GPIOTools
 
 			});
 		}
-
-
-//		if(monitor)
-//			pwmOutputPin.addListener(new GpioPinListenerDigital()
-//			{
-//
-//				@Override
-//				public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent event) {
-//					log.info(event.getPin() + ":" + event.getState());
-//				}
-//			});
-
 		return pwmOutputPin;
 	}
 
