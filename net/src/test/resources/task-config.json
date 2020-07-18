@@ -1,0 +1,13 @@
+{
+  "http_config" : [
+                  //iot.xlogistx.io
+                  {"url": "https://yahoo.com"},
+                  //lax.itzox.io
+                  {"url": "https://google.com"}
+  ],
+  "init_delay" : "2sec",
+  "retries" : 5,
+  "retry_delay": "1sec",
+  "repeats": 5,
+  "repeat_delay": "5sec"
+}

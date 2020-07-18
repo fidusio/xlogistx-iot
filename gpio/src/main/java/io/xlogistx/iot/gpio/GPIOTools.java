@@ -16,10 +16,11 @@ import java.util.regex.Pattern;
 
 import io.xlogistx.iot.gpio.data.PWMConfig;
 import org.zoxweb.server.io.IOUtil;
+import org.zoxweb.server.task.SupplierTask;
 import org.zoxweb.server.task.TaskSchedulerProcessor;
 import org.zoxweb.server.task.TaskUtil;
 import org.zoxweb.server.util.GSONUtil;
-import org.zoxweb.server.util.RunSupplier;
+
 import org.zoxweb.shared.data.Range;
 import org.zoxweb.shared.util.Const.Bool;
 import org.zoxweb.shared.util.Const.TimeInMillis;
@@ -75,7 +76,7 @@ public class GPIOTools
 		output.setState(state);
 		if(durationInMillis > 0)
 		{
-			TaskUtil.getDefaultTaskScheduler().queue(durationInMillis, new RunSupplier<GpioPinDigitalOutput>(output)
+			TaskUtil.getDefaultTaskScheduler().queue(durationInMillis, new SupplierTask<GpioPinDigitalOutput>(output)
 		    {
 				@Override
 				public void run() {

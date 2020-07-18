@@ -1,0 +1,6 @@
+auto $$ni_name$$
+iface $$ni_name$$ inet $$inet_proto$$
+$$address$$
+$$netmask$$
+$$gateway$$
+$$dns-nameservers$$

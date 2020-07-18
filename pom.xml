@@ -21,6 +21,7 @@
       <module>gpio</module>
       <module>devices</module>
       <module>assembly</module>
+      <module>net</module>
   </modules>
 
 
