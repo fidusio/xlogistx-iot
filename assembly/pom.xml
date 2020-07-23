@@ -9,7 +9,10 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+
+    <name>xlogistx-iot-assembly</name>
     <artifactId>xlogistx-iot-assembly</artifactId>
+
 
     <properties>
         <default-version>1.0.0</default-version>
