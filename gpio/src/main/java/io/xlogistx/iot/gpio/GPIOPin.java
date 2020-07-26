@@ -68,7 +68,7 @@ implements GetValue<Pin>, GetName
 	GPIO_31(RaspiPin.GPIO_31)
 	;
 
-	private final static Map<String, GPIOPin> namedGPIOs = new HashMap<String, GPIOPin>();
+	private final static Map<String, GPIOPin> mappedGPIOs = new HashMap<String, GPIOPin>();
 	private final Pin PIN;
 	private final int bcmPinID;
 
@@ -113,48 +113,68 @@ implements GetValue<Pin>, GetName
 	
 	public static GPIOPin[] lookup(String ...pinIDs)
 	{
-		if(pinIDs != null && pinIDs.length == 1 && pinIDs[0].equalsIgnoreCase("all"))
+		if(pinIDs != null && pinIDs.length == 1 && "all".equalsIgnoreCase(pinIDs[0]))
 		{
 			return GPIOPin.values();
 		}
+
 		List<GPIOPin> ret = new ArrayList<GPIOPin>();
-		for (String pinID : pinIDs) {
+		for (String pinID : pinIDs)
+		{
 			pinID = SharedStringUtil.trimOrNull(pinID);
-			GPIOPin toAdd = null;
-			if (pinID != null) {
-				pinID = pinID.replace('-', '_');
-				String split[] = pinID.split("_");
-				if (split.length == 2) {
-					try {
-						int n = Integer.parseInt(split[1]);
-						split[1] = String.format("%02d", n);
-						pinID = split[0] + "_" + split[1];
-					} catch (Exception e) {
+			if(pinID != null)
+			{
+				GPIOPin toAdd = null;
+				// try to get the mapped
+				if (toAdd == null)
+				{
+					// maybe mapped
+					toAdd = mappedGPIOs.get(pinID);
+				}
 
+				// maybe a string
+				if (toAdd == null)
+				{
+					pinID = pinID.replace('-', '_');
+					String split[] = pinID.split("_");
+					if (split.length == 2)
+					{
+						try
+						{
+							int n = Integer.parseInt(split[1]);
+							split[1] = String.format("%02d", n);
+							pinID = split[0] + "_" + split[1];
+						}
+						catch (Exception e)
+						{
+							// exception OK
+						}
+					}
+					toAdd = SharedUtil.lookupEnum(pinID, values());
+				}
+
+				// maybe by number
+				if (toAdd == null)
+				{
+					try
+					{
+						int index = Integer.parseInt(pinID);
+						if (index > -1 && index < values().length)
+						{
+							toAdd = values()[index];
+						}
+					}
+					catch (Exception e)
+					{
+						//e.printStackTrace();
 					}
 				}
-				toAdd = SharedUtil.lookupEnum(pinID, values());
 
-			}
-			if(toAdd == null)
-			{
-				// maybe mapped
-				toAdd = namedGPIOs.get(pinID);
-			}
-
-			if (toAdd == null) {
-				try {
-					int index = Integer.parseInt(pinID);
-					if (index > -1 && index < values().length) {
-						ret.add(values()[index]);
-					}
-				} catch (Exception e) {
-					//e.printStackTrace();
+				// add if we have a matching GPIO
+				if (toAdd != null)
+				{
+					ret.add(toAdd);
 				}
-			}
-			else
-			{
-				ret.add(toAdd);
 			}
 		}
 		
@@ -175,13 +195,13 @@ implements GetValue<Pin>, GetName
 		if(gpio == null)
 			throw new IllegalArgumentException(gpioName + " not found");
 
-		namedGPIOs.put(userDefinedName, gpio);
+		mappedGPIOs.put(userDefinedName, gpio);
 		return gpio;
 	}
 
 	public static GPIOPin unmapGIOName(String userDefinedName)
 	{
-		return namedGPIOs.remove(userDefinedName);
+		return mappedGPIOs.remove(userDefinedName);
 	}
 
 
