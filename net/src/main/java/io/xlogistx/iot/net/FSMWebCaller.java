@@ -62,7 +62,7 @@ public final class FSMWebCaller {
     private FSMWebCaller(){}
     public static StateMachineInt<TaskConfig> create(String fsmName, TaskSchedulerProcessor tsp, TaskConfig config)
     {
-        StateMachineInt<TaskConfig> fsm = new StateMachine<TaskConfig>(fsmName, tsp);
+        StateMachineInt<TaskConfig> fsm = new StateMachine<TaskConfig>(fsmName, tsp, true);
         TriggerConsumer<Void> init = new TriggerConsumer<Void>(StateInt.States.INIT) {
             @Override
             public void accept(Void o) {
