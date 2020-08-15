@@ -1,14 +1,14 @@
 package io.xlogistx.iot.gpio.i2c.modules;
 
 
-import com.pi4j.io.i2c.I2CBus;
+
 import com.pi4j.io.i2c.I2CFactory;
 import com.pi4j.util.Console;
 import io.xlogistx.iot.gpio.i2c.I2CBaseDevice;
 import org.zoxweb.server.task.TaskUtil;
 import org.zoxweb.shared.util.Const;
+import org.zoxweb.shared.util.ParamUtil;
 
-import org.zoxweb.shared.util.SharedUtil;
 
 
 import java.io.IOException;
@@ -191,23 +191,32 @@ public class ADS1115
             // print program title/header
             console.title("<-- The Pi4J Project -->", "I2C ADS1115 Example");
 
+
             // allow for user to exit program using CTRL-C
             console.promptForExit();
 
-            int index = 0;
+
+            ParamUtil.ParamMap params = ParamUtil.parse("-", args);
 
 
-            int devAddress = Integer.parseInt(args[index++], 16);
 
+            int bus = params.intValue("-b");
+            int devAddress = params.hexValue("-a");
+            float maxVoltage = params.floatValue("-v");
+            ADS1115.Port p = params.parameterExists("-p") ? params.enumValue("-p", ADS1115.Port.values()) : null ;
+            long delay = 100;
+            if(params.parameterExists("-d"))
+            {
+                delay = Const.TimeInMillis.toMillis(params.stringValue("-d"));
+            }
             console.println("device address:" + Integer.toHexString(devAddress));
 
-            ADS1115.PGA pga = ADS1115.PGA.match(Float.parseFloat(args[index++]));
-
-            long delay = args.length > index ? Const.TimeInMillis.toMillis(args[index++]) : 100;
-            ADS1115.Port p = args.length > index ? SharedUtil.lookupEnum(args[index++], ADS1115.Port.values()) : null;
+            ADS1115.PGA pga = ADS1115.PGA.match(maxVoltage);
 
 
-            ADS1115 ads1115 = new ADS1115(I2CBus.BUS_1, devAddress);
+
+
+            ADS1115 ads1115 = new ADS1115(bus, devAddress);
             console.println("Bus: " + ads1115.getI2CBus().getBusNumber() + " Address: " + Integer.toHexString(ads1115.getI2CDevice().getAddress()) +
                     " PGA: " + pga.name() + " Port: " + p + " delay: " + Const.TimeInMillis.toString(delay));
 
@@ -224,6 +233,8 @@ public class ADS1115
         catch (Exception e)
         {
             e.printStackTrace();
+
+            System.err.println("Usage: ADS1115 -b [i2c bus id or number] -a [i2c address in hex] -v [max voltage 3.3,5 ] [-p  port a0-a3] [-d delay] ");
         }
     }
 }
