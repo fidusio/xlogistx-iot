@@ -44,10 +44,14 @@ public class Main
                 new GPIOFlowProcessor(pinStateMonitorConfig, TaskUtil.getDefaultTaskScheduler()).init();
             }
 
+            if(wsConfig == null && flowConfig == null)
+                throw new IllegalArgumentException("No config found");
+
         }
         catch(Exception e)
         {
             e.printStackTrace();
+            System.err.println("command: [-wsc web-server-config.json] [-fc flow-config.json]");
         }
     }
 }

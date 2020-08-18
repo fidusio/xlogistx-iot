@@ -22,6 +22,7 @@ public class ADS1115
    extends I2CBaseDevice
 {
 
+    public static  final String DEFAULT_NAME = "ADS1115";
     /**
      * Programmable Gain Amplifier values
      */
@@ -112,8 +113,17 @@ public class ADS1115
             throws IOException,
                    I2CFactory.UnsupportedBusNumberException
     {
-        super(bus, address);
+        this(DEFAULT_NAME, bus, address);
     }
+
+
+    public ADS1115(String name, int bus, int address)
+            throws IOException,
+            I2CFactory.UnsupportedBusNumberException
+    {
+        super(name, bus, address);
+    }
+
 
 
     /**
