@@ -153,14 +153,14 @@ extends PropertyHolder
     public SimpleMessage i2cADS1115(@ParamProp(name="bus") int bus,
                                     @ParamProp(name="address_id") String addressID,
                                     @ParamProp(name="volt_ref") float voltRef,
-                                    @ParamProp(name="port", optional = true) ADS1115.Port[] ports,
-                                    @ParamProp(name="delay", optional = true) String delay) throws IOException, I2CFactory.UnsupportedBusNumberException {
+                                    @ParamProp(name="port", optional = true) ADS1115.Port[] ports)
+                                     throws IOException, I2CFactory.UnsupportedBusNumberException {
 
         int address = Integer.parseInt(addressID, 16);
         String id = SharedUtil.toCanonicalID('-', "ADS1115", bus, Integer.toHexString(address));
         ADS1115 device = ResourceManager.SINGLETON.lookup(id);
         ADS1115.PGA pga = ADS1115.PGA.match(voltRef);
-        long delayInMillis = delay != null ? Const.TimeInMillis.toMillis(delay) : 100;
+
         if (pga == null)
             throw new IllegalArgumentException("Invalid volt reference " + voltRef);
 
@@ -177,7 +177,7 @@ extends PropertyHolder
         }
 
 
-        log.info("bus: " + bus + " address: " + addressID + " volt-ref: " + pga + " ports: " + Arrays.toString(ports) + " delay:" + delay);
+        log.info("bus: " + bus + " address: " + addressID + " volt-ref: " + pga + " ports: " + Arrays.toString(ports) + " delay:" + device.getDelay());
         SimpleMessage response = new SimpleMessage();
 
         if(ports == null)
@@ -187,17 +187,51 @@ extends PropertyHolder
 
         for( ADS1115.Port p: ports)
         {
-            float volt = device.readPortInVolts(p,pga, delayInMillis);
+            float volt = device.readPortInVolts(p,pga);
             response.getProperties().add(new NVFloat(p.name(), volt));
-            log.info("bus: " + bus + " address: " + addressID + " volt-ref: " + pga + " port: " + p + " delay:" + delay + " volt: " + volt);
+            log.info("bus: " + bus + " address: " + addressID + " volt-ref: " + pga + " port: " + p + " delay:" + device.getDelay() + " volt: " + volt);
+        }
+
+        response.setStatus(HTTPStatusCode.OK.CODE);
+        response.setMessage("I2C ADS1115 ports.");
+        return response;
+    }
+
+    @EndPointProp(methods = {HTTPMethod.GET}, name="i2c-ads1115-delay", uris="/i2c/ads1115/delay/{bus}/{address_id}/{delay}")
+    public SimpleMessage i2cADS1115Delay(@ParamProp(name="bus") int bus,
+                                         @ParamProp(name="address_id") String addressID,
+                                         @ParamProp(name="delay", optional = true) String delay) throws IOException, I2CFactory.UnsupportedBusNumberException {
+
+        int address = Integer.parseInt(addressID, 16);
+        String id = SharedUtil.toCanonicalID('-', "ADS1115", bus, Integer.toHexString(address));
+        ADS1115 device = ResourceManager.SINGLETON.lookup(id);
+
+
+
+        if(device == null)
+        {
+            synchronized (ResourceManager.SINGLETON)
+            {
+                if(ResourceManager.SINGLETON.lookup(id) == null)
+                {
+                    device = new ADS1115(bus, address);
+                    ResourceManager.SINGLETON.map(device.toCanonicalID(), device);
+                }
+            }
         }
 
 
+        log.info("bus: " + bus + " address: " + addressID + " delay:" + delay);
+        if(delay != null)
+        {
+            long delayInMillis = Const.TimeInMillis.toMillis(delay);
+            device.setDelay(delayInMillis);
+        }
 
+        SimpleMessage response = new SimpleMessage();
         response.setStatus(HTTPStatusCode.OK.CODE);
-        response.setMessage("I2C ADS1115 reading");
-        response.setCreationTime(System.currentTimeMillis());
-
+        response.setMessage("I2C ADS1115 delay");
+        response.getProperties().add("delay", Const.TimeInMillis.nanosToString(device.getDelay()));
 
         return response;
     }

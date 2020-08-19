@@ -102,6 +102,8 @@ public class ADS1115
         }
     }
 
+    private long delay = 50; // default 50 millis
+
     /**
      *
      * @param bus i2c bus id for RPI is 1
@@ -130,11 +132,11 @@ public class ADS1115
      * Read the specified port value in volts
      * @param p port A0-A3
      * @param pga Programmable gain amplifier see specs
-     * @param delay in millis between IC2 command sequencing
+
      * @return The value in volts read by the specified port
      * @throws IOException in case of communication failure
      */
-    public float readPortInVolts(Port p, PGA pga, long delay) throws IOException
+    public float readPortInVolts(Port p, PGA pga) throws IOException
     {
 
         // Write the MSB + LSB of Config Register
@@ -165,7 +167,7 @@ public class ADS1115
         byte[] config = {/*MSB*/(byte)msb, /*LSB*/(byte)0x83};
 
         getI2CDevice().write(0x01, config, 0, 2);
-        TaskUtil.sleep(delay);
+        TaskUtil.sleep(getDelay());
 
         byte[] data = new byte[2];
         getI2CDevice().read(0x00, data, 0, 2);
@@ -188,6 +190,19 @@ public class ADS1115
             raw_adc -= 65535;
         }
         return (((float)raw_adc)*maxValue)/32767;
+    }
+
+    public long getDelay()
+    {
+        return delay;
+    }
+
+    public void setDelay(long delay)
+    {
+        if (delay < 10 || delay > 500)
+            throw new IllegalArgumentException("Invalid delay " + delay);
+
+        this.delay = delay;
     }
 
 
@@ -234,10 +249,10 @@ public class ADS1115
 
             if (p == null) {
                 for (ADS1115.Port p1 : ADS1115.Port.values()) {
-                    System.out.println("Port:" + p1.name() + " volts:" + ads1115.readPortInVolts(p1, pga, delay));
+                    System.out.println("Port:" + p1.name() + " volts:" + ads1115.readPortInVolts(p1, pga));
                 }
             } else {
-                System.out.println("Port:" + p.name() + " volts:" + ads1115.readPortInVolts(p, pga, delay));
+                System.out.println("Port:" + p.name() + " volts:" + ads1115.readPortInVolts(p, pga));
             }
         }
         catch (Exception e)
