@@ -16,7 +16,7 @@ public class OSConfigDAO
 {
 
   public enum Param
-  implements GetName
+    implements GetName
   {
     NI_FOLDER("ni_folder"),
     IFUP_CMD("ifup_cmd"),
@@ -33,7 +33,7 @@ public class OSConfigDAO
   
     
 
-    @Override
+
     public String getName() {
       // TODO Auto-generated method stub
       return name;
@@ -67,7 +67,7 @@ public class OSConfigDAO
   
   public String getNetworkInterfaceFolder()
   {
-    return getProperties().getValue(Param.NI_FOLDER);
+    return getProperties().getValue((GetName)Param.NI_FOLDER);
   }
   
   public void setNetworkInterfacesFolder(String path)
@@ -77,7 +77,7 @@ public class OSConfigDAO
   
   public String getIfUpCommand()
   {
-    return getProperties().getValue(Param.IFUP_CMD);
+    return getProperties().getValue((GetName)Param.IFUP_CMD);
   }
   
   public void setIfUpCommand(String command)
@@ -87,7 +87,7 @@ public class OSConfigDAO
   
   public String getIfDownCommand()
   {
-    return getProperties().getValue(Param.IFDOWN_CMD);
+    return getProperties().getValue((GetName)Param.IFDOWN_CMD);
   }
   
   public void setIfDownCommand(String command)
@@ -97,7 +97,7 @@ public class OSConfigDAO
   
   public String getIfConfigCommand()
   {
-    return getProperties().getValue(Param.IFCONFIG_CMD);
+    return getProperties().getValue((GetName)Param.IFCONFIG_CMD);
   }
   
   public void setIfConfigCommand(String command)
@@ -107,7 +107,7 @@ public class OSConfigDAO
   
   public String getNITemplate()
   {
-    return getProperties().getValue(Param.NI_TEMPLATE);
+    return getProperties().getValue((GetName)Param.NI_TEMPLATE);
   }
   
   public void setNITemplate(String templateFilename)

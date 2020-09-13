@@ -57,7 +57,7 @@ public class NIRenameDAO
   
   public String getSysNetFolder()
   {
-    return getProperties().getValue(Param.SYS_NET_FOLDER);
+    return getProperties().getValue((GetName)Param.SYS_NET_FOLDER);
   }
   
   public void setSysNetFolder(String path)
@@ -67,7 +67,7 @@ public class NIRenameDAO
   
   public List<String> getFilteredNIs()
   {
-    return getProperties().getValue(Param.FILTERED_NIS);
+    return getProperties().getValue((GetName)Param.FILTERED_NIS);
   }
   
   public void setFilteredNIs(String ...nis)
@@ -80,7 +80,7 @@ public class NIRenameDAO
   
   public String getNIToName()
   {
-    return getProperties().getValue(Param.NI_TO_NAME);
+    return getProperties().getValue((GetName)Param.NI_TO_NAME);
   }
   
   public void setNIToName(String niToName)
@@ -90,7 +90,7 @@ public class NIRenameDAO
   
   public String getNIToRename()
   {
-    return getProperties().getValue(Param.NI_TO_RENAME);
+    return getProperties().getValue((GetName)Param.NI_TO_RENAME);
   }
   
   public void setNIToRename(String niToRename)
@@ -103,7 +103,7 @@ public class NIRenameDAO
   
   public String getScript()
   {
-    return getProperties().getValue(Param.SCRIPT);
+    return getProperties().getValue((GetName)Param.SCRIPT);
   }
   
   public void setScript(String script)

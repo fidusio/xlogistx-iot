@@ -6,6 +6,5 @@ public interface DeviceConfigInfo
     extends SetDescription, SetName, GetNVProperties, DeviceID<String>
 {
   IOTDeviceType getDeviceType();
-  NVGenericMap getConfig();
 }
 

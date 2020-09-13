@@ -1,8 +1,13 @@
 package io.xlogistx.iot.app;
 
+import io.xlogistx.common.cron.CronConfig;
+import io.xlogistx.common.cron.CronSchedulerConfig;
+import io.xlogistx.common.cron.CronTask;
+import io.xlogistx.common.cron.CronTool;
 import io.xlogistx.http.HTTPServerCreator;
 import io.xlogistx.iot.gpio.GPIOFlowProcessor;
 import io.xlogistx.iot.gpio.PinStateMonitorConfig;
+import io.xlogistx.iot.net.SunriseSunsetScheduler;
 import org.zoxweb.server.io.IOUtil;
 import org.zoxweb.server.task.TaskUtil;
 import org.zoxweb.server.util.GSONUtil;
@@ -22,6 +27,7 @@ public class Main
             ParamUtil.ParamMap params = ParamUtil.parse("-", args);
             String wsConfig = params.stringValue("-wsc", true);
             String flowConfig = params.stringValue("-fc", true);
+            String cronConfig = params.stringValue("-cc", true);
 
 
 
@@ -43,15 +49,28 @@ public class Main
                 PinStateMonitorConfig pinStateMonitorConfig = GSONUtil.DEFAULT_GSON.fromJson(jsonFC, PinStateMonitorConfig.class);
                 new GPIOFlowProcessor(pinStateMonitorConfig, TaskUtil.getDefaultTaskScheduler()).init();
             }
+            if(cronConfig != null)
+            {
+                CronTool ct = new CronTool(TaskUtil.getDefaultTaskScheduler());
+                SunriseSunsetScheduler ssc = new SunriseSunsetScheduler(TaskUtil.getDefaultTaskProcessor(), null);
+                CronTask cronTask = ct.registerCronTask("day", ssc, ssc);
+                ct.registerCronTask("night", cronTask);
 
-            if(wsConfig == null && flowConfig == null)
+                CronConfig cc = GSONUtil.fromJSON(IOUtil.inputStreamToString(cronConfig), CronConfig.class);
+                for (CronSchedulerConfig scs : cc.getConfigs())
+                {
+                    ct.cron(scs);
+                }
+            }
+
+            if(wsConfig == null && flowConfig == null && cronConfig == null)
                 throw new IllegalArgumentException("No config found");
 
         }
         catch(Exception e)
         {
             e.printStackTrace();
-            System.err.println("command: [-wsc web-server-config.json] [-fc flow-config.json]");
+            System.err.println("command: [-wsc web-server-config.json] [-fc flow-config.json] [-cc cron_config.json]");
         }
     }
 }

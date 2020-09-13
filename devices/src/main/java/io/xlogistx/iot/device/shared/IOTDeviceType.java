@@ -8,9 +8,11 @@ public enum IOTDeviceType {
     LAPTOP,
     MODEM,
     PHONE,
+    POWER_SWITCH,
     ROUTER,
     SENSOR,
     SERVER,
     SWITCH,
     TABLET,
+
 }

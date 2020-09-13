@@ -135,7 +135,7 @@ public final class FSMWebCaller {
             @Override
             public void accept(Void aVoid) {
 
-                NVLong retryCounter = (NVLong) getState().getProperties().get(SMWebCaller.RETRY_COUNTER);
+                NVLong retryCounter = (NVLong) getState().getProperties().get((GetName)SMWebCaller.RETRY_COUNTER);
                 long retries = retryCounter.getValue();
                 retryCounter.setValue(++retries);
                 TaskConfig tc = (TaskConfig) getState().getStateMachine().getConfig();
@@ -155,7 +155,7 @@ public final class FSMWebCaller {
         TriggerConsumer<Void> resetRetry = new TriggerConsumer<Void>(SMWebCaller.SUCCESS) {
             @Override
             public void accept(Void aVoid) {
-                NVLong retryCounter = (NVLong) getState().getProperties().get(SMWebCaller.RETRY_COUNTER);
+                NVLong retryCounter = (NVLong) getState().getProperties().get((GetName)SMWebCaller.RETRY_COUNTER);
                 retryCounter.setValue(0L);
             }
         };
@@ -163,7 +163,7 @@ public final class FSMWebCaller {
         TriggerConsumer<Void> repeat = new TriggerConsumer<Void>(SMWebCaller.SUCCESS) {
             @Override
             public void accept(Void aVoid) {
-                NVLong repeatCounter = (NVLong) getState().getProperties().get(SMWebCaller.REPEAT_COUNTER);
+                NVLong repeatCounter = (NVLong) getState().getProperties().get((GetName)SMWebCaller.REPEAT_COUNTER);
                 long repeats = repeatCounter.getValue();
                 repeatCounter.setValue(++repeats);
                 log.info("repeat counter " + repeatCounter.getValue());

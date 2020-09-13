@@ -25,9 +25,7 @@ import org.zoxweb.shared.util.SetNameValue;
  */
 public class UBNTEqpt
 {
-  static {
-    LoggerUtil.enableDefaultLogger("io.xlogistx");
-  }
+
 
   public static NVPair loginCookie(String url, String user, String passwd, InetSocketAddressDAO proxy) throws IOException
   {
@@ -158,7 +156,7 @@ public class UBNTEqpt
   }
 
 
-  public static HTTPResponseData reboot(String url, String user, String passwd,  InetSocketAddressDAO proxy) throws IOException
+  public static HTTPResponseData reboot(String url, String user, String passwd, InetSocketAddressDAO proxy) throws IOException
   {
     NVPair cookie = loginCookie(url, user, passwd, proxy);
     HTTPMessageConfigInterface reboot = HTTPMessageConfig.createAndInit(url, "reboot.cgi", HTTPMethod.POST);
