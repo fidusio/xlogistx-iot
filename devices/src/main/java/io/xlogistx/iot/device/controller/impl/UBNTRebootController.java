@@ -55,7 +55,9 @@ public class UBNTRebootController
             String password = nvgm.getValue(Param.PASSWORD);
             try
             {
+
                 UBNTEqpt.reboot(url, user, password, null);
+                log.info("rebooted: " + url);
             }
             catch(Exception e)
             {

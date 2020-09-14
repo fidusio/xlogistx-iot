@@ -3,8 +3,7 @@ package io.xlogistx.iot.gpio;
 import com.pi4j.io.gpio.Pin;
 import com.pi4j.io.gpio.PinState;
 import io.xlogistx.common.task.RunnableProperties;
-import org.zoxweb.shared.util.Const;
-import org.zoxweb.shared.util.GetName;
+import org.zoxweb.shared.util.*;
 
 
 import java.util.logging.Logger;
@@ -39,7 +38,20 @@ public class GPIOController
         try
         {
             Pin pin = GPIOPin.lookupPin(getProperties().getValue(Param.PIN.getName()));
-            long duration = getProperties().getValue(Param.DURATION.getName());
+            long duration = 0;
+
+            GetNameValue<?> gnvDuration = getProperties().get(Param.DURATION.getName());
+            if(gnvDuration != null)
+            {
+                if(gnvDuration instanceof NVInt)
+                {
+                    duration = ((NVInt)gnvDuration).getValue();
+                }
+                else if(gnvDuration instanceof NVLong)
+                {
+                    duration = ((NVLong)gnvDuration).getValue();
+                }
+            }
             boolean state = getProperties().getValue(Param.STATE);
             log.info("Set pin: " + pin + " to: " + state + " for: " + Const.TimeInMillis.toString(duration));
             GPIOTools.SINGLETON.setOutputPin(pin, PinState.getState(state), duration);
