@@ -39,7 +39,7 @@ public class GPIOController
         try
         {
             Pin pin = GPIOPin.lookupPin(getProperties().getValue(Param.PIN.getName()));
-            long duration = getProperties().getValue(Param.DURATION.getName());
+            int duration = getProperties().getValue(Param.DURATION.getName());
             boolean state = getProperties().getValue(Param.STATE);
             log.info("Set pin: " + pin + " to: " + state + " for: " + Const.TimeInMillis.toString(duration));
             GPIOTools.SINGLETON.setOutputPin(pin, PinState.getState(state), duration);
