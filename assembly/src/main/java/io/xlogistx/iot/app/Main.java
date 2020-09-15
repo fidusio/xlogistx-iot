@@ -51,16 +51,28 @@ public class Main
             }
             if(cronConfig != null)
             {
-                CronTool ct = new CronTool(TaskUtil.getDefaultTaskScheduler());
-                SunriseSunsetScheduler ssc = new SunriseSunsetScheduler(TaskUtil.getDefaultTaskProcessor(), null);
-                CronTask cronTask = ct.registerCronTask("day", ssc, ssc);
-                ct.registerCronTask("night", cronTask);
 
                 CronConfig cc = GSONUtil.fromJSON(IOUtil.inputStreamToString(cronConfig), CronConfig.class);
-                for (CronSchedulerConfig scs : cc.getConfigs())
+
+                CronTool ct = new CronTool(TaskUtil.getDefaultTaskScheduler());
+                TaskUtil.getDefaultTaskScheduler().queue(cc.getSetupDelay(), ()->
                 {
-                    ct.cron(scs);
-                }
+                    try
+                    {
+                        SunriseSunsetScheduler ssc = new SunriseSunsetScheduler(TaskUtil.getDefaultTaskProcessor(), null);
+                        CronTask cronTask = ct.registerCronTask("day", ssc, ssc);
+                        ct.registerCronTask("night", cronTask);
+                        for (CronSchedulerConfig scs : cc.getConfigs())
+                        {
+                            ct.cron(scs);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        error(e);
+                    }
+                });
+
             }
 
             if(wsConfig == null && flowConfig == null && cronConfig == null)
@@ -69,8 +81,15 @@ public class Main
         }
         catch(Exception e)
         {
-            e.printStackTrace();
-            System.err.println("command: [-wsc web-server-config.json] [-fc flow-config.json] [-cc cron_config.json]");
+           error(e);
         }
+    }
+
+
+    private static void error(Exception e)
+    {
+        e.printStackTrace();
+        System.err.println("command: [-wsc web-server-config.json] [-fc flow-config.json] [-cc cron_config.json]");
+        System.exit(-1);
     }
 }
