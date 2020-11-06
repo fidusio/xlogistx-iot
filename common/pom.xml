@@ -30,6 +30,11 @@
       <version>${mqtt-paho.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.zoxweb</groupId>
+      <artifactId>zoxweb-core</artifactId>
+    </dependency>
+
   </dependencies>
 
 </project>
