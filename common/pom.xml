@@ -15,7 +15,6 @@
   <artifactId>xlogistx-iot-common</artifactId>
 
   <properties>
-    <mqtt-paho.version>1.2.1</mqtt-paho.version>
     <hive.version>1.2.1</hive.version>
   </properties>
 

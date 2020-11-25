@@ -27,6 +27,7 @@
 
     <properties>
         <xlgositx-common.version>1.0.0</xlgositx-common.version>
+        <mqtt-paho.version>1.2.1</mqtt-paho.version>
     </properties>
 
 
