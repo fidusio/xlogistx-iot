@@ -6,8 +6,8 @@
 
   <parent>
     <groupId>io.xlogistx</groupId>
-    <artifactId>xlogistx-mvn</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <artifactId>xlogistx</artifactId>
+    <version>1.0.0</version>
   </parent>
 
   <name>xlogistx-iot</name>
@@ -26,8 +26,10 @@
 
 
     <properties>
-        <xlgositx-common.version>1.0.0</xlgositx-common.version>
+
         <mqtt-paho.version>1.2.1</mqtt-paho.version>
+        <pi4j.version>1.2</pi4j.version>
+
     </properties>
 
 
@@ -43,7 +45,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven-plugin.version}</version>
+                <version>${maven-compiler-plugin.version}</version>
                 <configuration>
                     <source>${jdk.version}</source>
                     <target>${jdk.version}</target>
@@ -115,11 +117,10 @@
        <version>${zoxweb-core.version}</version>
      </dependency>
 
-
        <dependency>
            <groupId>io.xlogistx</groupId>
            <artifactId>xlogistx-common</artifactId>
-           <version>${xlgositx-common.version}</version>
+           <version>${xlogistx.version}</version>
        </dependency>
 
      <dependency>
@@ -127,6 +128,7 @@
        <artifactId>gson</artifactId>
        <version>${gson.version}</version>
      </dependency>
+
   </dependencies>
 
 </project>

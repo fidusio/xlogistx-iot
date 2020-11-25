@@ -95,13 +95,13 @@
         <dependency>
             <groupId>io.xlogistx</groupId>
             <artifactId>xlogistx-http</artifactId>
-            <version>${default-version}</version>
+            <version>${xlogistx.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.xlogistx</groupId>
             <artifactId>xlogistx-common</artifactId>
-            <version>${default-version}</version>
+            <version>${xlogistx.version}</version>
             <scope>compile</scope>
         </dependency>
 
