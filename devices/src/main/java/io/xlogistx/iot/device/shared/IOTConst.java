@@ -33,6 +33,14 @@ public final class IOTConst {
         USB
     }
 
+    public enum SensorType
+    {
+        TEMPERATURE,
+        HAL,
+        AMPERE,
+        VOLTAGE,
+        WATER_LEVEL
+    }
 
     public enum PortType
     {
@@ -40,7 +48,10 @@ public final class IOTConst {
         ANALOG,
         ADC,
         DAC,
-        PWM
+        PWM,
+        GROUND,
+        VCC,
+        CLOCK
     }
 
     public enum PortState

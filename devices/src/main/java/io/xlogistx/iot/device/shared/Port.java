@@ -11,6 +11,7 @@ public class Port extends PropertyDAO
         ID(NVConfigManager.createNVConfig("id", "ID", "id", false, true, String.class)),
         PORT_TYPE(NVConfigManager.createNVConfig("type", "Port Type", "PortType", false, true, IOTConst.PortType.class)),
         PORT_STATE(NVConfigManager.createNVConfig("state", "Port State", "PortState", false, true, IOTConst.PortState.class)),
+        SENSOR(NVConfigManager.createNVConfig("sensor", "SensorType", "SensorType", false, true, IOTConst.SensorType.class)),
         ;
         private final NVConfig nvc;
 
@@ -92,6 +93,16 @@ public class Port extends PropertyDAO
     }
 
 
+
+    public IOTConst.SensorType getSensorType()
+    {
+        return lookupValue(Param.SENSOR);
+    }
+
+    public void setSensorType(IOTConst.SensorType sensorType)
+    {
+        setValue(Param.SENSOR, sensorType);
+    }
 
 
 }

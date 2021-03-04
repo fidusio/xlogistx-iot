@@ -1,5 +1,6 @@
 package iot.xlogistx.iot.device;
 
+import io.xlogistx.iot.device.shared.COMM;
 import io.xlogistx.iot.device.shared.IOTConst;
 import io.xlogistx.iot.device.shared.IOTDeviceInfo;
 import io.xlogistx.iot.device.shared.Port;
@@ -19,12 +20,13 @@ public class DeviceInfoTest {
         dev.setFrequencyUnit(IOTConst.FrequencyUnit.MHZ);
         dev.setCPUID("attiny84");
         dev.setPorts(new Port("1", IOTConst.PortState.INPUT, IOTConst.PortType.DIGITAL), new Port("2", IOTConst.PortState.OUTPUT, IOTConst.PortType.DIGITAL));
+        dev.setCOMM(new COMM(IOTConst.Protocol.I2C, 100, IOTConst.FrequencyUnit.KHZ));
         String json = GSONUtil.toJSON(dev, false, false, false);
         dev = GSONUtil.fromJSON(json,IOTDeviceInfo.class);
         String json1 = GSONUtil.toJSON(dev, false, false, false);
         System.out.println(json);
         System.out.println(json1);
-        System.out.println(json.equals(json) + " " + SharedStringUtil.getBytes(json).length);
+        System.out.println(json.equals(json1) + " " + SharedStringUtil.getBytes(json).length);
 
     }
 
@@ -34,15 +36,10 @@ public class DeviceInfoTest {
         IOTDeviceInfo dev = GSONUtil.fromJSON(json,IOTDeviceInfo.class);
         String json1 = GSONUtil.toJSON(dev, false, false, false);
         System.out.println(json1);
-        System.out.println(json.equals(json) + " " + SharedStringUtil.getBytes(json).length + " " + SharedStringUtil.getBytes(json1).length);
+        System.out.println(json.equals(json1) + " " + SharedStringUtil.getBytes(json).length + " " + SharedStringUtil.getBytes(json1).length);
     }
 
 
-    @Test
-    public void combination()
-    {
-        char[] set = {'a', 'b', 'c', 'd', 'e'};
 
-    }
 
 }

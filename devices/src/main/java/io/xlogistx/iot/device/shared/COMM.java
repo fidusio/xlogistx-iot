@@ -12,7 +12,7 @@ public class COMM
             implements GetNVConfig
     {
         PROTOCOL(NVConfigManager.createNVConfig("proto", "Protocol", "Protocol", false, true, IOTConst.Protocol.class)),
-        SPEED(NVConfigManager.createNVConfig("speed", "Protocol speed", "Speed", false, true, double.class)),
+        FREQ(NVConfigManager.createNVConfig("freq", "Frequency", "Frequency", false, true, double.class)),
         FREQ_UNIT(NVConfigManager.createNVConfig("freq_unit", "Frequency unit", "Frequency", false, true, IOTConst.FrequencyUnit.class)),
         ;
         private final NVConfig nvc;
@@ -50,7 +50,7 @@ public class COMM
     {
         this();
         setProtocol(protocol);
-        setSpeed(frequency);
+        setFrequency(frequency);
         setFrequencyUnit(unit);
     }
 
@@ -64,14 +64,14 @@ public class COMM
         setValue(Param.PROTOCOL, protocol);
     }
 
-    public double getSpeed()
+    public double getFrequency()
     {
-        return lookupValue(Param.SPEED);
+        return lookupValue(Param.FREQ);
     }
 
-    public void setSpeed(double speed)
+    public void setFrequency(double speed)
     {
-        setValue(Param.SPEED, speed);
+        setValue(Param.FREQ, speed);
     }
 
     public IOTConst.FrequencyUnit getFrequencyUnit()
