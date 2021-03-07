@@ -9,6 +9,7 @@ public class Port extends PropertyDAO
             implements GetNVConfig
     {
         ID(NVConfigManager.createNVConfig("id", "ID", "id", false, true, String.class)),
+        PIN(NVConfigManager.createNVConfig("pin", "Pin on the chip", "Pin", false, true, String.class)),
         PORT_TYPE(NVConfigManager.createNVConfig("type", "Port Type", "PortType", false, true, IOTConst.PortType.class)),
         PORT_STATE(NVConfigManager.createNVConfig("state", "Port State", "PortState", false, true, IOTConst.PortState.class)),
         SENSOR(NVConfigManager.createNVConfig("sensor", "SensorType", "SensorType", false, true, IOTConst.SensorType.class)),
@@ -102,6 +103,16 @@ public class Port extends PropertyDAO
     public void setSensorType(IOTConst.SensorType sensorType)
     {
         setValue(Param.SENSOR, sensorType);
+    }
+
+    public String getPin()
+    {
+        return lookupValue(Param.PIN);
+    }
+
+    public void setPin(String pin)
+    {
+        setValue(Param.PIN, pin);
     }
 
 
