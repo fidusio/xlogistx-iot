@@ -99,61 +99,65 @@ public class I2CUtil
                     }
                 }
                 break;
-                case "id":
+                case "command":
                 {
 
-                    String register = args[index++];
+                    String action = args[index++];
+                    action = action.toUpperCase();
                     int busID = SharedUtil.parseInt(args[index++]);
                     int address = SharedUtil.parseInt(args[index++]);
                     int size = SharedUtil.parseInt(args[index++]);
                     I2CGeneric i2cDev = new I2CGeneric("generic", busID, address);
-
-
-
-
                     int counter = 0;
                     //i2cDev.getI2CDevice().write((byte)'I');
                     byte buffer[] = new byte[512];
                     byte[] i2cCommand = new byte[2];
-                    i2cCommand[0] = (byte)register.charAt(0);
+                    i2cCommand[0] = (byte)action.charAt(0);
                     i2cCommand[1] = (byte)size;
-                    for (int r = 0; r < 4; r++)
+                    switch(action)
                     {
-                        console.println("Attempt["+r+"] start:************************************"  );
-                        UByteArrayOutputStream baos = new UByteArrayOutputStream();
-                        console.println("command: " + SharedStringUtil.bytesToHex(i2cCommand));
-                        i2cDev.getI2CDevice().write(i2cCommand);
+                        case "I":
+                            {
+                                for (int r = 0; r < 4; r++)
+                                {
+                                    console.println("Attempt["+r+"] start:************************************"  );
+                                    UByteArrayOutputStream baos = new UByteArrayOutputStream();
+                                    console.println("command: " + SharedStringUtil.bytesToHex(i2cCommand));
+                                    i2cDev.getI2CDevice().write(i2cCommand);
 
-                        int totalRead = 0;
-                        do {
-                            int toRead = buffer.length;
-                            if (totalRead + buffer.length > size) {
-                                toRead = size - totalRead;
+                                    int totalRead = 0;
+                                    do {
+                                        int toRead = buffer.length;
+                                        if (totalRead + buffer.length > size) {
+                                            toRead = size - totalRead;
+                                        }
+                                        console.println("toRead:" + toRead);
+                                        int read = i2cDev.getI2CDevice().read(buffer, 0, toRead);
+                                        totalRead += read;
+                                        baos.write(buffer, 0, read);
+                                    } while (totalRead < size);
+
+                                    for (int i = 0; i < baos.size(); i++) {
+                                        console.print(baos.byteAt(i) + " ");
+                                    }
+
+                                    console.println("\n Buffer: " + baos.toString());
+                                    console.println("read " + baos.size());
+
+                                    console.println("Attempt["+r+"] end:***************************************"  );
+                                }
                             }
-                            console.println("toRead:" + toRead);
-                            int read = i2cDev.getI2CDevice().read(buffer, 0, toRead);
-                            totalRead += read;
-                            baos.write(buffer, 0, read);
-                        } while (totalRead < size);
+                            break;
+                        case "S":
+                            {
+                                console.println("command: " + SharedStringUtil.bytesToHex(i2cCommand));
+                                i2cDev.getI2CDevice().write(i2cCommand);
+                                console.println("set command sent");
+                            }
 
-                        for (int i = 0; i < baos.size(); i++) {
-                            console.print(baos.byteAt(i) + " ");
-                        }
-
-//                    while((read = i2cDev.getI2CDevice().read()) != -1)
-//                    {
-//                        baos.write(read);
-//                        console.print(baos.size() + ":" + read +", ");
-//                        counter++;
-//                        if(counter == 100)
-//                            break;
-//                    }
-
-                        console.println("\n Buffer: " + baos.toString());
-                        console.println("read " + baos.size());
-
-                        console.println("Attempt["+r+"] end:***************************************"  );
+                            break;
                     }
+
                 }
                 break;
             }
