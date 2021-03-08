@@ -42,7 +42,7 @@ public final class IOTConst {
         WATER_LEVEL
     }
 
-    public enum PortType
+    public enum PinType
     {
         DIGITAL,
         ANALOG,
@@ -54,7 +54,7 @@ public final class IOTConst {
         CLOCK
     }
 
-    public enum PortState
+    public enum PinState
         implements GetName
     {
         INPUT("I"),
@@ -64,7 +64,7 @@ public final class IOTConst {
 
         private final String name;
 
-        PortState(String name)
+        PinState(String name)
         {
             this.name = name;
         }

@@ -10,8 +10,8 @@ public class Port extends PropertyDAO
     {
         ID(NVConfigManager.createNVConfig("id", "ID", "id", false, true, String.class)),
         PIN(NVConfigManager.createNVConfig("pin", "Pin on the chip", "Pin", false, true, String.class)),
-        PORT_TYPE(NVConfigManager.createNVConfig("type", "Port Type", "PortType", false, true, IOTConst.PortType.class)),
-        PORT_STATE(NVConfigManager.createNVConfig("state", "Port State", "PortState", false, true, IOTConst.PortState.class)),
+        PIN_TYPE(NVConfigManager.createNVConfig("type", "Pin Type", "PinType", false, true, IOTConst.PinType.class)),
+        PIN_STATE(NVConfigManager.createNVConfig("state", "Pin State", "PinState", false, true, IOTConst.PinState.class)),
         SENSOR(NVConfigManager.createNVConfig("sensor", "SensorType", "SensorType", false, true, IOTConst.SensorType.class)),
         ;
         private final NVConfig nvc;
@@ -45,33 +45,33 @@ public class Port extends PropertyDAO
         super(NVC_PORT);
     }
 
-    public Port(String id, IOTConst.PortState state, IOTConst.PortType type)
+    public Port(String id, IOTConst.PinState state, IOTConst.PinType type)
     {
         this();
         setID(id);
-        setPortState(state);
-        setPortType(type);
+        setPinState(state);
+        setPinType(type);
     }
 
 
-    public IOTConst.PortType getPortType()
+    public IOTConst.PinType getPinType()
     {
-        return lookupValue(Param.PORT_TYPE);
+        return lookupValue(Param.PIN_TYPE);
     }
 
-    public void setPortType(IOTConst.PortType portType)
+    public void setPinType(IOTConst.PinType portType)
     {
-        setValue(Param.PORT_TYPE, portType);
+        setValue(Param.PIN_TYPE, portType);
     }
 
-    public IOTConst.PortState getPortState()
+    public IOTConst.PinState getPinState()
     {
-        return lookupValue(Param.PORT_STATE);
+        return lookupValue(Param.PIN_STATE);
     }
 
-    public void setPortState(IOTConst.PortState portState)
+    public void setPinState(IOTConst.PinState portState)
     {
-        setValue(Param.PORT_STATE, portState);
+        setValue(Param.PIN_STATE, portState);
     }
 
     public String getID()

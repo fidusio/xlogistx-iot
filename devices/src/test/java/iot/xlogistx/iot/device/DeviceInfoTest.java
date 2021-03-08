@@ -7,7 +7,6 @@ import io.xlogistx.iot.device.shared.Port;
 import org.junit.jupiter.api.Test;
 import org.zoxweb.server.util.GSONUtil;
 import org.zoxweb.shared.util.SharedStringUtil;
-import org.zoxweb.shared.util.SharedUtil;
 
 import java.io.IOException;
 
@@ -24,10 +23,10 @@ public class DeviceInfoTest {
         port.setID("A");
         port.setPin("5a");
         port.setSensorType(IOTConst.SensorType.WATER_LEVEL);
-        port.setPortState(IOTConst.PortState.INPUT);
-        dev.setPorts(new Port("1", IOTConst.PortState.INPUT, IOTConst.PortType.DIGITAL),
-                new Port("2", IOTConst.PortState.OUTPUT, IOTConst.PortType.DIGITAL),
-                new Port("3", IOTConst.PortState.OUTPUT, IOTConst.PortType.DIGITAL),
+        port.setPinState(IOTConst.PinState.INPUT);
+        dev.setPorts(new Port("1", IOTConst.PinState.INPUT, IOTConst.PinType.DIGITAL),
+                new Port("2", IOTConst.PinState.OUTPUT, IOTConst.PinType.DIGITAL),
+                new Port("3", IOTConst.PinState.OUTPUT, IOTConst.PinType.DIGITAL),
                 port);
         dev.setCOMM(new COMM(IOTConst.Protocol.I2C, 100, IOTConst.FrequencyUnit.KHZ));
         String json = GSONUtil.toJSON(dev, false, false, false);
