@@ -5,8 +5,9 @@ import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
 import com.pi4j.util.Console;
 import io.xlogistx.iot.gpio.i2c.modules.I2CGeneric;
-import org.zoxweb.server.io.IOUtil;
+
 import org.zoxweb.server.io.UByteArrayOutputStream;
+import org.zoxweb.shared.util.BytesValue;
 import org.zoxweb.shared.util.Const;
 import org.zoxweb.shared.util.SharedStringUtil;
 import org.zoxweb.shared.util.SharedUtil;
@@ -16,7 +17,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
+
 
 public class I2CUtil
 {
@@ -53,11 +54,12 @@ public class I2CUtil
 
     public static void main(String[] args) throws InterruptedException, IOException, I2CFactory.UnsupportedBusNumberException {
 
-
+        long ts = System.currentTimeMillis();
+        final Console console = new Console();
         try {
             // create Pi4J console wrapper/helper
             // (This is a utility class to abstract some of the boilerplate code)
-            final Console console = new Console();
+
 
             // print program title/header
             console.title("<-- The Pi4J Project -->", "I2C Example");
@@ -88,11 +90,11 @@ public class I2CUtil
 
 
                     // get the I2C bus to communicate on
-                    long ts = System.currentTimeMillis();
+
                     //I2CBus i2c = I2CFactory.getInstance(I2CBus.BUS_1);
                     I2CDevice[] devs = I2CUtil.scanI2CDevices(busID, startAddress, endAddress);
-                    ts = System.currentTimeMillis() - ts;
-                    console.println("it took " + Const.TimeInMillis.toString(ts) + " i2cDevices : " + devs.length);
+
+                    //console.println("it took " + Const.TimeInMillis.toString(ts) + " i2cDevices : " + devs.length);
 
                     for (I2CDevice dev : devs) {
                         console.print(String.format("%x", dev.getAddress()) + " ");
@@ -106,20 +108,22 @@ public class I2CUtil
                     action = action.toUpperCase();
                     int busID = SharedUtil.parseInt(args[index++]);
                     int address = SharedUtil.parseInt(args[index++]);
-                    int size = SharedUtil.parseInt(args[index++]);
+
                     I2CGeneric i2cDev = new I2CGeneric("generic", busID, address);
                     int counter = 0;
                     //i2cDev.getI2CDevice().write((byte)'I');
                     byte buffer[] = new byte[512];
                     byte[] i2cCommand = new byte[2];
                     i2cCommand[0] = (byte)action.charAt(0);
-                    i2cCommand[1] = (byte)size;
                     switch(action)
                     {
                         case "I":
                             {
+                                int size = SharedUtil.parseInt(args[index++]);
+                                i2cCommand[1] = (byte)size;
                                 for (int r = 0; r < 4; r++)
                                 {
+
                                     console.println("Attempt["+r+"] start:************************************"  );
                                     UByteArrayOutputStream baos = new UByteArrayOutputStream();
                                     console.println("command: " + SharedStringUtil.bytesToHex(i2cCommand));
@@ -150,17 +154,84 @@ public class I2CUtil
                             break;
                         case "S":
                             {
-                                console.println("command: " + SharedStringUtil.bytesToHex(i2cCommand));
+                                int i2cAddress = SharedUtil.parseInt(args[index++]);
+                                i2cCommand[1] = (byte)i2cAddress;
+                                console.println("I2C address change command: " + SharedStringUtil.bytesToHex(i2cCommand));
                                 i2cDev.getI2CDevice().write(i2cCommand);
-                                console.println("set command sent");
+                                console.println("I2C response old: " + i2cDev.getI2CDevice().read() + " new "  +i2cDev.getI2CDevice().read());
                             }
 
                             break;
+                        case "P":
+                            {
+                                int repeat = index < args.length ?  SharedUtil.parseInt(args[index++]) : 1;
+                                console.println("ping command: " + SharedStringUtil.bytesToHex(i2cCommand));
+                                long localTS = System.currentTimeMillis();
+                                for(int i=0; i < repeat; i++)
+                                {
+                                    i2cDev.getI2CDevice().write(i2cCommand, 0, 1);
+                                    byte[] pingData = new byte[Integer.BYTES];
+                                    i2cDev.getI2CDevice().read(pingData, 0, pingData.length);
+                                    console.println("Ping ID: " + BytesValue.INT.toValue(pingData));
+                                }
+                                localTS = System.currentTimeMillis() - localTS;
+                                float rate = (float)localTS/(float)repeat;
+                                console.println("ping count: " + repeat + " : " + Const.TimeInMillis.toString(localTS) + " millis per command: " + rate);
+                            }
+                            break;
+                        case "F":
+                        {
+
+                            console.println("flip command: " + SharedStringUtil.bytesToHex(i2cCommand));
+                            i2cDev.getI2CDevice().write(i2cCommand, 0, 1);
+                            console.println("light status:" + i2cDev.getI2CDevice().read());
+
+                        }
+                            break;
+                        case "R":
+                        {
+
+                            console.println("Reset command: " + SharedStringUtil.bytesToHex(i2cCommand));
+                            i2cDev.getI2CDevice().write(i2cCommand, 0, 1);
+                            console.println("Reset status:" + i2cDev.getI2CDevice().read());
+
+                        }
+
+                        break;
+                        case "C":
+                        {
+                            console.println("CPU freq: " + SharedStringUtil.bytesToHex(i2cCommand));
+                            i2cDev.getI2CDevice().write(i2cCommand, 0, 1);
+                            //console.println("set command sent");
+                            byte[] pingData = new byte[4];
+                            i2cDev.getI2CDevice().read(pingData, 0, pingData.length);
+                            console.println("CPU Clock in hz: " + BytesValue.INT.toValue(pingData));
+                        }
+                        break;
+                        case "A":
+                        {
+                            int repeat = index < args.length ?  SharedUtil.parseInt(args[index++]) : 1;
+                            console.println("ADC read: " + SharedStringUtil.bytesToHex(i2cCommand));
+                            long localTS = System.currentTimeMillis();
+                            for( int i = 0; i < repeat ; i++) {
+                                i2cDev.getI2CDevice().write(i2cCommand, 0, 1);
+                                //console.println("set command sent");
+                                byte[] pingData = new byte[4];
+                                i2cDev.getI2CDevice().read(pingData, 0, pingData.length);
+                                console.println("voltage value: " + BytesValue.FLOAT.toValue(pingData));
+                            }
+                            localTS = System.currentTimeMillis() - localTS;
+                            float rate = (float)localTS/(float)repeat;
+                            console.println("voltage read count: " + repeat + " : " + Const.TimeInMillis.toString(localTS) + " millis per command: " + rate);
+                        }
+                        break;
+
                     }
 
                 }
                 break;
             }
+
 
 
 
@@ -171,6 +242,11 @@ public class I2CUtil
             e.printStackTrace();
             System.err.println("Usage: [bus id] [start address] [end address inclusive]");
         }
+
+        ts = System.currentTimeMillis() - ts;
+        console.println("It took: " + Const.TimeInMillis.toString(ts));
+
+
     }
 
 }
