@@ -201,13 +201,14 @@ public class I2CUtil
 
                         break;
                         case "C":
+                        case "L":
                         {
-                            console.println("CPU freq: " + SharedStringUtil.bytesToHex(i2cCommand, 0, i2cIndex));
+                            console.println(command + ": " + SharedStringUtil.bytesToHex(i2cCommand, 0, i2cIndex));
                             i2cDev.getI2CDevice().write(i2cCommand, 0, i2cIndex);
                             //console.println("set command sent");
                             byte[] pingData = new byte[4];
                             i2cDev.getI2CDevice().read(pingData, 0, pingData.length);
-                            console.println("CPU Clock in hz: " + BytesValue.INT.toValue(pingData));
+                            console.println(command + " resp: " + BytesValue.INT.toValue(pingData));
                         }
                         break;
                         case "A":
@@ -243,9 +244,27 @@ public class I2CUtil
                             console.println("pwm read set value:"  + pwm);
                         }
                         break;
+                        case "V":
+                        {
+                            int pin = SharedUtil.parseInt(args[index++]);
+                            int angle = SharedUtil.parseInt(args[index++]);
+                            i2cCommand[i2cIndex++] = (byte) pin;
+                            i2cCommand[i2cIndex++] = (byte) angle;
 
+
+                            console.println("servo set: " + SharedStringUtil.bytesToHex(i2cCommand, 0, i2cIndex));
+                            i2cDev.getI2CDevice().write(i2cCommand, 0, i2cIndex);
+                            byte data[] = new byte[2];
+//                            i2cDev.getI2CDevice().read(data, 0, data.length);
+//                            short sNew = BytesValue.SHORT.toValue(data, 0, 2);
+//                            short sOld = BytesValue.SHORT.toValue(data, 2, 2);
+                            i2cDev.getI2CDevice().read(data, 0, data.length);
+                            int sNew = data[0]&0xFF;
+                            int sOld = data[1]&0xFF;
+                            console.println("servo new: "  + sNew + " old: " + sOld);
+                        }
+                        break;
                     }
-
                 }
                 break;
             }
