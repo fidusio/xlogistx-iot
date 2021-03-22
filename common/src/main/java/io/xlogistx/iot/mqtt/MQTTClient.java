@@ -5,8 +5,11 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.zoxweb.shared.util.SharedStringUtil;
+import org.zoxweb.shared.util.SharedUtil;
 
 import java.util.Date;
+import java.util.UUID;
 
 public class MQTTClient {
 
@@ -14,13 +17,15 @@ public class MQTTClient {
   public static void main(String[] args) {
 
     String topic        = "testTopic";
-    String content      = new Date() + " Message from MqttPublishSample";
+    String content      = "Message from MqttPublishSample";
     int qos             = 2;
-    String broker       = "tcp://10.0.0.2:1883";
-    String clientId     = "JavaClient";
+    String broker       = "tcp://api.xlogistx.io:1883";
+    String clientId     = UUID.randomUUID().toString();
     MemoryPersistence persistence = new MemoryPersistence();
 
     try {
+      int index = 0;
+      int repeat = args.length > index ? SharedUtil.parseInt(args[index++]) : 1;
       MqttClient sampleClient = new MqttClient(broker, clientId, persistence);
       MqttConnectOptions connOpts = new MqttConnectOptions();
       connOpts.setCleanSession(true);
@@ -28,10 +33,13 @@ public class MQTTClient {
       sampleClient.connect(connOpts);
       System.out.println("Connected");
       System.out.println("Publishing message: "+content);
-      MqttMessage message = new MqttMessage(content.getBytes());
-      message.setQos(qos);
-      sampleClient.publish(topic, message);
-      System.out.println("Message published");
+      for (int i = 0; i < repeat; i++) {
+        String msg = clientId +":["+ (i +1) + ":" + System.currentTimeMillis() + "]: " + content;
+        MqttMessage message = new MqttMessage(SharedStringUtil.getBytes(msg));
+        message.setQos(qos);
+        sampleClient.publish(topic, message);
+        System.out.println("Message published: " + msg);
+      }
       //sampleClient.disconnect();
       System.out.println("Disconnected");
       System.exit(0);

@@ -3,20 +3,24 @@ package io.xlogistx.iot.mqtt;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.zoxweb.server.task.TaskUtil;
+import org.zoxweb.shared.util.SharedUtil;
 
 import java.util.Date;
+import java.util.UUID;
 
 public class MQTTConsumer {
 
+  static int counter = 0;
 
   public static void main(String[] args) {
 
     String topic        = "testTopic";
     String content      = "Message from MqttPublishSample " + new Date();
     int qos             = 2;
-    String broker       = "tcp://10.0.0.2:1883";
-    String clientId     = "javaClient";
+    String broker       = "tcp://api.xlogistx.io:1883";
+    String clientId     = UUID.randomUUID().toString();;
     MemoryPersistence persistence = new MemoryPersistence();
+
 
     try {
       MqttClient sampleClient = new MqttClient(broker, clientId, persistence);
@@ -38,8 +42,9 @@ public class MQTTConsumer {
 
         @Override
         public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
-          System.out.println("topic:" + topic);
-          System.out.println(mqttMessage);
+          counter++;
+          System.out.println(SharedUtil.toCanonicalID(':', counter, mqttMessage));
+          //System.out.println(mqttMessage);
         }
 
         @Override
@@ -51,9 +56,9 @@ public class MQTTConsumer {
       sampleClient.subscribe(topic);
 
 
-      MqttMessage message = new MqttMessage(content.getBytes());
-      message.setQos(qos);
-      sampleClient.publish(topic, message);
+//      MqttMessage message = new MqttMessage(content.getBytes());
+//      message.setQos(qos);
+//      sampleClient.publish(topic, message);
 
       System.out.println("Connected");
       TaskUtil.getDefaultTaskScheduler();
