@@ -19,12 +19,13 @@ public class MQTTClient {
     String topic        = "testTopic";
     String content      = "Message from MqttPublishSample";
     int qos             = 2;
-    String broker       = "tcp://api.xlogistx.io:1883";
+    String broker       = null;
     String clientId     = UUID.randomUUID().toString();
     MemoryPersistence persistence = new MemoryPersistence();
 
     try {
       int index = 0;
+      broker = args[index++];
       int repeat = args.length > index ? SharedUtil.parseInt(args[index++]) : 1;
       MqttClient sampleClient = new MqttClient(broker, clientId, persistence);
       MqttConnectOptions connOpts = new MqttConnectOptions();

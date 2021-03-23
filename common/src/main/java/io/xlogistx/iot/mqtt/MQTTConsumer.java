@@ -17,12 +17,14 @@ public class MQTTConsumer {
     String topic        = "testTopic";
     String content      = "Message from MqttPublishSample " + new Date();
     int qos             = 2;
-    String broker       = "tcp://api.xlogistx.io:1883";
+    String broker       = null;
     String clientId     = UUID.randomUUID().toString();;
     MemoryPersistence persistence = new MemoryPersistence();
 
 
     try {
+      int index = 0;
+      broker = args[index++];
       MqttClient sampleClient = new MqttClient(broker, clientId, persistence);
       MqttConnectOptions connOpts = new MqttConnectOptions();
       connOpts.setCleanSession(true);
