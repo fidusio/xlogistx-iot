@@ -5,6 +5,7 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.zoxweb.shared.util.Const;
 import org.zoxweb.shared.util.SharedStringUtil;
 import org.zoxweb.shared.util.SharedUtil;
 
@@ -34,6 +35,7 @@ public class MQTTClient {
       sampleClient.connect(connOpts);
       System.out.println("Connected");
       System.out.println("Publishing message: "+content);
+      long ts = System.currentTimeMillis();
       for (int i = 0; i < repeat; i++) {
         String msg = clientId +":["+ (i +1) + ":" + System.currentTimeMillis() + "]: " + content;
         MqttMessage message = new MqttMessage(SharedStringUtil.getBytes(msg));
@@ -41,8 +43,10 @@ public class MQTTClient {
         sampleClient.publish(topic, message);
         System.out.println("Message published: " + msg);
       }
+      ts = System.currentTimeMillis() - ts;
+
       //sampleClient.disconnect();
-      System.out.println("Disconnected");
+      System.out.println("Disconnected it took: " + Const.TimeInMillis.toString(ts));
       System.exit(0);
     } catch(MqttException me) {
       System.out.println("reason "+me.getReasonCode());
