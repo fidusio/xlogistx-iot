@@ -22,17 +22,22 @@ public class MQTTConsumer {
     MemoryPersistence persistence = new MemoryPersistence();
 
 
+
     try {
       int index = 0;
       broker = args[index++];
+      String username = args[index++];
+      String password = args[index++];
       MqttClient sampleClient = new MqttClient(broker, clientId, persistence);
       MqttConnectOptions connOpts = new MqttConnectOptions();
       connOpts.setCleanSession(true);
       connOpts.setAutomaticReconnect(true);
       connOpts.setCleanSession(true);
       connOpts.setConnectionTimeout(10);
+      connOpts.setUserName(username);
+      connOpts.setPassword(password.toCharArray());
       sampleClient.connect(connOpts);
-      System.out.println("Connecting to broker: "+broker + " topic: " + topic);
+      System.out.println("Connecting to broker: " + broker + " topic: " + topic);
 
 
 
