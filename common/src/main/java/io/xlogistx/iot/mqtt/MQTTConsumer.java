@@ -26,18 +26,21 @@ public class MQTTConsumer {
     try {
       int index = 0;
       broker = args[index++];
-      String username = args[index++];
-      String password = args[index++];
+      String username = args.length > index ? args[index++] : null;
+      String password = args.length > index ? args[index++] : null;
       MqttClient sampleClient = new MqttClient(broker, clientId, persistence);
       MqttConnectOptions connOpts = new MqttConnectOptions();
       connOpts.setCleanSession(true);
       connOpts.setAutomaticReconnect(true);
       connOpts.setCleanSession(true);
       connOpts.setConnectionTimeout(10);
-      connOpts.setUserName(username);
-      connOpts.setPassword(password.toCharArray());
+      if(username != null)
+        connOpts.setUserName(username);
+      if(password != null)
+        connOpts.setPassword(password.toCharArray());
+      System.out.println("Connecting to broker: " + broker + " topic: " + topic + ", " + username + ", " + password);
       sampleClient.connect(connOpts);
-      System.out.println("Connecting to broker: " + broker + " topic: " + topic);
+
 
 
 
