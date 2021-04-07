@@ -53,7 +53,8 @@ public class MQTTConsumer {
         @Override
         public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
           counter++;
-          System.out.println(SharedUtil.toCanonicalID(':', counter, mqttMessage));
+          if(counter%100 == 0)
+            System.out.println(SharedUtil.toCanonicalID(':', counter, mqttMessage));
           //System.out.println(mqttMessage);
         }
 
