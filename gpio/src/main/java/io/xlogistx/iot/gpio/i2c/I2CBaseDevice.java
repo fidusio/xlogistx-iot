@@ -25,6 +25,13 @@ public abstract class I2CBaseDevice
         this.name = name;
     }
 
+    protected I2CBaseDevice(String name, I2CBus bus, int address)
+            throws IOException,
+            I2CFactory.UnsupportedBusNumberException
+    {
+        this(name, bus, bus.getDevice(address));
+    }
+
     protected I2CBaseDevice(String name, I2CBus i2cBus, I2CDevice i2cDevice)
             throws IOException,
             I2CFactory.UnsupportedBusNumberException

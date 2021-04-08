@@ -5,6 +5,7 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.zoxweb.server.security.SSLCheckDisabler;
 import org.zoxweb.shared.util.Const;
 import org.zoxweb.shared.util.SharedStringUtil;
 import org.zoxweb.shared.util.SharedUtil;
@@ -38,6 +39,9 @@ public class MQTTClient {
         connOpts.setUserName(username);
       if(password != null)
         connOpts.setPassword(password.toCharArray());
+
+//      connOpts.setSSLHostnameVerifier(SSLCheckDisabler.SINGLETON.getHostnameVerifier());
+      //connOpts.setSocketFactory(SSLCheckDisabler.SINGLETON.getSSLFactory());
       sampleClient.connect(connOpts);
       System.out.println("Connected");
       System.out.println("Publishing message: "+content);

@@ -4,6 +4,7 @@ import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
 import com.pi4j.util.Console;
+import io.xlogistx.iot.gpio.data.CommandToBytes;
 import io.xlogistx.iot.gpio.i2c.modules.I2CGeneric;
 
 import org.zoxweb.server.io.UByteArrayOutputStream;
@@ -52,6 +53,15 @@ public class I2CUtil
         return ret.toArray(new I2CDevice[ret.size()]);
     }
 
+    public static void write(I2CBaseDevice dev, CommandToBytes command) throws IOException
+    {
+        write(dev.getI2CDevice(), command);
+    }
+
+    public static void write(I2CDevice dev, CommandToBytes command) throws IOException
+    {
+        dev.write(command.data(), 0, command.size());
+    }
 
     public static void main(String[] args) throws InterruptedException, IOException, I2CFactory.UnsupportedBusNumberException {
 
@@ -114,22 +124,24 @@ public class I2CUtil
                     int counter = 0;
                     //i2cDev.getI2CDevice().write((byte)'I');
                     byte buffer[] = new byte[512];
-                    byte[] i2cCommand = new byte[16];
-                    int i2cIndex = 0;
-                    i2cCommand[i2cIndex++] = (byte)action.charAt(0);
+                    CommandToBytes i2cCommand = new CommandToBytes(16, (byte)0);
+                    //int i2cIndex = 0;
+                    i2cCommand.command(action);
+                    //i2cCommand[i2cIndex++] = (byte)action.charAt(0);
                     switch(action)
                     {
                         case "I":
                             {
                                 int size = SharedUtil.parseInt(args[index++]);
-                                i2cCommand[i2cIndex++] = (byte)size;
+                                i2cCommand.addByte((byte)size);
+                                //i2cCommand[i2cIndex++] = (byte)size;
                                 for (int r = 0; r < 4; r++)
                                 {
 
                                     console.println("Attempt["+r+"] start:************************************"  );
                                     UByteArrayOutputStream baos = new UByteArrayOutputStream();
-                                    console.println("command: " + SharedStringUtil.bytesToHex(i2cCommand, 0, i2cIndex));
-                                    i2cDev.getI2CDevice().write(i2cCommand, 0, i2cIndex);
+                                    console.println("command: " + SharedStringUtil.bytesToHex(i2cCommand.data(), 0, i2cCommand.size()));
+                                    write(i2cDev, i2cCommand);
 
                                     int totalRead = 0;
                                     do {
@@ -157,9 +169,11 @@ public class I2CUtil
                         case "S":
                             {
                                 int i2cAddress = SharedUtil.parseInt(args[index++]);
-                                i2cCommand[i2cIndex++] = (byte)i2cAddress;
-                                console.println("I2C address change command: " + SharedStringUtil.bytesToHex(i2cCommand, 0, i2cIndex));
-                                i2cDev.getI2CDevice().write(i2cCommand, 0, i2cIndex);
+                                i2cCommand.toBytes((byte)i2cAddress);
+                                //i2cCommand[i2cIndex++] = (byte)i2cAddress;
+                                console.println("I2C address change command: " + SharedStringUtil.bytesToHex(i2cCommand.data(), 0, i2cCommand.size()));
+
+                                write(i2cDev, i2cCommand);
                                 console.println("I2C response old: " + i2cDev.getI2CDevice().read() + " new "  +i2cDev.getI2CDevice().read());
                             }
 
@@ -167,12 +181,12 @@ public class I2CUtil
                         case "P":
                             {
                                 int repeat = index < args.length ?  SharedUtil.parseInt(args[index++]) : 1;
-                                console.println("ping command: " + SharedStringUtil.bytesToHex(i2cCommand, 0, i2cIndex));
+                                console.println("ping command: " + SharedStringUtil.bytesToHex(i2cCommand.data(), 0, i2cCommand.size()));
                                 long localTS = System.currentTimeMillis();
                                 byte[] pingData = new byte[Integer.BYTES];
                                 for(int i=0; i < repeat; i++)
                                 {
-                                    i2cDev.getI2CDevice().write(i2cCommand, 0, i2cIndex);
+                                    write(i2cDev, i2cCommand);
                                     i2cDev.getI2CDevice().read(pingData, 0, pingData.length);
                                     console.println("Ping ID: " + BytesValue.INT.toValue(pingData));
                                 }
@@ -184,8 +198,8 @@ public class I2CUtil
                         case "F":
                         {
 
-                            console.println("flip command: " + SharedStringUtil.bytesToHex(i2cCommand, 0, i2cIndex));
-                            i2cDev.getI2CDevice().write(i2cCommand, 0, index);
+                            console.println("flip command: " + SharedStringUtil.bytesToHex(i2cCommand.data(), 0, i2cCommand.size()));
+                            write(i2cDev, i2cCommand);
                             console.println("light status:" + i2cDev.getI2CDevice().read());
 
                         }
@@ -193,8 +207,8 @@ public class I2CUtil
                         case "R":
                         {
 
-                            console.println("Reset command: " + SharedStringUtil.bytesToHex(i2cCommand, 0, i2cIndex));
-                            i2cDev.getI2CDevice().write(i2cCommand, 0, i2cIndex);
+                            console.println("Reset command: " + SharedStringUtil.bytesToHex(i2cCommand.data(), 0, i2cCommand.size()));
+                            write(i2cDev, i2cCommand);
                             console.println("Reset status:" + i2cDev.getI2CDevice().read());
 
                         }
@@ -203,8 +217,8 @@ public class I2CUtil
                         case "C":
                         case "L":
                         {
-                            console.println(command + ": " + SharedStringUtil.bytesToHex(i2cCommand, 0, i2cIndex));
-                            i2cDev.getI2CDevice().write(i2cCommand, 0, i2cIndex);
+                            console.println(command + ": " + SharedStringUtil.bytesToHex(i2cCommand.data(), 0, i2cCommand.size()));
+                            write(i2cDev, i2cCommand);
                             //console.println("set command sent");
                             byte[] pingData = new byte[4];
                             i2cDev.getI2CDevice().read(pingData, 0, pingData.length);
@@ -214,12 +228,12 @@ public class I2CUtil
                         case "A":
                         {
                             int repeat = index < args.length ?  SharedUtil.parseInt(args[index++]) : 1;
-                            console.println("ADC read: " + SharedStringUtil.bytesToHex(i2cCommand, 0, i2cIndex));
+                            console.println("ADC read: " + SharedStringUtil.bytesToHex(i2cCommand.data(), 0, i2cCommand.size()));
                             byte[] pingData = new byte[4];
                             long localTS = System.currentTimeMillis();
                             float add = 0;
                             for( int i = 0; i < repeat ; i++) {
-                                i2cDev.getI2CDevice().write(i2cCommand, 0, i2cIndex);
+                                write(i2cDev, i2cCommand);
                                 i2cDev.getI2CDevice().read(pingData, 0, pingData.length);
                                 float value = BytesValue.FLOAT.toValue(pingData);
                                 console.println("voltage value: " + value);
@@ -235,11 +249,13 @@ public class I2CUtil
                         break;
                         case "W":
                         {
-                            i2cCommand[i2cIndex++] = (byte)SharedUtil.parseInt(args[index++]);// port
-                            i2cCommand[i2cIndex++] = (byte)SharedUtil.parseInt(args[index++]);// pwm 0-255
+//                            i2cCommand[i2cIndex++] = (byte)SharedUtil.parseInt(args[index++]);// port
+//                            i2cCommand[i2cIndex++] = (byte)SharedUtil.parseInt(args[index++]);// pwm 0-255
+                            i2cCommand.toBytes((byte)SharedUtil.parseInt(args[index++]));// port
+                            i2cCommand.toBytes((byte)SharedUtil.parseInt(args[index++]));// pwm 0-255
 
-                            console.println("pwm set: " + SharedStringUtil.bytesToHex(i2cCommand, 0, i2cIndex));
-                            i2cDev.getI2CDevice().write(i2cCommand, 0, i2cIndex);
+                            console.println("pwm set: " + SharedStringUtil.bytesToHex(i2cCommand.data(), 0, i2cCommand.size()));
+                            write(i2cDev, i2cCommand);
                             int pwm = i2cDev.getI2CDevice().read();
                             console.println("pwm read set value:"  + pwm);
                         }
@@ -248,20 +264,20 @@ public class I2CUtil
                         {
                             int pin = SharedUtil.parseInt(args[index++]);
                             int angle = SharedUtil.parseInt(args[index++]);
-                            i2cCommand[i2cIndex++] = (byte) pin;
-                            i2cCommand[i2cIndex++] = (byte) angle;
+                            i2cCommand.toBytes((byte) pin);
+                            i2cCommand.toBytes((byte) angle);
 
 
-                            console.println("servo set: " + SharedStringUtil.bytesToHex(i2cCommand, 0, i2cIndex));
-                            i2cDev.getI2CDevice().write(i2cCommand, 0, i2cIndex);
-                            byte data[] = new byte[2];
+                            console.println("servo set: " +SharedStringUtil.bytesToHex(i2cCommand.data(), 0, i2cCommand.size()));
+                            write(i2cDev, i2cCommand);
+                            byte data[] = new byte[3];
 //                            i2cDev.getI2CDevice().read(data, 0, data.length);
 //                            short sNew = BytesValue.SHORT.toValue(data, 0, 2);
 //                            short sOld = BytesValue.SHORT.toValue(data, 2, 2);
-                            i2cDev.getI2CDevice().read(data, 0, data.length);
-                            int sNew = data[0]&0xFF;
-                            int sOld = data[1]&0xFF;
-                            console.println("servo new: "  + sNew + " old: " + sOld);
+                            //i2cDev.getI2CDevice().read(data, 0, data.length);
+                            int sNew = i2cDev.getI2CDevice().read(); //BytesValue.SHORT.toValue(data, 0, 2);
+                            //int sOld = i2cDev.getI2CDevice().read(); //data[2]&0xFF;
+                            console.println("servo new: "  + sNew + " old: ");
                         }
                         break;
                     }

@@ -2,6 +2,7 @@ package io.xlogistx.iot.mqtt;
 
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.zoxweb.server.security.SSLCheckDisabler;
 import org.zoxweb.server.task.TaskUtil;
 import org.zoxweb.shared.util.SharedUtil;
 
@@ -30,7 +31,9 @@ public class MQTTConsumer {
       String password = args.length > index ? args[index++] : null;
       MqttClient sampleClient = new MqttClient(broker, clientId, persistence);
       MqttConnectOptions connOpts = new MqttConnectOptions();
-      connOpts.setCleanSession(true);
+//      connOpts.setSSLHostnameVerifier(SSLCheckDisabler.SINGLETON.getHostnameVerifier());
+//      connOpts.setSocketFactory(SSLCheckDisabler.SINGLETON.getSSLFactory());
+
       connOpts.setAutomaticReconnect(true);
       connOpts.setCleanSession(true);
       connOpts.setConnectionTimeout(10);
@@ -53,7 +56,7 @@ public class MQTTConsumer {
         @Override
         public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
           counter++;
-          if(counter%100 == 0)
+          //if(counter%100 == 0)
             System.out.println(SharedUtil.toCanonicalID(':', counter, mqttMessage));
           //System.out.println(mqttMessage);
         }
