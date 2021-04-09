@@ -34,6 +34,8 @@
       <version>${mqtt-paho.version}</version>
     </dependency>
 
+
+
     <dependency>
       <groupId>com.hivemq</groupId>
       <artifactId>hivemq-mqtt-client</artifactId>
