@@ -28,9 +28,9 @@ public class MQTTClient {
     try {
       int index = 0;
       broker = args[index++];
-      int repeat = args.length > index ? SharedUtil.parseInt(args[index++]) : 1;
       String username = args.length > index ? args[index++] : null;
       String password = args.length > index ? args[index++] : null;
+      int repeat = args.length > index ? SharedUtil.parseInt(args[index++]) : 1;
       MqttClient sampleClient = new MqttClient(broker, clientId, persistence);
       MqttConnectOptions connOpts = new MqttConnectOptions();
       connOpts.setCleanSession(true);
