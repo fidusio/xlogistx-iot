@@ -56,7 +56,8 @@ public class MQTTClient {
       ts = System.currentTimeMillis() - ts;
 
       //sampleClient.disconnect();
-      System.out.println("Disconnected it took: " + Const.TimeInMillis.toString(ts));
+      float rate = ((float)repeat/(float)ts)*1000;
+      System.out.println("Disconnected it took: " + Const.TimeInMillis.toString(ts) + " to send " + repeat + " rate " + rate +" msg/s");
       System.exit(0);
     } catch(MqttException me) {
       System.out.println("reason "+me.getReasonCode());
