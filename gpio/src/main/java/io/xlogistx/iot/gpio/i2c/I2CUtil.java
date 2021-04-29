@@ -187,7 +187,9 @@ public class I2CUtil
                                 for(int i=0; i < repeat; i++)
                                 {
                                     write(i2cDev, i2cCommand);
+//                                    TaskUtil.sleep(100);
                                     i2cDev.getI2CDevice().read(pingData, 0, pingData.length);
+//                                    TaskUtil.sleep(50);
                                     console.println("Ping ID: " + BytesValue.INT.toValue(pingData));
                                 }
                                 localTS = System.currentTimeMillis() - localTS;
