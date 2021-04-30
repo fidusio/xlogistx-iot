@@ -168,11 +168,10 @@ public class I2CUtil
                             break;
                         case "S":
                             {
-                                int i2cAddress = SharedUtil.parseInt(args[index++]);
-                                i2cCommand.toBytes((byte)i2cAddress);
+                                int i2cNewAddress = SharedUtil.parseInt(args[index++]);
+                                i2cCommand.toBytes((byte)i2cNewAddress);
                                 //i2cCommand[i2cIndex++] = (byte)i2cAddress;
                                 console.println("I2C address change command: " + SharedStringUtil.bytesToHex(i2cCommand.data(), 0, i2cCommand.size()));
-
                                 write(i2cDev, i2cCommand);
                                 console.println("I2C response old: " + i2cDev.getI2CDevice().read() + " new "  +i2cDev.getI2CDevice().read());
                             }
@@ -180,17 +179,30 @@ public class I2CUtil
                             break;
                         case "P":
                             {
-                                int repeat = index < args.length ?  SharedUtil.parseInt(args[index++]) : 1;
+                                // bad hack
+                                int repeat = address;
+
+                                List<I2CGeneric> i2cDevs = new ArrayList<I2CGeneric>();
+                                for (;index < args.length;)
+                                {
+                                    address = SharedUtil.parseInt(args[index++]);
+                                    i2cDevs.add(new I2CGeneric("generic", busID, address));
+                                }
+
+//                                        new I2CGeneric("generic", busID, address);
+//                                int repeat = index < args.length ?  SharedUtil.parseInt(args[index++]) : 1;
                                 console.println("ping command: " + SharedStringUtil.bytesToHex(i2cCommand.data(), 0, i2cCommand.size()));
                                 long localTS = System.currentTimeMillis();
                                 byte[] pingData = new byte[Integer.BYTES];
                                 for(int i=0; i < repeat; i++)
                                 {
-                                    write(i2cDev, i2cCommand);
+                                    for (I2CGeneric i2c : i2cDevs) {
+                                        write(i2c, i2cCommand);
 //                                    TaskUtil.sleep(100);
-                                    i2cDev.getI2CDevice().read(pingData, 0, pingData.length);
+                                        i2c.getI2CDevice().read(pingData, 0, pingData.length);
 //                                    TaskUtil.sleep(50);
-                                    console.println("Ping ID: " + BytesValue.INT.toValue(pingData));
+                                        console.println(i2c.getI2CDevice().getAddress() + ":ping: " + BytesValue.INT.toValue(pingData));
+                                    }
                                 }
                                 localTS = System.currentTimeMillis() - localTS;
                                 float rate = (float)localTS/(float)repeat;
@@ -295,7 +307,7 @@ public class I2CUtil
         catch(Exception e)
         {
             e.printStackTrace();
-            System.err.println("Usage: [bus id] [start address] [end address inclusive]");
+            System.err.println("Ver 1.0-Usage: [bus id] [start address] [end address inclusive]");
         }
 
         ts = System.currentTimeMillis() - ts;
