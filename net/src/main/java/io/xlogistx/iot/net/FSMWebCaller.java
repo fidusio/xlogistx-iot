@@ -101,9 +101,13 @@ public final class FSMWebCaller {
             @Override
             public Boolean apply(HTTPMessageConfigInterface[] hmcis){
                 try {
-                    for (HTTPMessageConfigInterface hmci : hmcis) {
-                        HTTPCall hc = new HTTPCall(hmci);
-                        log.info(this + ":" + hc.sendRequest());
+                    for (HTTPMessageConfigInterface hmci : hmcis)
+                    {
+                        if(hmci != null) {
+                            log.info("URL:" + hmci.getURL());
+                            HTTPCall hc = new HTTPCall(hmci);
+                            log.info(this + ":" + hc.sendRequest());
+                        }
                     }
                     return true;
                 }
