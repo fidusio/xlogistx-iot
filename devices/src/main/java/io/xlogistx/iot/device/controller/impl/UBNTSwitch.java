@@ -61,7 +61,7 @@ public class UBNTSwitch
       password.setValue( passwd);
 
       //NVPair cookie = SharedUtil.lookup(hcc.getHeaderParameters(), "Cookie");
-      String cookie = HTTPUtil.extractRequestCookie(rd, 0);
+      String cookie = HTTPUtil.extractRequestCookie(rd);
 
       hc = new HTTPCall(hcc, SSLCheckDisabler.SINGLETON);
       System.out.println( ""+ hcc);
