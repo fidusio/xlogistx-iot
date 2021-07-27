@@ -1,9 +1,15 @@
 package io.xlogistx.iot.mqtt;
 
-import org.eclipse.paho.client.mqttv3.*;
-import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-import org.zoxweb.server.security.SSLCheckDisabler;
+//import org.eclipse.paho.client.mqttv3.*;
+//import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+//import org.zoxweb.server.security.SSLCheckDisabler;
+import org.eclipse.paho.mqttv5.client.*;
+import org.eclipse.paho.mqttv5.client.persist.MemoryPersistence;
+import org.eclipse.paho.mqttv5.common.MqttException;
+import org.eclipse.paho.mqttv5.common.MqttMessage;
+import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
 import org.zoxweb.server.task.TaskUtil;
+import org.zoxweb.shared.util.SharedStringUtil;
 import org.zoxweb.shared.util.SharedUtil;
 
 import java.util.Date;
@@ -30,17 +36,18 @@ public class MQTTConsumer {
       String username = args.length > index ? args[index++] : null;
       String password = args.length > index ? args[index++] : null;
       MqttClient sampleClient = new MqttClient(broker, clientId, persistence);
-      MqttConnectOptions connOpts = new MqttConnectOptions();
+      MqttConnectionOptions connOpts = new MqttConnectionOptions();
 //      connOpts.setSSLHostnameVerifier(SSLCheckDisabler.SINGLETON.getHostnameVerifier());
 //      connOpts.setSocketFactory(SSLCheckDisabler.SINGLETON.getSSLFactory());
 
       connOpts.setAutomaticReconnect(true);
-      connOpts.setCleanSession(true);
+
+      //connOpts.setCleanSession(true);
       connOpts.setConnectionTimeout(10);
       if(username != null)
         connOpts.setUserName(username);
       if(password != null)
-        connOpts.setPassword(password.toCharArray());
+        connOpts.setPassword(SharedStringUtil.getBytes(password));
       System.out.println("Connecting to broker: " + broker + " topic: " + topic + ", " + username + ", " + password);
       sampleClient.connect(connOpts);
 
@@ -48,9 +55,16 @@ public class MQTTConsumer {
 
 
       sampleClient.setCallback(new MqttCallback() {
+
+
         @Override
-        public void connectionLost(Throwable throwable) {
-            throwable.printStackTrace();
+        public void disconnected(MqttDisconnectResponse mqttDisconnectResponse) {
+
+        }
+
+        @Override
+        public void mqttErrorOccurred(MqttException e) {
+
         }
 
         @Override
@@ -62,12 +76,24 @@ public class MQTTConsumer {
         }
 
         @Override
-        public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
-          System.out.println(iMqttDeliveryToken);
+        public void deliveryComplete(IMqttToken iMqttToken) {
+
         }
+
+        @Override
+        public void connectComplete(boolean b, String s) {
+
+        }
+
+        @Override
+        public void authPacketArrived(int i, MqttProperties mqttProperties) {
+
+        }
+
+
       });
 
-      sampleClient.subscribe(topic);
+      sampleClient.subscribe(topic, qos);
 
 
 //      MqttMessage message = new MqttMessage(content.getBytes());
