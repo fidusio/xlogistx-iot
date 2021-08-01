@@ -3,6 +3,7 @@ package io.xlogistx.iot.mqtt;
 //import org.eclipse.paho.client.mqttv3.*;
 //import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 //import org.zoxweb.server.security.SSLCheckDisabler;
+import io.xlogistx.crypto.DigestAppender;
 import org.eclipse.paho.mqttv5.client.*;
 import org.eclipse.paho.mqttv5.client.persist.MemoryPersistence;
 import org.eclipse.paho.mqttv5.common.MqttException;
@@ -56,6 +57,13 @@ public class MQTTConsumer {
 
       sampleClient.setCallback(new MqttCallback() {
 
+        DigestAppender da;
+        MqttCallback init(DigestAppender da){
+          this.da = da;
+          return this;
+        }
+
+
 
         @Override
         public void disconnected(MqttDisconnectResponse mqttDisconnectResponse) {
@@ -71,7 +79,8 @@ public class MQTTConsumer {
         public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
           counter++;
           //if(counter%100 == 0)
-            System.out.println(SharedUtil.toCanonicalID(':', counter, mqttMessage));
+          String hash = da.appendToString(mqttMessage.getPayload());
+            System.out.println(SharedUtil.toCanonicalID(':', counter, mqttMessage, hash));
           //System.out.println(mqttMessage);
         }
 
@@ -91,7 +100,7 @@ public class MQTTConsumer {
         }
 
 
-      });
+      }.init(new DigestAppender("sha-256")));
 
       sampleClient.subscribe(topic, qos);
 
@@ -103,8 +112,9 @@ public class MQTTConsumer {
       System.out.println("Connected");
       TaskUtil.getDefaultTaskScheduler();
 
-    } catch(MqttException me) {
-      System.out.println("reason "+me.getReasonCode());
+    } catch(Exception me) {
+      if(me instanceof MqttException)
+        System.out.println("reason "+((MqttException)me).getReasonCode());
       System.out.println("msg "+me.getMessage());
       System.out.println("loc "+me.getLocalizedMessage());
       System.out.println("cause "+me.getCause());

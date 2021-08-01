@@ -122,7 +122,11 @@
            <artifactId>xlogistx-common</artifactId>
            <version>${xlogistx.version}</version>
        </dependency>
-
+       <dependency>
+           <groupId>io.xlogistx</groupId>
+           <artifactId>xlogistx-security</artifactId>
+           <version>${xlogistx.version}</version>
+       </dependency>
      <dependency>
        <groupId>com.google.code.gson</groupId>
        <artifactId>gson</artifactId>

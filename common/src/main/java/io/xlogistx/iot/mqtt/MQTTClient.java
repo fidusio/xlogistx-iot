@@ -26,7 +26,7 @@ public class MQTTClient {
 
     String topic        = "testTopic";
     String content      = "Message from MqttPublishSample";
-    int qos             = 2;
+    int qos             = -1;
     String broker       = null;
     String clientId     = UUID.randomUUID().toString();
     MemoryPersistence persistence = new MemoryPersistence();
@@ -37,6 +37,7 @@ public class MQTTClient {
       String username = args.length > index ? args[index++] : null;
       String password = args.length > index ? args[index++] : null;
       int repeat = args.length > index ? SharedUtil.parseInt(args[index++]) : 1;
+      qos =  args.length > index ? SharedUtil.parseInt(args[index++]) : -1;
       MqttClient sampleClient = new MqttClient(broker, clientId, persistence);
       MqttConnectionOptions connOpts = new MqttConnectionOptions();
       //connOpts.setCleanSession(true);
@@ -55,9 +56,11 @@ public class MQTTClient {
       for (int i = 0; i < repeat; i++) {
         String msg = clientId +":["+ (i +1) + ":" + System.currentTimeMillis() + "]: " + content;
         MqttMessage message = new MqttMessage(SharedStringUtil.getBytes(msg ));
-        message.setQos(qos);
+        int lqos = (qos < 0 || qos > 2) ? (i%3) : qos;
+        message.setQos(lqos);
+
         sampleClient.publish(topic, message);
-        System.out.println("Message published: " + msg);
+        System.out.println(lqos +": Message published: " + msg);
       }
       ts = System.currentTimeMillis() - ts;
 
