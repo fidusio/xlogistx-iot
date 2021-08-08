@@ -21,10 +21,12 @@ import org.pcap4j.core.PcapNetworkInterface.PromiscuousMode;
 import org.pcap4j.packet.ArpPacket;
 import org.pcap4j.packet.EthernetPacket;
 
+import org.pcap4j.packet.IpV4Packet;
 import org.pcap4j.packet.Packet;
 
 import org.pcap4j.packet.namednumber.EtherType;
 import org.pcap4j.util.NifSelector;
+import org.zoxweb.shared.util.SharedUtil;
 
 
 public class JTCPDump {
@@ -71,13 +73,22 @@ public class JTCPDump {
     	NIPMap[] all = PcapNetUtil.SINGLETON.getNIPMaps();
     	if (all != null && all.length > 0)
     	{
+    		StringBuilder sb = new StringBuilder();
+    		System.out.println();
+			System.out.println("Usable network interfaces:");
 	    	for(NIPMap nipm:all)
 	    	{
-	    		System.out.println("Usable interface:" + nipm.NI.getName() + ":" + nipm.NI.getDisplayName());
+	    		if(sb.length() > 0){
+	    			sb.append(", ");
+				}
+	    		sb.append(nipm.NI.getName());
+	    		System.out.println("* Network name " + nipm.NI.getName() + ", description:" + nipm.NI.getDisplayName());
 	    	}
-	    	System.out.print("Enter network device name:");
+	    	System.out.print("\n\nSelect a network " + sb + " :");
 	    	networkName = PcapNetUtil.readInput();
     	}
+
+
     	
     }
     
@@ -138,16 +149,15 @@ public class JTCPDump {
 			{
 			
 				EthernetPacket ep = (EthernetPacket) packet;
-				
-				
-				if (ep.getHeader().getType() == EtherType.ARP)
+
+				EtherType et = ep.getHeader().getType();
+				if (EtherType.ARP == et)
             	{
-            		
-            		System.out.println("{ packetCount:" + packetCount);
+
             		ArpPacket ap = (ArpPacket)ep.getPayload();
             		//System.out.println(ep.getPayload());
             		//System.out.println(p != null ? p.getClass().getName() : "");
-            		System.out.println(handle.getTimestamp());
+
             		//ArpPacket ap = ArpPacket.newPacket(packet, 0, packet.length);
             		//System.out.println(ep.getHeader());
             		//ArpPacket ap;
@@ -155,12 +165,22 @@ public class JTCPDump {
 						//ap = ArpPacket.newPacket(ep.getRawData(), 0, ep.getRawData().length);
 						//System.out.println(ap.getHeader());
 	            		
-	            		System.out.println(ap.getHeader().getSrcHardwareAddr()+ "-" + ap.getHeader().getSrcProtocolAddr().getHostAddress());
+	            		System.out.println(packetCount + "," +handle.getTimestamp() + "," + ap.getHeader().getSrcHardwareAddr()+ "->" + ap.getHeader().getSrcProtocolAddr().getHostAddress());
 	            		//System.out.println(ap.getHeader().getDstHardwareAddr()+ "-" + ap.getHeader().getDstProtocolAddr().getHostAddress());
 					
-					System.out.println("}");
+
             		
             	}
+				else if (et == EtherType.IPV4)
+				{
+					IpV4Packet v4Packet = (IpV4Packet)ep.getPayload();
+
+					//log.info(ep.getHeader().getSrcAddr() + "->" + ep.getHeader().getDstAddr())
+					//log.info("{ packetCount:" + packetCount+ "\n" + v4Packet.getHeader() + "\n]" );
+					System.out.println(SharedUtil.toCanonicalID(',', packetCount, handle.getTimestamp(),"S-IPV4:"+v4Packet.getHeader().getSrcAddr(), ep.getHeader().getSrcAddr(),
+							"D-IPV4:"+v4Packet.getHeader().getDstAddr(), ep.getHeader().getDstAddr(), ep.getHeader().getType()));
+
+				}
 			}
 			catch(Exception e)
 			{

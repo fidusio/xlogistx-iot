@@ -51,8 +51,14 @@ extends PropertyHolder
         }
 
         GPIOTools.SINGLETON.setOutputPin(pin, PinState.getState(state), duration);
-        SimpleMessage response = new SimpleMessage(pin + " set successfully: " + (state ? Const.Bool.ON : Const.Bool.OFF),
-                                                   HTTPStatusCode.OK.CODE);
+        SimpleMessage response = new SimpleMessage("Operation successfully", HTTPStatusCode.OK.CODE);
+        response.getProperties().add(gpio, pin.getName());
+        response.getProperties().add(pin.getName(), (state ? Const.Bool.ON : Const.Bool.OFF) +"");
+        if (durationParam != null)
+        {
+            response.getProperties().add("timeout", Const.TimeInMillis.toString(duration));
+        }
+
         return response;
     }
 
@@ -148,6 +154,34 @@ extends PropertyHolder
                 HTTPStatusCode.OK.CODE);
         return response;
     }
+
+
+    @EndPointProp(methods = {HTTPMethod.GET}, name="i2c-command", uris="/i2c/command/{i2c-bus}/{i2c-address}/{command}")
+    public SimpleMessage i2cCommand(@ParamProp(name="i2c-bus") int bus,
+                                    @ParamProp(name="i2c-address") String addressID,
+                                    @ParamProp(name="command") String param)
+            throws IOException, I2CFactory.UnsupportedBusNumberException {
+
+
+        int address = SharedUtil.parseInt(addressID);
+
+        String[] parameters = param.split(":");
+
+
+
+        log.info(bus + " " + address + " " + Arrays.toString(parameters));
+        SimpleMessage response = new SimpleMessage();
+
+
+
+        response.setStatus(HTTPStatusCode.OK.CODE);
+        response.setMessage("I2C Command");
+        response.getProperties().add(new NVInt("i2c-bus", bus));
+        response.getProperties().add(new NVInt("i2c-address", address));
+        response.getProperties().add(new NVStringList("command", parameters));
+        return response;
+    }
+
 
     @EndPointProp(methods = {HTTPMethod.GET}, name="i2c-ads1115", uris="/i2c/ads1115/{bus}/{address_id}/{volt_ref}/{port}/{delay}")
     public SimpleMessage i2cADS1115(@ParamProp(name="bus") int bus,
