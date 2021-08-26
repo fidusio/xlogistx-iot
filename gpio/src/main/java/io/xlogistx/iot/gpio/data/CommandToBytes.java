@@ -62,6 +62,7 @@ public class CommandToBytes
     public CommandToBytes toBytes(byte v)
     {
         byte[] ret = new byte[1];
+        ret[0] = v;
         addBytes(ret, 0, ret.length);
         return this;
     }

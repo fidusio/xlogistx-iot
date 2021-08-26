@@ -80,7 +80,7 @@ public class MQTTConsumer {
           counter++;
           //if(counter%100 == 0)
           String hash = da.appendToString(mqttMessage.getPayload());
-            System.out.println(SharedUtil.toCanonicalID(':', counter, mqttMessage, hash));
+            System.out.println(SharedUtil.toCanonicalID(':',Thread.currentThread(), counter, mqttMessage, hash));
           //System.out.println(mqttMessage);
         }
 
