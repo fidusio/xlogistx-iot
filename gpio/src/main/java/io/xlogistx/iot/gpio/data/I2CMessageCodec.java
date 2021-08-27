@@ -1,33 +1,16 @@
 package io.xlogistx.iot.gpio.data;
 
-import io.xlogistx.common.data.MessageCodec;
-import org.zoxweb.server.util.DateUtil;
+
+import org.zoxweb.shared.data.SimpleMessage;
 import org.zoxweb.shared.filters.TokenFilter;
 import org.zoxweb.shared.util.*;
 
-import java.util.Date;
 
 
-public class I2CMessageCodec extends MessageCodec<String, CommandToBytes, byte[]>
+
+public class I2CMessageCodec extends I2CMessageBase
 {
-    public enum Token
-        implements GetName
-    {
-        STATUS("status"),
-        RESULT("result"),
-        TIMESTAMP("timestamp"),
-        ;
 
-        private final String name;
-        Token(String name)
-        {
-            this.name = name;
-        }
-        @Override
-        public String getName() {
-            return name;
-        }
-    }
 
     public I2CMessageCodec(String name, String description)
     {
@@ -36,13 +19,11 @@ public class I2CMessageCodec extends MessageCodec<String, CommandToBytes, byte[]
 
 
     @Override
-    public NVGenericMap decode(byte[] input)
+    public SimpleMessage decode(byte[] input)
     {
-        NVGenericMap ret = new NVGenericMap();
-        int offset = 0;
-        ret.add(new NVPair(Token.TIMESTAMP, DateUtil.DEFAULT_GMT_MILLIS.format(new Date())));
-        ret.add(new NVInt(Token.STATUS, BytesValue.SHORT.toValue(input, offset)));
-        ret.add(new NVInt(Token.RESULT, BytesValue.INT.toValue(input, input[offset+2] == ':' ? offset + 3 : offset+2) ));
+        SimpleMessage ret = createDecoderResponse();
+        ret.setStatus(BytesValue.SHORT.toValue(input, 0));
+        ret.getProperties().add(new NVInt(Token.RESULT, BytesValue.INT.toValue(input, input[2] == ':' ?  3 : 2) ));
         return ret;
     }
 
@@ -51,4 +32,5 @@ public class I2CMessageCodec extends MessageCodec<String, CommandToBytes, byte[]
         // input is ignored
         return new CommandToBytes(16, ':').command(TokenFilter.UPPER_COLON.validate(input));
     }
+
 }

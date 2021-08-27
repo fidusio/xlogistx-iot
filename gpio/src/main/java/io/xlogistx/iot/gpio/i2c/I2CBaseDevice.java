@@ -3,6 +3,8 @@ package io.xlogistx.iot.gpio.i2c;
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
+import com.pi4j.io.i2c.impl.I2CDeviceImpl;
+import io.xlogistx.common.data.NamedDescription;
 import org.zoxweb.shared.util.CanonicalID;
 
 import org.zoxweb.shared.util.SetName;
@@ -11,18 +13,18 @@ import org.zoxweb.shared.util.SharedUtil;
 import java.io.IOException;
 
 public abstract class I2CBaseDevice
-    implements AutoCloseable, SetName, CanonicalID
+    extends NamedDescription
+    implements AutoCloseable, CanonicalID
 {
     private final I2CBus i2cBus;
     private final I2CDevice i2cDevice;
-    private String name;
     protected I2CBaseDevice(String name, int bus, int address)
             throws IOException,
             I2CFactory.UnsupportedBusNumberException
     {
+        super(name);
         i2cBus = I2CFactory.getInstance(bus);
         i2cDevice = i2cBus.getDevice(address);
-        this.name = name;
     }
 
     protected I2CBaseDevice(String name, I2CBus bus, int address)
@@ -33,12 +35,13 @@ public abstract class I2CBaseDevice
     }
 
     protected I2CBaseDevice(String name, I2CBus i2cBus, I2CDevice i2cDevice)
-            throws IOException,
-            I2CFactory.UnsupportedBusNumberException
     {
+        super(name);
+        SharedUtil.checkIfNulls("bus or device can't be null", i2cBus, i2cDevice);
         this.i2cBus = i2cBus;
         this.i2cDevice = i2cDevice;
-        this.name = name;
+        I2CDeviceImpl j;
+
     }
 
 
@@ -58,16 +61,28 @@ public abstract class I2CBaseDevice
         return SharedUtil.toCanonicalID('-', getName(), getI2CBus().getBusNumber(), Integer.toHexString(getI2CDevice().getAddress()));
     }
 
-    public String getName()
+    public int hashCode()
     {
-        return name;
+        return i2cDeviceID(getI2CBus().getBusNumber(), getI2CDevice().getAddress()).hashCode();
     }
 
-    public void setName(String name)
+    public boolean equals(Object o)
     {
-        this.name = name;
+        if (o != null)
+        {
+            if(o instanceof I2CBaseDevice)
+            {
+                return (((I2CBaseDevice)o).getI2CBus().getBusNumber() == getI2CBus().getBusNumber() &&
+                        ((I2CBaseDevice)o).getI2CDevice().getAddress() == getI2CDevice().getAddress());
+            }
+        }
+        return false;
     }
 
+
+    public static String i2cDeviceID(int bus, int address){
+        return SharedUtil.toCanonicalID('-', "I2CDevice", bus, Integer.toHexString(address));
+    }
 
 
 

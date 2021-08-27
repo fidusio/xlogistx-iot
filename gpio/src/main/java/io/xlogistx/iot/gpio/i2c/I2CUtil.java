@@ -8,31 +8,79 @@ import io.xlogistx.common.data.CodecManager;
 import io.xlogistx.common.data.MessageCodec;
 import io.xlogistx.iot.gpio.data.*;
 import io.xlogistx.iot.gpio.i2c.modules.I2CGeneric;
-
-import org.zoxweb.server.io.UByteArrayOutputStream;
-import org.zoxweb.server.task.TaskUtil;
 import org.zoxweb.server.util.GSONUtil;
+import org.zoxweb.shared.data.SimpleMessage;
 import org.zoxweb.shared.filters.TokenFilter;
-import org.zoxweb.shared.util.BytesValue;
 import org.zoxweb.shared.util.Const;
-import org.zoxweb.shared.util.SharedStringUtil;
+
 import org.zoxweb.shared.util.SharedUtil;
 
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 
 public class I2CUtil
 {
-    public static final String VERSION = "I2C-UTIL-1.01.18";
-    public static final I2CMessageCodec I2C_DEFAULT_CODEC = new I2CMessageCodec("Generic", "Will be used for decoding purpose only");
+
+    public static final CodecManager<I2CMessageBase> I2C_CODEC_MANAGER = new CodecManager<I2CMessageBase>("I2CCodecManager", TokenFilter.UPPER_COLON, "I2CProtocol")
+            .add(new I2CMessageCodec("ping", "Ping the device return the ping value as java int, usage: PING"))
+            .add(new I2CMessageCodec("messages", "The number i2c messages processed by the device return the count value as java int, usage: MESSAGES"))
+            .add(new I2CMessageCodec("cpu", "Get the device cpu frequency in hz, value as java int, usage: CPU"))
+            .add(new I2CMessageCodec("aref", "Get the device aref , value as java short, usage: AREF"))
+            .add(new I2CMessageCodec("reset", "Reboot the device, no return value bus will throw exception, usage: RESET"))
+            .add(I2CUptime.SINGLETON)
+            .add(I2CVersion.SINGLETON)
+            .add(I2CEcho.SINGLETON)
+            .add(I2C.SINGLETON);
+
+    public static final String VERSION = "I2C-UTIL-1.2.07";
+    public static final I2CUtil SINGLETON = new I2CUtil();
+
+
+
+    private Map<String, I2CBaseDevice> i2cDevices = new LinkedHashMap<String, I2CBaseDevice>();
 
     private I2CUtil(){}
 
-    public static I2CDevice[] scanI2CDevices(int bus, int startAddress, int endAddress) throws IOException,
+
+
+    public SimpleMessage sendI2CCommand(int bus, int address, String command) throws IOException, I2CFactory.UnsupportedBusNumberException {
+        SharedUtil.checkIfNulls("null command.", command);
+        I2CBaseDevice i2cDevice = createI2CDevice("generic", bus, address);
+        String rawCommand = command.toUpperCase();
+
+        MessageCodec mc = I2C_CODEC_MANAGER.lookup(rawCommand);
+        if(mc == null){
+            throw new IllegalArgumentException("Command not supported: " + command);
+        }
+        CommandToBytes i2cCommand = (CommandToBytes) I2C_CODEC_MANAGER.lookup(rawCommand).encode(rawCommand);
+        byte[] respData = new byte[16];
+        // we can only send and read one message at time
+        // from the bus
+        synchronized (this) {
+            i2cDevice.getI2CDevice().read(i2cCommand.data(), 0, i2cCommand.size(), respData, 0, respData.length);
+        }
+        return (SimpleMessage) mc.decode(respData);
+    }
+
+    public I2CBaseDevice createI2CDevice(String name, int bus, int address) throws IOException, I2CFactory.UnsupportedBusNumberException {
+        String i2cID  = I2CBaseDevice.i2cDeviceID(bus, address);
+        I2CBaseDevice ret = i2cDevices.get(i2cID);
+        if(ret == null)
+        {
+            // avoid double penetration
+            ret = i2cDevices.get(i2cID);
+            if(ret == null)
+            {
+                ret = new I2CGeneric(name, bus, address);
+            }
+        }
+
+        return ret;
+    }
+
+    public I2CDevice[] scanI2CDevices(int bus, int startAddress, int endAddress) throws IOException,
             I2CFactory.UnsupportedBusNumberException
     {
         I2CBus i2CBus = I2CFactory.getInstance(bus);
@@ -42,8 +90,9 @@ public class I2CUtil
             I2CDevice i2CDevice = i2CBus.getDevice(i);
             if(i2CDevice != null)
             {
-                try {
-                    System.out.println(String.format("%x", i) + ":" + i2CDevice.read());
+                try
+                {
+                    i2CDevice.read();
                     ret.add(i2CDevice);
                 }
                 catch (IOException e)
@@ -52,11 +101,6 @@ public class I2CUtil
             }
         }
 
-        try
-        {
-            i2CBus.close();
-        }
-        catch(Exception e){}
         return ret.toArray(new I2CDevice[ret.size()]);
     }
 
@@ -70,32 +114,22 @@ public class I2CUtil
         dev.write(command.data(), 0, command.size());
     }
 
-//    public static CommandToBytes parseRaw(String command)
-//    {
-//        String tokens[] = command.split(":");
-//        int index =0;
-//        CommandToBytes ret = new CommandToBytes(16, ':');
-//        ret.command(tokens[index++]);
-//        for(int i = 1; i < tokens.length; i++){
-//            switch(i)
-//            {
-//                case 1:
-//                    ret.toBytes(tokens[i]);
-//                    break;
-//            }
-//        }
-//
-//
-//        return ret;
-//    }
 
 
-    public static short calibrate(I2CGeneric i2cDev, CommandToBytes i2cCommand) throws IOException {
-        byte[] refData = new byte[2];
-        write(i2cDev, i2cCommand);
-        i2cDev.getI2CDevice().read(refData, 0, refData.length);
-        return BytesValue.SHORT.toValue(refData);
+
+    private static void usage()
+    {
+        System.err.println(VERSION + " usage : scan bud-id start-address end-address");
+        System.err.println(VERSION + " usage : command bus-id i2c-device-address [i2cCommand]... \n\n");
+
+        MessageCodec[] all = I2C_CODEC_MANAGER.all();
+        for(MessageCodec mc : all)
+        {
+            System.err.println(VERSION + ":I2C command: " + mc);
+        }
     }
+
+
 
     public static void main(String[] args) {
 
@@ -135,14 +169,7 @@ public class I2CUtil
                     } catch (IOException exception) {
                         console.println("I/O error during fetch of I2C busses occurred");
                     }
-
-
-                    // get the I2C bus to communicate on
-
-                    //I2CBus i2c = I2CFactory.getInstance(I2CBus.BUS_1);
-                    I2CDevice[] devs = I2CUtil.scanI2CDevices(busID, startAddress, endAddress);
-
-                    //console.println("it took " + Const.TimeInMillis.toString(ts) + " i2cDevices : " + devs.length);
+                    I2CDevice[] devs = I2CUtil.SINGLETON.scanI2CDevices(busID, startAddress, endAddress);
 
                     for (I2CDevice dev : devs) {
                         console.print(String.format("%x", dev.getAddress()) + " ");
@@ -150,251 +177,24 @@ public class I2CUtil
                 }
                 break;
                 case "command":
-                {
-
-                    String action = args[index++];
-                    action = action.toUpperCase();
                     int busID = SharedUtil.parseInt(args[index++]);
                     int address = SharedUtil.parseInt(args[index++]);
-
-                    I2CGeneric i2cDev = new I2CGeneric("generic", busID, address);
-                    int counter = 0;
-                    //i2cDev.getI2CDevice().write((byte)'I');
-                    byte buffer[] = new byte[512];
-                    CommandToBytes i2cCommand = new CommandToBytes(16, (byte)0);
-                    //int i2cIndex = 0;
-                    i2cCommand.command(action);
-                    //i2cCommand[i2cIndex++] = (byte)action.charAt(0);
-                    switch(action)
-                    {
-                        case "VERSION":
-                            {
-                                write(i2cDev, i2cCommand);
-                                int totalRead = i2cDev.getI2CDevice().read(buffer, 0, 16);
-                                int length = buffer[0];
-                                String response = SharedStringUtil.toString(buffer, 1, length);
-                                console.println("Device version: " + response);
-
-                            }
-                            break;
-                        case "S":
-                            {
-                                int i2cNewAddress = SharedUtil.parseInt(args[index++]);
-                                console.println("Change i2c address to: "  + i2cNewAddress);
-                                i2cCommand.toBytes((byte)i2cNewAddress);
-                                //i2cCommand[i2cIndex++] = (byte)i2cAddress;
-                                console.println("I2C address change command: " + SharedStringUtil.bytesToHex(i2cCommand.data(), 0, i2cCommand.size()));
-                                write(i2cDev, i2cCommand);
-                                console.println("I2C response old: " + i2cDev.getI2CDevice().read() + " new "  +i2cDev.getI2CDevice().read());
-                            }
-
-                            break;
-                        case "PING":
-                            {
-                                // bad hack
-                                int repeat = address;
-
-                                List<I2CGeneric> i2cDevs = new ArrayList<I2CGeneric>();
-                                for (;index < args.length;)
-                                {
-                                    address = SharedUtil.parseInt(args[index++]);
-                                    i2cDevs.add(new I2CGeneric("generic", busID, address));
-                                }
-
-//                                        new I2CGeneric("generic", busID, address);
-//                                int repeat = index < args.length ?  SharedUtil.parseInt(args[index++]) : 1;
-                                console.println("ping command: " + SharedStringUtil.bytesToHex(i2cCommand.data(), 0, i2cCommand.size()));
-                                long localTS = System.currentTimeMillis();
-                                byte[] pingData = new byte[Short.BYTES + Integer.BYTES];
-                                for(int i = 0; i < repeat; i++)
-                                {
-                                    for (I2CGeneric i2c : i2cDevs) {
-                                        try {
-                                            write(i2c, i2cCommand);
-                                            //TaskUtil.sleep(100);
-                                            i2c.getI2CDevice().read(pingData, 0, pingData.length);
-                                            TaskUtil.sleep(50 * (i % 5 + 1));
-                                            console.println(i2c.getI2CDevice().getAddress() + ":stat:" + BytesValue.SHORT.toValue(pingData, 0) + ":ping: " + BytesValue.INT.toValue(pingData, 2));
-                                        }
-                                        catch (IOException e)
-                                        {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                }
-                                localTS = System.currentTimeMillis() - localTS;
-                                float rate = (float)localTS/(float)repeat;
-                                console.println("ping count: " + repeat + " : " + Const.TimeInMillis.toString(localTS) + " millis per command: " + rate);
-                            }
-                            break;
-                        case "F":
-                        {
-
-                            console.println("flip command: " + SharedStringUtil.bytesToHex(i2cCommand.data(), 0, i2cCommand.size()));
-                            write(i2cDev, i2cCommand);
-
-                            console.println("light status:" + i2cDev.getI2CDevice().read());
-
-                        }
-                            break;
-
-                        case "Z":
-                        {
-
-                            console.println("Calibrate command: " + SharedStringUtil.bytesToHex(i2cCommand.data(), 0, i2cCommand.size()));
-
-                            console.println("ARef value: " +calibrate(i2cDev, i2cCommand));
-
-                        }
-                        break;
-                        case "R":
-                        {
-
-                            console.println("Reset command: " + SharedStringUtil.bytesToHex(i2cCommand.data(), 0, i2cCommand.size()));
-                            write(i2cDev, i2cCommand);
-                            console.println("Reset status: " + i2cDev.getI2CDevice().read());
-
-                        }
-
-                        break;
-                        case "CPU":
-                        case "LOOPS":
-                        {
-                            console.println(command + ": " + SharedStringUtil.bytesToHex(i2cCommand.data(), 0, i2cCommand.size()));
-                            write(i2cDev, i2cCommand);
-                            //console.println("set command sent");
-                            byte[] respData = new byte[Short.BYTES + Integer.BYTES];
-                            i2cDev.getI2CDevice().read(respData, 0, respData.length);
-                            console.println(command + " resp: " + BytesValue.SHORT.toValue(respData, 0) + " value: "
-                            + BytesValue.INT.toValue(respData, 2));
-
-                        }
-                        break;
-                        case "A":
-                        {
-                            CommandToBytes calibrate = new CommandToBytes();
-                            calibrate.command("Z");
-                            short calibrationValue = calibrate(i2cDev, calibrate);
-
-
-                            if ( index < args.length)
-                            {
-                                i2cCommand.toBytes((byte)SharedUtil.parseInt(args[index++]));
-                            }
-                            int repeat = index < args.length ?  SharedUtil.parseInt(args[index++]) : 1;
-                            console.println("ADC read: " + SharedStringUtil.bytesToHex(i2cCommand.data(), 0, i2cCommand.size()));
-                            byte[] voltData = new byte[4];
-                            long localTS = System.currentTimeMillis();
-                            float add = 0;
-                            for( int i = 0; i < repeat ; i++) {
-                                write(i2cDev, i2cCommand);
-                                i2cDev.getI2CDevice().read(voltData, 0, voltData.length);
-                                float value = BytesValue.FLOAT.toValue(voltData);
-                                console.println(calibrationValue + " voltage value: " + value);
-                                add += value;
-                                if (repeat > 1)
-                                    TaskUtil.sleep(500); // delay added to allow the ADC on the iot device to recover
-                            }
-                            localTS = System.currentTimeMillis() - localTS;
-                            float rate = (float)localTS/(float)repeat;
-                            console.println("voltage read count: " + repeat + " : " + Const.TimeInMillis.toString(localTS) + " millis per command: " + rate);
-                            console.println("average:" + add/(float)repeat);
-                        }
-                        break;
-                        case "W":
-                        {
-//                            i2cCommand[i2cIndex++] = (byte)SharedUtil.parseInt(args[index++]);// port
-//                            i2cCommand[i2cIndex++] = (byte)SharedUtil.parseInt(args[index++]);// pwm 0-255
-                            i2cCommand.toBytes((byte)SharedUtil.parseInt(args[index++]));// port
-                            i2cCommand.toBytes((byte)SharedUtil.parseInt(args[index++]));// pwm 0-255
-
-                            console.println("pwm set: " + SharedStringUtil.bytesToHex(i2cCommand.data(), 0, i2cCommand.size()));
-                            write(i2cDev, i2cCommand);
-                            int pwm = i2cDev.getI2CDevice().read();
-                            console.println("pwm read set value:"  + pwm);
-                        }
-                        break;
-//                        case "V":
-//                        {
-//                            int pin = SharedUtil.parseInt(args[index++]);
-//                            int angle = SharedUtil.parseInt(args[index++]);
-//                            i2cCommand.toBytes((byte) pin);
-//                            i2cCommand.toBytes((byte) angle);
-//
-//
-//                            console.println("servo set: " +SharedStringUtil.bytesToHex(i2cCommand.data(), 0, i2cCommand.size()));
-//                            write(i2cDev, i2cCommand);
-//                            byte data[] = new byte[3];
-////                            i2cDev.getI2CDevice().read(data, 0, data.length);
-////                            short sNew = BytesValue.SHORT.toValue(data, 0, 2);
-////                            short sOld = BytesValue.SHORT.toValue(data, 2, 2);
-//                            //i2cDev.getI2CDevice().read(data, 0, data.length);
-//                            int sNew = i2cDev.getI2CDevice().read(); //BytesValue.SHORT.toValue(data, 0, 2);
-//                            //int sOld = i2cDev.getI2CDevice().read(); //data[2]&0xFF;
-//                            console.println("servo new: "  + sNew + " old: ");
-//                        }
-//                        break;
-                    }
-                }
-                break;
-                case "raw":
-                    int busID = SharedUtil.parseInt(args[index++]);
-                    int address = SharedUtil.parseInt(args[index++]);
-                    CodecManager codecManager = new CodecManager("I2CCodecManager", TokenFilter.UPPER_COLON, "I2CProtocol");
-                    codecManager.add("ping", I2C_DEFAULT_CODEC)
-                            .add("messages", I2C_DEFAULT_CODEC)
-                            .add("cpu", I2C_DEFAULT_CODEC)
-                            .add("aref", I2C_DEFAULT_CODEC)
-                            .add(I2CUptime.SINGLETON)
-                            .add("reset", I2C_DEFAULT_CODEC)
-                            .add(I2CVersion.SINGLETON)
-                            .add(I2CEcho.SINGLETON)
-                            .add(I2C.SINGLETON);
-
-                    I2CGeneric i2cDev = new I2CGeneric("generic", busID, address);
                     for (; index < args.length;) {
                         commandCount++;
-                        String rawCommand = args[index++].toUpperCase();
+                        String rawCommand = args[index++];
 
-                        MessageCodec mc = codecManager.lookup(rawCommand);
-                        CommandToBytes i2cCommand = (CommandToBytes) codecManager.lookup(rawCommand).encode(rawCommand);//new CommandToBytes(16, (byte) 0);
-                        //i2cCommand.command(rawCommand);
-                        console.println(command + ": " + SharedStringUtil.bytesToHex(i2cCommand.data(), 0, i2cCommand.size()));
-                        //write(i2cDev, i2cCommand);
-
-                        byte[] respData = new byte[16];
-                        int byteRead = i2cDev.getI2CDevice().read(i2cCommand.data(), 0, i2cCommand.size(), respData, 0, respData.length);
-                        StringBuilder sb = new StringBuilder("["+rawCommand + "]:");
-//                        int byteRead = 0;
-//                        switch (rawCommand) {
-//                            case "UPTIME":
-//                                i2cDev.getI2CDevice().read(respData, 0, Short.BYTES + Integer.BYTES + 1);
-//                                long millis = BytesValue.INT.toValue(respData, 3);
-//                                sb.append("resp:" + BytesValue.SHORT.toValue(respData, 0) + ":result: " + Const.TimeInMillis.toString(millis));
-//                                break;
-//                            case "VERSION":
-//                                int totalRead = i2cDev.getI2CDevice().read(respData, 0, respData.length);
-//                                int length = respData[0];
-//                                String response = SharedStringUtil.toString(respData, 1, length);
-//                                sb.append(" " + response);
-//                                break;
-////                        case "AREF":
-////                            byteRead = i2cDev.getI2CDevice().read(respData, 0, Short.BYTES + Short.BYTES + 1) ;
-////                            sb.append(byteRead +":resp:" +BytesValue.SHORT.toValue(respData, 0) + ":result: " + BytesValue.SHORT.toValue(respData, 3));
-////                            break;
-//                            default:
-
-//                                int byteRead = i2cDev.getI2CDevice().read(respData, 0, respData.length);
-                                sb.append("bytes read: " + byteRead + " " +GSONUtil.DEFAULT_GSON.toJson(mc.decode(respData)));
-//                                sb.append("resp:" + BytesValue.SHORT.toValue(respData, 0) + " :result:" + BytesValue.INT.toValue(respData, 3));
-//                        }
+                        SimpleMessage resp = I2CUtil.SINGLETON.sendI2CCommand(busID, address, rawCommand);
 
 
+                        MessageCodec mc = I2C_CODEC_MANAGER.lookup(rawCommand);
+                        console.println("Sending [" + rawCommand + "]");
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("Request [" + rawCommand + "] response: " + GSONUtil.DEFAULT_GSON.toJson(resp));
                         console.println(commandCount + " " + sb.toString());
-//                        if(index  + 1 < args.length)
-//                            TaskUtil.sleep(250);
                     }
                 break;
+                default:
+                    usage();
             }
 
 
@@ -405,7 +205,8 @@ public class I2CUtil
         catch(Exception e)
         {
             e.printStackTrace();
-            System.err.println("Ver 1.0-Usage: [bus id] [start address] [end address inclusive]");
+            usage();
+
         }
 
         ts = System.currentTimeMillis() - ts;

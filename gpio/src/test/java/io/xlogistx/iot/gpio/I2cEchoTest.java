@@ -1,11 +1,11 @@
 package io.xlogistx.iot.gpio;
 
-import com.pi4j.wiringpi.I2C;
 import io.xlogistx.iot.gpio.data.CommandToBytes;
 import io.xlogistx.iot.gpio.data.I2CEcho;
 import org.junit.jupiter.api.Test;
 import org.zoxweb.server.util.GSONUtil;
-import org.zoxweb.shared.util.NVGenericMap;
+import org.zoxweb.shared.data.SimpleMessage;
+
 
 import java.util.Arrays;
 
@@ -33,7 +33,7 @@ public class I2cEchoTest {
         };
 
         for(byte[] message : messages) {
-            NVGenericMap resp = I2CEcho.SINGLETON.decode(message);
+            SimpleMessage resp = I2CEcho.SINGLETON.decode(message);
             System.out.println(GSONUtil.DEFAULT_GSON.toJson(resp));
         }
     }

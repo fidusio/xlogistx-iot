@@ -4,6 +4,7 @@ import com.pi4j.io.gpio.Pin;
 import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.i2c.I2CFactory;
 import io.xlogistx.common.data.PropertyHolder;
+import io.xlogistx.iot.gpio.i2c.I2CUtil;
 import io.xlogistx.iot.gpio.i2c.modules.ADS1115;
 import org.zoxweb.shared.annotation.EndPointProp;
 import org.zoxweb.shared.annotation.ParamProp;
@@ -159,26 +160,20 @@ extends PropertyHolder
     @EndPointProp(methods = {HTTPMethod.GET}, name="i2c-command", uris="/i2c/command/{i2c-bus}/{i2c-address}/{command}")
     public SimpleMessage i2cCommand(@ParamProp(name="i2c-bus") int bus,
                                     @ParamProp(name="i2c-address") String addressID,
-                                    @ParamProp(name="command") String param)
-            throws IOException, I2CFactory.UnsupportedBusNumberException {
+                                    @ParamProp(name="command") String command)
+            throws IOException, I2CFactory.UnsupportedBusNumberException
+    {
 
 
         int address = SharedUtil.parseInt(addressID);
 
-        String[] parameters = param.split(":");
 
 
 
-        log.info(bus + " " + address + " " + Arrays.toString(parameters));
-        SimpleMessage response = new SimpleMessage();
+        SimpleMessage response = I2CUtil.SINGLETON.sendI2CCommand(bus, address, command);
 
-
-
-        response.setStatus(HTTPStatusCode.OK.CODE);
-        response.setMessage("I2C Command");
         response.getProperties().add(new NVInt("i2c-bus", bus));
         response.getProperties().add(new NVInt("i2c-address", address));
-        response.getProperties().add(new NVStringList("command", parameters));
         return response;
     }
 
