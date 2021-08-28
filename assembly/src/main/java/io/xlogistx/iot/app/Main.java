@@ -7,6 +7,7 @@ import io.xlogistx.common.cron.CronTool;
 import io.xlogistx.http.HTTPServerCreator;
 import io.xlogistx.iot.gpio.GPIOFlowProcessor;
 import io.xlogistx.iot.gpio.PinStateMonitorConfig;
+import io.xlogistx.iot.gpio.i2c.I2CUtil;
 import io.xlogistx.iot.net.SunriseSunsetScheduler;
 import org.zoxweb.server.io.IOUtil;
 import org.zoxweb.server.task.TaskUtil;
@@ -28,6 +29,7 @@ public class Main
             String wsConfig = params.stringValue("-wsc", true);
             String flowConfig = params.stringValue("-fc", true);
             String cronConfig = params.stringValue("-cc", true);
+            String i2cCommand = params.stringValue("-i2c", true);
 
 
 
@@ -72,10 +74,13 @@ public class Main
                         error(e);
                     }
                 });
-
+            }
+            if(i2cCommand != null)
+            {
+                I2CUtil.main(params.namelessValues(i2cCommand));
             }
 
-            if(wsConfig == null && flowConfig == null && cronConfig == null)
+            if(wsConfig == null && flowConfig == null && cronConfig == null && i2cCommand==null)
                 throw new IllegalArgumentException("No config found");
 
         }
@@ -89,7 +94,8 @@ public class Main
     private static void error(Exception e)
     {
         e.printStackTrace();
-        System.err.println("command: [-wsc web-server-config.json] [-fc flow-config.json] [-cc cron_config.json]");
+        System.err.println("command: [-wsc web-server-config.json] [-fc flow-config.json] [-cc cron_config.json] [-i2c [command] [command-params....]");
+        I2CUtil.error("-i2c");
         System.exit(-1);
     }
 }

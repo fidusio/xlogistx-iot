@@ -41,7 +41,6 @@ public abstract  class I2CMessageBase extends MessageCodec<String, CommandToByte
     {
         SimpleMessage ret = new SimpleMessage();
         ret.setName(getName());
-        ret.setCreationTime(System.currentTimeMillis());
         return ret;
     }
 }

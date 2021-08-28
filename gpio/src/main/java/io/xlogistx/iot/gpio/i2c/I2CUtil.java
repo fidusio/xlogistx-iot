@@ -3,7 +3,6 @@ package io.xlogistx.iot.gpio.i2c;
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
-import com.pi4j.util.Console;
 import io.xlogistx.common.data.CodecManager;
 import io.xlogistx.common.data.MessageCodec;
 import io.xlogistx.iot.gpio.data.*;
@@ -18,12 +17,14 @@ import org.zoxweb.shared.util.SharedUtil;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Logger;
 
 
 public class I2CUtil
 {
-
-    public static final CodecManager<I2CMessageBase> I2C_CODEC_MANAGER = new CodecManager<I2CMessageBase>("I2CCodecManager", TokenFilter.UPPER_COLON, "I2CProtocol")
+    public static final String VERSION = "I2C-UTIL-1.2.16";
+    private static final Logger log = Logger.getLogger(I2CUtil.class.getName());
+    private static final CodecManager<I2CMessageBase> I2C_CODEC_MANAGER = new CodecManager<I2CMessageBase>("I2CCodecManager", TokenFilter.UPPER_COLON, "I2CProtocol")
             .add(new I2CMessageCodec("ping", "Ping the device return the ping value as java int, usage: PING"))
             .add(new I2CMessageCodec("messages", "The number i2c messages processed by the device return the count value as java int, usage: MESSAGES"))
             .add(new I2CMessageCodec("cpu", "Get the device cpu frequency in hz, value as java int, usage: CPU"))
@@ -34,7 +35,6 @@ public class I2CUtil
             .add(I2CEcho.SINGLETON)
             .add(I2C.SINGLETON);
 
-    public static final String VERSION = "I2C-UTIL-1.2.07";
     public static final I2CUtil SINGLETON = new I2CUtil();
 
 
@@ -57,9 +57,10 @@ public class I2CUtil
         CommandToBytes i2cCommand = (CommandToBytes) I2C_CODEC_MANAGER.lookup(rawCommand).encode(rawCommand);
         byte[] respData = new byte[16];
         // we can only send and read one message at time
-        // from the bus
+        // from the bus in the i2c implementation there is a lock
+        // the current lock is just precautionary is case of implementation changes
         synchronized (this) {
-            i2cDevice.getI2CDevice().read(i2cCommand.data(), 0, i2cCommand.size(), respData, 0, respData.length);
+                i2cDevice.getI2CDevice().read(i2cCommand.data(), 0, i2cCommand.size(), respData, 0, respData.length);
         }
         return (SimpleMessage) mc.decode(respData);
     }
@@ -78,6 +79,11 @@ public class I2CUtil
         }
 
         return ret;
+    }
+
+    public CodecManager<I2CMessageBase> getI2cCodecManager()
+    {
+        return I2C_CODEC_MANAGER;
     }
 
     public I2CDevice[] scanI2CDevices(int bus, int startAddress, int endAddress) throws IOException,
@@ -117,16 +123,26 @@ public class I2CUtil
 
 
 
-    private static void usage()
+    public static void error(String token)
     {
-        System.err.println(VERSION + " usage : scan bud-id start-address end-address");
-        System.err.println(VERSION + " usage : command bus-id i2c-device-address [i2cCommand]... \n\n");
+        if (token != null){
+            token = " " + token + " ";
+        }
+        else{
+            token = "";
+        }
+        System.err.println();
+        System.err.println("I2CUtil parameters");
+        System.err.println(VERSION + " usage :" + token + " scan    bus-id start-address end-address");
+
+        System.err.println(VERSION + " usage :" + token + " command bus-id i2c-device-address [i2cCommand]... \n\n");
 
         MessageCodec[] all = I2C_CODEC_MANAGER.all();
         for(MessageCodec mc : all)
         {
             System.err.println(VERSION + ":I2C command: " + mc);
         }
+        System.exit(-1);
     }
 
 
@@ -134,7 +150,7 @@ public class I2CUtil
     public static void main(String[] args) {
 
         long ts = System.currentTimeMillis();
-        final Console console = new Console();
+
         int commandCount = 0;
         try {
             // create Pi4J console wrapper/helper
@@ -142,11 +158,8 @@ public class I2CUtil
 
 
             // print program title/header
-            console.title("<-- The Pi4J Project -->", "I2C Example");
+            log.info("I2CUtil:" + VERSION);
 
-            // allow for user to exit program using CTRL-C
-            console.promptForExit();
-            console.println(VERSION);
 
             int index = 0;
             String command = args[index++].toLowerCase();
@@ -165,14 +178,14 @@ public class I2CUtil
                     // fetch all available busses
                     try {
                         int[] ids = I2CFactory.getBusIds();
-                        console.println("Found follow I2C busses: " + Arrays.toString(ids));
+                        log.info("Found follow I2C busses: " + Arrays.toString(ids));
                     } catch (IOException exception) {
-                        console.println("I/O error during fetch of I2C busses occurred");
+                        log.info("I/O error during fetch of I2C busses occurred");
                     }
                     I2CDevice[] devs = I2CUtil.SINGLETON.scanI2CDevices(busID, startAddress, endAddress);
 
                     for (I2CDevice dev : devs) {
-                        console.print(String.format("%x", dev.getAddress()) + " ");
+                        System.out.println("I2C Device Address: " + String.format("%x", dev.getAddress()));
                     }
                 }
                 break;
@@ -187,14 +200,14 @@ public class I2CUtil
 
 
                         MessageCodec mc = I2C_CODEC_MANAGER.lookup(rawCommand);
-                        console.println("Sending [" + rawCommand + "]");
+                        System.out.println("Sending [" + rawCommand + "]");
                         StringBuilder sb = new StringBuilder();
                         sb.append("Request [" + rawCommand + "] response: " + GSONUtil.DEFAULT_GSON.toJson(resp));
-                        console.println(commandCount + " " + sb.toString());
+                        System.out.println(commandCount + " " + sb.toString());
                     }
                 break;
                 default:
-                    usage();
+                    error(null);
             }
 
 
@@ -205,12 +218,12 @@ public class I2CUtil
         catch(Exception e)
         {
             e.printStackTrace();
-            usage();
+            error(null);
 
         }
 
         ts = System.currentTimeMillis() - ts;
-        console.println("It took: " + Const.TimeInMillis.toString(ts) + " to process " + commandCount + " commands.");
+        log.info("It took: " + Const.TimeInMillis.toString(ts) + " to process " + commandCount + " commands.");
 
 
     }
