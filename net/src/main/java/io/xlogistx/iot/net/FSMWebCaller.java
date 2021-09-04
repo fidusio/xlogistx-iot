@@ -71,7 +71,7 @@ public final class FSMWebCaller {
             }
         };
 
-        TriggerConsumer<Long> wait = new TriggerConsumer<Long>(SMWebCaller.WAIT) {
+        TriggerConsumerInt<Long> wait = new TriggerConsumer<Long>(SMWebCaller.WAIT) {
             private long delta;
             private Runnable run = new Runnable() {
                 private TriggerConsumer<Long> outer;
@@ -230,9 +230,9 @@ public final class FSMWebCaller {
                 .register(new State(StateInt.States.INIT).register(init))
                 .register(new State(SMWebCaller.WAIT).register(wait))
                 .register(new State(SMWebCaller.WEB_EXEC).register(webExec))
-                .register(new State(SMWebCaller.RETRY, new NVLong(SMWebCaller.RETRY_COUNTER.getName(), 0)).register(failRetry).register(resetRetry))
-                .register(new State(SMWebCaller.REPEAT, new NVLong(SMWebCaller.REPEAT_COUNTER.getName(), 0)).register(repeat))
-                .register(new State(SMWebCaller.APP_START, new NVBoolean(SMWebCaller.APP_START.getName(), false)).register(appStart))
+                .register(new State(SMWebCaller.RETRY, new NVLong(SMWebCaller.RETRY_COUNTER, 0)).register(failRetry).register(resetRetry))
+                .register(new State(SMWebCaller.REPEAT, new NVLong(SMWebCaller.REPEAT_COUNTER, 0)).register(repeat))
+                .register(new State(SMWebCaller.APP_START, new NVBoolean(SMWebCaller.APP_START, false)).register(appStart))
                 .register(new State(StateInt.States.FINAL).register(end));
 
         return fsm;
