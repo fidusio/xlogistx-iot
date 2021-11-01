@@ -27,7 +27,7 @@ public class FSMWebCallerTest {
     {
         StateMachineInt<TaskConfig> fsm = FSMWebCaller.create("test", TaskUtil.getDefaultTaskScheduler(), tc);
         fsm.lookupState(StateInt.States.FINAL).getProperties().add(new NVBoolean(FSMWebCaller.SMWebCaller.SHUTDOWN.getName(), true));
-        fsm.start();
+        fsm.start(false);
         System.out.println("After start");
     }
 
