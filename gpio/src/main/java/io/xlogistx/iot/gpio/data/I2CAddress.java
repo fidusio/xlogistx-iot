@@ -7,11 +7,11 @@ import org.zoxweb.shared.util.*;
 
 
 
-public class I2C extends I2CMessageCodec {
-    public static final I2C SINGLETON = new I2C();
-    private I2C()
+public class I2CAddress extends I2CMessageCodec {
+    public static final I2CAddress SINGLETON = new I2CAddress();
+    private I2CAddress()
     {
-        super("I2C", "Set the device I2C address, usage: I2C:S:[7-127], return: [status]:old-address:set-address");
+        super("I2C-ADDRESS", "Set the device I2C address, usage: I2C:S:[7-127], return: [status]:old-address:set-address");
     }
 
     @Override
