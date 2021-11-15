@@ -1,6 +1,9 @@
 package io.xlogistx.iot.gpio.data;
 
 import org.zoxweb.shared.util.BytesValue;
+import org.zoxweb.shared.util.SharedStringUtil;
+
+import java.util.Arrays;
 
 public class CommandToBytes
 {
@@ -100,6 +103,11 @@ public class CommandToBytes
         byte[] ret = BytesValue.DOUBLE.toBytes(v);
         addBytes(ret, 0, ret.length);
         return this;
+    }
+
+    public String toString()
+    {
+        return SharedStringUtil.bytesToHex(data, 0, size());
     }
 
     public synchronized CommandToBytes reset()
