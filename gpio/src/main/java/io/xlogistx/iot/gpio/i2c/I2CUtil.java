@@ -22,7 +22,7 @@ import java.util.logging.Logger;
 
 public class I2CUtil
 {
-    public static final String VERSION = "I2C-UTIL-1.03.42";
+    public static final String VERSION = "I2C-UTIL-1.03.43";
     private static final Logger log = Logger.getLogger(I2CUtil.class.getName());
     private static final CodecManager<I2CMessageBase> I2C_CODEC_MANAGER = new CodecManager<I2CMessageBase>("I2CCodecManager", TokenFilter.UPPER_COLON, "I2CProtocol")
             .add(new I2CMessageCodec("ping", "Ping the device return the ping value as java int, usage: PING"))

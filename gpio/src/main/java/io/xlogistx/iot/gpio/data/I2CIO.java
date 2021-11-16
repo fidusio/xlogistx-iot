@@ -2,10 +2,7 @@ package io.xlogistx.iot.gpio.data;
 
 import org.zoxweb.shared.data.SimpleMessage;
 import org.zoxweb.shared.filters.TokenFilter;
-import org.zoxweb.shared.util.BytesValue;
-import org.zoxweb.shared.util.NVInt;
-import org.zoxweb.shared.util.SharedStringUtil;
-import org.zoxweb.shared.util.SharedUtil;
+import org.zoxweb.shared.util.*;
 
 public class I2CIO
         extends I2CMessageCodec {
@@ -19,7 +16,15 @@ public class I2CIO
     {
         SimpleMessage ret = createDecoderResponse();
         ret.setStatus(BytesValue.SHORT.toValue(input, 0));
-        int index = getName().length();
+        int index = 2;
+
+
+        index =  input[index] == ':' ? ++index : index;
+        String portType = SharedStringUtil.toString(input, index, 1);
+        //System.out.println("pt: " + portType + " " + SharedStringUtil.bytesToHex(input));
+        ret.getProperties().add(new NVEnum("port_type", GPIOConst.PortType.lookup(portType)));
+        index++;
+
         index =  input[index] == ':' ? ++index : index;
         ret.getProperties().add(new NVInt("pin", BytesValue.INT.toValue(input, index, 1) ));
         index++;
