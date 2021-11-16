@@ -19,7 +19,14 @@ public class I2CIO
     {
         SimpleMessage ret = createDecoderResponse();
         ret.setStatus(BytesValue.SHORT.toValue(input, 0));
-        ret.getProperties().add(new NVInt(Token.RESULT, BytesValue.INT.toValue(input, input[2] == ':' ?  3 : 2) ));
+        int index = getName().length();
+        index =  input[index] == ':' ? ++index : index;
+        ret.getProperties().add(new NVInt("pin", BytesValue.INT.toValue(input, index, 1) ));
+        index++;
+        // int value
+        index =  input[index] == ':' ? ++index : index;
+        ret.getProperties().add(new NVInt(Token.RESULT, BytesValue.INT.toValue(input, index) ));
+        index+=2;
         return ret;
     }
 
@@ -37,7 +44,7 @@ public class I2CIO
         if(index < tokens.length)
         {
             int value = SharedUtil.parseInt(tokens[index++]);
-            ret.toBytes((short)value);
+            ret.toBytes((short) value);
         }
 
 
