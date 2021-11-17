@@ -21,8 +21,9 @@ public class I2CIO
 
         index =  input[index] == ':' ? ++index : index;
         String portType = SharedStringUtil.toString(input, index, 1);
+        GPIOConst.PortType pt = GPIOConst.PortType.lookup(portType);
         //System.out.println("pt: " + portType + " " + SharedStringUtil.bytesToHex(input));
-        ret.getProperties().add(new NVEnum("port_type", GPIOConst.PortType.lookup(portType)));
+        ret.getProperties().add(new NVEnum("port_type", pt));
         index++;
 
         index =  input[index] == ':' ? ++index : index;
@@ -30,7 +31,12 @@ public class I2CIO
         index++;
         // int value
         index =  input[index] == ':' ? ++index : index;
-        ret.getProperties().add(new NVInt(Token.RESULT, BytesValue.INT.toValue(input, index) ));
+        int result =  BytesValue.INT.toValue(input, index);
+        if(pt == GPIOConst.PortType.DIGITAL)
+            ret.getProperties().add(new NVBoolean(Token.RESULT, result!=0));
+        else
+            ret.getProperties().add(new NVInt(Token.RESULT, result));
+
         index+=2;
         return ret;
     }
