@@ -19,6 +19,7 @@ public class I2CUptime extends I2CMessageCodec {
         ret.setStatus(BytesValue.SHORT.toValue(input, 0));
         long millis = BytesValue.INT.toValue(input, 3);
         ret.getProperties().add("uptime", Const.TimeInMillis.toString(millis));
+        ret.getProperties().add(new NVLong("millis", millis));
         return ret;
     }
 }

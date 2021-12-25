@@ -22,7 +22,7 @@ import java.util.logging.Logger;
 
 public class I2CUtil
 {
-    public static final String VERSION = "I2C-UTIL-1.03.43";
+    public static final String VERSION = "I2C-UTIL-1.03.44";
     private static final Logger log = Logger.getLogger(I2CUtil.class.getName());
     private static final CodecManager<I2CMessageBase> I2C_CODEC_MANAGER = new CodecManager<I2CMessageBase>("I2CCodecManager", TokenFilter.UPPER_COLON, "I2CProtocol")
             .add(new I2CMessageCodec("ping", "Ping the device return the ping value as java int, usage: PING"))
@@ -30,7 +30,7 @@ public class I2CUtil
             .add(new I2CMessageCodec("cpu-speed", "Get the device cpu frequency in hz, value as java int, usage: CPU-SPEED"))
             .add(new I2CMessageCodec("aref", "Get the device aref , value as java short, usage: AREF"))
             .add(new I2CMessageCodec("reset", "Reboot the device, no return value bus will throw exception, usage: RESET"))
-            //.add(I2CUptime.SINGLETON)
+            .add(I2CUptime.SINGLETON)
             .add(I2CVersion.SINGLETON)
             .add(I2CEcho.SINGLETON)
             .add(I2CAddress.SINGLETON)

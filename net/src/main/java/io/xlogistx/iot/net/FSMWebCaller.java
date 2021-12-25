@@ -67,7 +67,7 @@ public final class FSMWebCaller {
             @Override
             public void accept(Void o) {
                 TaskConfig tc = (TaskConfig) getState().getStateMachine().getConfig();
-                getState().getStateMachine().publish(new Trigger<Long>(getState(), tc.getInitDelay(), SMWebCaller.WAIT));
+                getState().getStateMachine().publish(new Trigger<Long>(getState(), SMWebCaller.WAIT, tc.getInitDelay()));
             }
         };
 
@@ -84,7 +84,7 @@ public final class FSMWebCaller {
                 public void run() {
                     delta = System.currentTimeMillis() - delta;
                     TaskConfig tc = (TaskConfig) getState().getStateMachine().getConfig();
-                    getState().getStateMachine().publish(new Trigger<Void>(getState(), null, SMWebCaller.WEB_EXEC));
+                    getState().getStateMachine().publish(new Trigger<Void>(getState(), SMWebCaller.WEB_EXEC, null));
                     log.info(outer + " waited for " + Const.TimeInMillis.toString(delta));
                 };
             }.init(this);
@@ -131,7 +131,7 @@ public final class FSMWebCaller {
                 if((boolean)getFunction().apply(hmcis))
                     triggerID = SMWebCaller.SUCCESS;
 
-                getState().getStateMachine().publish(new Trigger<Void>(getState(), null, triggerID));
+                getState().getStateMachine().publish(new Trigger<Void>(getState(), triggerID,null));
             }
         }.setFunction(functionExec);
 
@@ -146,12 +146,12 @@ public final class FSMWebCaller {
                 if (tc.getRetries() > 0 && retryCounter.getValue() == tc.getRetries())
                 {
                     retryCounter.setValue(0L);
-                    getState().getStateMachine().publish(new Trigger<Void>(getState(), null, SMWebCaller.SUCCESS));
+                    getState().getStateMachine().publish(new Trigger<Void>(getState(), SMWebCaller.SUCCESS, null));
                 }
                 else
                 {
                     // wait state
-                    getState().getStateMachine().publish(new Trigger<Long>(getState(), tc.getRetryDelay(), SMWebCaller.WAIT));
+                    getState().getStateMachine().publish(new Trigger<Long>(getState(), SMWebCaller.WAIT, tc.getRetryDelay()));
                 }
             }
         };
@@ -176,12 +176,12 @@ public final class FSMWebCaller {
                 if (tc.getRepeats() >= 0 && repeatCounter.getValue() >= tc.getRepeats())
                 {
                     // go to repeat
-                    getState().getStateMachine().publish(new Trigger<Void>(getState(), null, StateInt.States.FINAL));
+                    getState().getStateMachine().publish(new Trigger<Void>(getState(), StateInt.States.FINAL, null));
                 }
                 else
                 {
                     // wait state
-                    getState().getStateMachine().publish(new Trigger<Long>(getState(), tc.getRepeatDelay(), SMWebCaller.WAIT));
+                    getState().getStateMachine().publish(new Trigger<Long>(getState(), SMWebCaller.WAIT, tc.getRepeatDelay()));
                 }
 
             }
