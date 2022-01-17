@@ -3,9 +3,10 @@ package io.xlogistx.iot.device.controller.impl;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-import org.zoxweb.server.logging.LoggerUtil;
+
 import org.zoxweb.server.security.SSLCheckDisabler;
 import org.zoxweb.server.http.HTTPCall;
 import org.zoxweb.server.http.HTTPUtil;
@@ -25,11 +26,11 @@ import org.zoxweb.shared.util.SetNameValue;
  */
 public class UBNTEqpt
 {
-
+  private static final Logger log = Logger.getLogger(UBNTEqpt.class.getName());
 
   public static NVPair loginCookie(String url, String user, String passwd, InetSocketAddressDAO proxy) throws IOException
   {
-    HTTPCall hc = null;
+    HTTPCall hc;
     String uri = "login.cgi";
     // get the login form
     HTTPMessageConfigInterface hcc = new HTTPMessageConfig();
@@ -38,19 +39,15 @@ public class UBNTEqpt
     hcc.setMethod(HTTPMethod.POST);
     hcc.setProxyAddress(proxy);
     hcc.setRedirectEnabled(false);
-    //hcc.setMultiPartEncoding(true);
     hcc.getParameters().add(new NVPair("uri", "/"));
 
 
     hc = new HTTPCall(hcc, SSLCheckDisabler.SINGLETON);
-    //System.out.println( ""+ hcc);
     HTTPResponseData rd = hc.sendRequest();
-    //System.out.println( ""+ rd);
 
 
-    // parse the form content
+
     List<HTTPMessageConfigInterface> forms = HTTPUtil.extractFormsContent(rd, 0);
-    //System.out.println( ""+ forms);
     // perform login to get the session token
     hcc = forms.get(0);
 
@@ -59,47 +56,16 @@ public class UBNTEqpt
     hcc.setProxyAddress(proxy);
     hcc.setRedirectEnabled(false);
 
-    //System.out.println( ""+ forms);
     NVPair cookie = (NVPair) hcc.getHeaderParameters().get("Cookie");
-    SetNameValue<String> username = (SetNameValue<String>) hcc.getParameters().get("username");
-//		if (username == null)
-//		{
-//			hcc.getParameters().add(new NVPair("username", user));
-//		}
-//		else
-    {
-      username.setValue(user);
-    }
+    ((SetNameValue<String>) hcc.getParameters().get("username")).setValue(user);
+    ((SetNameValue<String>)hcc.getParameters().get("password")).setValue( passwd);
 
-
-    SetNameValue<String> password = (SetNameValue<String>) hcc.getParameters().get("password");
-//		if (password == null)
-//		{
-//			hcc.getParameters().add(new NVPair("password", passwd));
-//		}
-//		else
-    {
-      password.setValue( passwd);
-    }
-
-
-
-    //hcc.getParameters().add(new NVPair("uri", " /"));
-    //NVPair cookie = HTTPUtil.extractRequestCookie(rd);
-
-
-
-    // make the login call
-    //System.out.println(hcc);
     hc = new HTTPCall(hcc, SSLCheckDisabler.SINGLETON);
     rd = hc.sendRequest();
     if (rd.getStatus() != HTTPStatusCode.FOUND.CODE)
     {
       throw new HTTPCallException("login failed",rd);
     }
-
-
-
     return cookie;
   }
 
@@ -181,7 +147,7 @@ public class UBNTEqpt
       int index = 0;
       String command = args[index++].toLowerCase();
 
-      String urls[] = args[index++].split(Pattern.quote(","));
+      String[] urls = args[index++].split(Pattern.quote(","));
       String user = args[index++];
       String password = args[index++];
       InetSocketAddressDAO proxy = null;
@@ -227,7 +193,7 @@ public class UBNTEqpt
     {
       e.printStackTrace();
       System.err.println();
-      System.err.println("Usage  : -rl URL User Password [proxy address:port]");
+      System.err.println("Usage  : [-r or -l] URL User Password [proxy address:port]");
       System.err.println("Command: -r reboot");
       System.err.println("Command: -l login and return the session cookie");
     }
