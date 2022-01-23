@@ -55,7 +55,7 @@ public class UniFiController
         NVGenericMap localSite = (NVGenericMap) getAllSites().get(site);
         String uri = "/api/s/" + localSite.getValue("name") + "/stat/device-basic";
         HTTPMessageConfigInterface hmci = HTTPMessageConfig.createAndInit(getProperties().getValue("url"), uri, "get", false);
-        hmci.getHeaderParameters().add(getSecurityCookie());
+        hmci.getHeaders().add(getSecurityCookie());
         HTTPResponseData hrd = new HTTPCall(hmci).sendRequest();
         NVGenericMap nvgm = GSONUtil.fromJSONGenericMap(hrd.getData());
 
@@ -72,7 +72,7 @@ public class UniFiController
         String uri = "/api/s/" + localSite.getValue("name") + "/cmd/devmgr";
         HTTPMessageConfigInterface hmci = HTTPMessageConfig.createAndInit(getProperties().getValue("url"), uri, "post", false);
         hmci.setContentType("application/json;charset=UTF-8");
-        hmci.getHeaderParameters().add(getSecurityCookie());
+        hmci.getHeaders().add(getSecurityCookie());
         hmci.setContent(GSONUtil.toJSONGenericMap(nvgm, false, false, false));
         HTTPCall hc = new HTTPCall(hmci);
         hc.sendRequest();
@@ -135,7 +135,7 @@ public class UniFiController
                     HTTPMessageConfigInterface hmci = HTTPMessageConfig.createAndInit(getProperties().getValue("url"), "api/self/sites", "get");
                     hmci.setSecureCheckEnabled(false);
                     hmci.setContentType("application/json;charset=UTF-8");
-                    hmci.getHeaderParameters().add(getSecurityCookie());
+                    hmci.getHeaders().add(getSecurityCookie());
                     HTTPResponseData hrd = new HTTPCall(hmci).sendRequest();
                     if (hrd.getStatus() != HTTPStatusCode.OK.CODE) {
                         throw new IOException("" + hrd);

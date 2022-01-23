@@ -70,7 +70,7 @@ public class UBNTSwitch
       System.out.println( "cookie"+ cookie);
       HTTPMessageConfigInterface setSensor = HTTPMessageConfig.createAndInit(url, "sensors/1/", HTTPMethod.PUT);
       setSensor.setCookie( cookie);
-      setSensor.getHeaderParameters().add( new NVPair("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"));
+      setSensor.getHeaders().add( new NVPair("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"));
       //setSensor.getHeaderParameters().add( new NVPair("X-Requested-With", "XMLHttpRequest"));
       //setSensor.getHeaderParameters().add( new NVPair("Referer", "http://10.0.1.51/power"));
       setSensor.getParameters().add( new NVPair("output", "1"));

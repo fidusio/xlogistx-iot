@@ -56,7 +56,7 @@ public class UBNTEqpt
     hcc.setProxyAddress(proxy);
     hcc.setRedirectEnabled(false);
 
-    NVPair cookie = (NVPair) hcc.getHeaderParameters().get("Cookie");
+    NVPair cookie = (NVPair) hcc.getHeaders().get("Cookie");
     ((SetNameValue<String>) hcc.getParameters().get("username")).setValue(user);
     ((SetNameValue<String>)hcc.getParameters().get("password")).setValue( passwd);
 
@@ -82,8 +82,8 @@ public class UBNTEqpt
     // create the control message
     HTTPMessageConfigInterface setSensor = HTTPMessageConfig.createAndInit(url, "sensors/"+port, HTTPMethod.PUT, false);
     setSensor.setProxyAddress(proxy);
-    setSensor.getHeaderParameters().add(sessionCookie);
-    setSensor.getHeaderParameters().add( new NVPair("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"));
+    setSensor.getHeaders().add(sessionCookie);
+    setSensor.getHeaders().add( new NVPair("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"));
     //setSensor.getHeaderParameters().add( new NVPair("X-Requested-With", "XMLHttpRequest"));
     //setSensor.getHeaderParameters().add( new NVPair("Referer", "http://10.0.1.51/power"));
     setSensor.getParameters().add( new NVPair("output", (on ?  "1" : "0" )));
@@ -99,10 +99,10 @@ public class UBNTEqpt
     // create the control message
     HTTPMessageConfigInterface getSensorsStatus = HTTPMessageConfig.createAndInit(url, "mfi/sensors.cgi", HTTPMethod.GET);
     getSensorsStatus.setProxyAddress(proxy);
-    getSensorsStatus.getHeaderParameters().add( sessionCookie);
+    getSensorsStatus.getHeaders().add( sessionCookie);
     //getSensorsStatus.getHeaderParameters().add( new NVPair("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"));
-    getSensorsStatus.getHeaderParameters().add( new NVPair("X-Requested-With", "XMLHttpRequest"));
-    getSensorsStatus.getHeaderParameters().add( new NVPair("Accept", "*/*"));
+    getSensorsStatus.getHeaders().add( new NVPair("X-Requested-With", "XMLHttpRequest"));
+    getSensorsStatus.getHeaders().add( new NVPair("Accept", "*/*"));
     //setSensor.getHeaderParameters().add( new NVPair("Referer", "http://10.0.1.51/power"));
     getSensorsStatus.getParameters().add( new NVPair("t", "0."+System.currentTimeMillis() ));
     System.out.println( ""+getSensorsStatus);
@@ -114,7 +114,7 @@ public class UBNTEqpt
   public static HTTPResponseData reboot(String url, NVPair sessionCookie) throws IOException
   {
     HTTPMessageConfigInterface reboot = HTTPMessageConfig.createAndInit(url, "reboot.cgi", HTTPMethod.POST);
-    reboot.getHeaderParameters().add(sessionCookie);
+    reboot.getHeaders().add(sessionCookie);
     reboot.setContentType(HTTPMimeType.MULTIPART_FORM_DATA);
     //System.out.println( ""+reboot);
     HTTPCall hc = new HTTPCall(reboot, SSLCheckDisabler.SINGLETON);
@@ -126,7 +126,7 @@ public class UBNTEqpt
   {
     NVPair cookie = loginCookie(url, user, passwd, proxy);
     HTTPMessageConfigInterface reboot = HTTPMessageConfig.createAndInit(url, "reboot.cgi", HTTPMethod.POST);
-    reboot.getHeaderParameters().add(cookie);
+    reboot.getHeaders().add(cookie);
     reboot.setContentType(HTTPMimeType.MULTIPART_FORM_DATA);
     //reboot.setMultiPartEncoding(true);
     reboot.setProxyAddress(proxy);

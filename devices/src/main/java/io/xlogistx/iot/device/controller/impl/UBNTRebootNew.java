@@ -51,7 +51,7 @@ public class UBNTRebootNew
             String authToken = rd.getResponseHeaders().get("x-auth-token").get(0);
             hmci = HTTPMessageConfig.createAndInit(getProperties().getValue("host"), "/api/v1.0/system/reboot", HTTPMethod.POST, false);
             hmci.setContentType("application/json");
-            hmci.getHeaderParameters().add(new NVPair("x-auth-token", authToken));
+            hmci.getHeaders().add(new NVPair("x-auth-token", authToken));
 
             hc = new HTTPCall(hmci);
             rd = hc.sendRequest();
