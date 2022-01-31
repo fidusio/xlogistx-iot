@@ -22,7 +22,7 @@ import java.util.logging.Logger;
 
 public class I2CUtil
 {
-    public static final String VERSION = "I2C-UTIL-1.03.44";
+    public static final String VERSION = "I2C-UTIL-1.03.45";
     private static final Logger log = Logger.getLogger(I2CUtil.class.getName());
     private static final CodecManager<I2CMessageBase> I2C_CODEC_MANAGER = new CodecManager<I2CMessageBase>("I2CCodecManager", TokenFilter.UPPER_COLON, "I2CProtocol")
             .add(new I2CMessageCodec("ping", "Ping the device return the ping value as java int, usage: PING"))
@@ -40,7 +40,7 @@ public class I2CUtil
 
 
 
-    private Map<String, I2CBaseDevice> i2cDevices = new LinkedHashMap<String, I2CBaseDevice>();
+    private final Map<String, I2CBaseDevice> i2cDevices = new LinkedHashMap<String, I2CBaseDevice>();
 
     private I2CUtil(){}
 
@@ -51,20 +51,22 @@ public class I2CUtil
         I2CBaseDevice i2cDevice = createI2CDevice("generic", bus, address);
         String rawCommand = command.toUpperCase();
 
-        MessageCodec mc = I2C_CODEC_MANAGER.lookup(rawCommand);
+        I2CMessageBase mc = I2C_CODEC_MANAGER.lookup(rawCommand);
         if(mc == null){
             throw new IllegalArgumentException("Command not supported: " + command);
         }
-        CommandToBytes i2cCommand = (CommandToBytes) I2C_CODEC_MANAGER.lookup(rawCommand).encode(rawCommand);
+        CommandToBytes i2cCommand = I2C_CODEC_MANAGER.lookup(rawCommand).encode(rawCommand);
         log.info("sending: " + rawCommand + " " + i2cCommand);
         byte[] respData = new byte[16];
         // we can only send and read one message at time
         // from the bus in the i2c implementation there is a lock
         // the current lock is just precautionary is case of implementation changes
-        synchronized (this) {
-                i2cDevice.getI2CDevice().read(i2cCommand.data(), 0, i2cCommand.size(), respData, 0, respData.length);
+        synchronized (this)
+        {
+            mc.resetTimeStamp();
+            i2cDevice.getI2CDevice().read(i2cCommand.data(), 0, i2cCommand.size(), respData, 0, respData.length);
         }
-        return (SimpleMessage) mc.decode(respData);
+        return  mc.decode(respData);
     }
 
     public I2CBaseDevice createI2CDevice(String name, int bus, int address) throws IOException, I2CFactory.UnsupportedBusNumberException {

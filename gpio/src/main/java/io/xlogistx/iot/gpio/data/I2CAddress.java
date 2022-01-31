@@ -11,7 +11,7 @@ public class I2CAddress extends I2CMessageCodec {
     public static final I2CAddress SINGLETON = new I2CAddress();
     private I2CAddress()
     {
-        super("I2C-ADDRESS", "Set the device I2C address, usage: I2C:S:[7-127], return: [status]:old-address:set-address");
+        super("I2C-ADDRESS", "Set the device I2C address, usage: I2C-ADDRESS:S:[7-127], return: [status]:old-address:set-address");
     }
 
     @Override
@@ -32,8 +32,8 @@ public class I2CAddress extends I2CMessageCodec {
 
     /**
      * command: I2C:S:address byte
-     * @param input
-     * @return
+     * @param input message to be converted
+     * @return the command to byte object
      */
     @Override
     public CommandToBytes encode(String input) {
