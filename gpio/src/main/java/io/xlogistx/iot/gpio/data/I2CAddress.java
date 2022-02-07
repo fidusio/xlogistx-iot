@@ -7,7 +7,7 @@ import org.zoxweb.shared.util.*;
 
 
 
-public class I2CAddress extends I2CMessageCodec {
+public class I2CAddress extends I2CCodec {
     public static final I2CAddress SINGLETON = new I2CAddress();
     private I2CAddress()
     {
@@ -15,23 +15,23 @@ public class I2CAddress extends I2CMessageCodec {
     }
 
     @Override
-    public SimpleMessage decode(byte[] input)
+    public SimpleMessage decode(I2CResp i2cResp)
     {
         // OK:I,L:VALUE
-        SimpleMessage ret = createDecoderResponse();
+        SimpleMessage ret = createDecoderResponse(i2cResp.bus, i2cResp.address);
         int offset = 0;
 
-        ret.setStatus(BytesValue.SHORT.toValue(input, offset));
+        ret.setStatus(BytesValue.SHORT.toValue(i2cResp.data, offset));
         offset += 3;
-        int oldAddress = input[offset++];
-        int newAddress = input[++offset];
+        int oldAddress = i2cResp.data[offset++];
+        int newAddress = i2cResp.data[++offset];
         ret.getProperties().add(new NVInt("old-i2c-address", oldAddress));
         ret.getProperties().add(new NVInt("new-i2c-address", newAddress));
         return ret;
     }
 
     /**
-     * command: I2C:S:address byte
+     * command: I2C-ADDRESS:S:address byte
      * @param input message to be converted
      * @return the command to byte object
      */

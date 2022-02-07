@@ -5,7 +5,7 @@ import org.zoxweb.shared.util.*;
 
 
 
-public class I2CVersion extends I2CMessageCodec {
+public class I2CVersion extends I2CCodec {
     public static final I2CVersion SINGLETON = new I2CVersion();
     private I2CVersion()
     {
@@ -13,11 +13,11 @@ public class I2CVersion extends I2CMessageCodec {
     }
 
     @Override
-    public SimpleMessage decode(byte[] input)
+    public SimpleMessage decode(I2CResp i2cResp)
     {
-        SimpleMessage ret = createDecoderResponse();
-        int length = input[0];
-        String version = SharedStringUtil.toString(input, 1, length);
+        SimpleMessage ret = createDecoderResponse(i2cResp.bus, i2cResp.address);
+        int length = i2cResp.data[0];
+        String version = SharedStringUtil.toString(i2cResp.data, 1, length);
 
         ret.getProperties().add("version", version);
         return ret;

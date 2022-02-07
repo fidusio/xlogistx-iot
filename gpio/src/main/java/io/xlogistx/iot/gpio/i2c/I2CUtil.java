@@ -7,6 +7,7 @@ import io.xlogistx.common.data.CodecManager;
 import io.xlogistx.common.data.MessageCodec;
 import io.xlogistx.iot.gpio.data.*;
 import io.xlogistx.iot.gpio.i2c.modules.I2CGeneric;
+import org.zoxweb.server.task.TaskUtil;
 import org.zoxweb.server.util.GSONUtil;
 import org.zoxweb.shared.data.SimpleMessage;
 import org.zoxweb.shared.filters.TokenFilter;
@@ -22,14 +23,15 @@ import java.util.logging.Logger;
 
 public class I2CUtil
 {
-    public static final String VERSION = "I2C-UTIL-1.03.45";
+
+    public static final String VERSION = "I2C-UTIL-1.03.73";
     private static final Logger log = Logger.getLogger(I2CUtil.class.getName());
-    private static final CodecManager<I2CMessageBase> I2C_CODEC_MANAGER = new CodecManager<I2CMessageBase>("I2CCodecManager", TokenFilter.UPPER_COLON, "I2CProtocol")
-            .add(new I2CMessageCodec("ping", "Ping the device return the ping value as java int, usage: PING"))
-            .add(new I2CMessageCodec("messages", "The number i2c messages processed by the device return the count value as java int, usage: MESSAGES"))
-            .add(new I2CMessageCodec("cpu-speed", "Get the device cpu frequency in hz, value as java int, usage: CPU-SPEED"))
-            .add(new I2CMessageCodec("aref", "Get the device aref , value as java short, usage: AREF"))
-            .add(new I2CMessageCodec("reset", "Reboot the device, no return value bus will throw exception, usage: RESET"))
+    private static final CodecManager<I2CCodecBase> I2C_CODEC_MANAGER = new CodecManager<I2CCodecBase>("I2CCodecManager", TokenFilter.UPPER_COLON, "I2CProtocol")
+            .add(new I2CCodec("ping", "Ping the device return the ping value as java int, usage: PING"))
+            .add(new I2CCodec("messages", "The number i2c messages processed by the device return the count value as java int, usage: MESSAGES"))
+            .add(new I2CCodec("cpu-speed", "Get the device cpu frequency in hz, value as java int, usage: CPU-SPEED"))
+            .add(new I2CCodec("aref", "Get the device aref , value as java short, usage: AREF"))
+            .add(new I2CCodec("reset", "Reboot the device, no return value bus will throw exception, usage: RESET"))
             .add(I2CUptime.SINGLETON)
             .add(I2CVersion.SINGLETON)
             .add(I2CEcho.SINGLETON)
@@ -46,27 +48,37 @@ public class I2CUtil
 
 
 
-    public SimpleMessage sendI2CCommand(int bus, int address, String command) throws IOException, I2CFactory.UnsupportedBusNumberException {
+    public SimpleMessage sendI2CCommand(int bus, int address, String command, long delay) throws IOException, I2CFactory.UnsupportedBusNumberException {
         SharedUtil.checkIfNulls("null command.", command);
         I2CBaseDevice i2cDevice = createI2CDevice("generic", bus, address);
         String rawCommand = command.toUpperCase();
 
-        I2CMessageBase mc = I2C_CODEC_MANAGER.lookup(rawCommand);
+        I2CCodecBase mc = I2C_CODEC_MANAGER.lookup(rawCommand);
         if(mc == null){
             throw new IllegalArgumentException("Command not supported: " + command);
         }
         CommandToBytes i2cCommand = I2C_CODEC_MANAGER.lookup(rawCommand).encode(rawCommand);
         log.info("sending: " + rawCommand + " " + i2cCommand);
-        byte[] respData = new byte[16];
+        byte[] respData = new byte[mc.responseLength()];
         // we can only send and read one message at time
         // from the bus in the i2c implementation there is a lock
         // the current lock is just precautionary is case of implementation changes
+        I2CDevice i2cDev = i2cDevice.getI2CDevice();
         synchronized (this)
         {
             mc.resetTimeStamp();
-            i2cDevice.getI2CDevice().read(i2cCommand.data(), 0, i2cCommand.size(), respData, 0, respData.length);
+            // send i2c command
+            i2cDev.write(i2cCommand.data(), 0, i2cCommand.size());
+            // sleep if delay set
+            if(delay > 0)
+                TaskUtil.sleep(delay);
+            // get i2c response
+            i2cDev.read(respData, 0, respData.length);
         }
-        return  mc.decode(respData);
+        SimpleMessage ret = mc.decode(I2CResp.build(bus, address, respData));
+//        ret.getProperties().add(new NVInt("address", address));
+
+        return ret;
     }
 
     public I2CBaseDevice createI2CDevice(String name, int bus, int address) throws IOException, I2CFactory.UnsupportedBusNumberException {
@@ -74,18 +86,20 @@ public class I2CUtil
         I2CBaseDevice ret = i2cDevices.get(i2cID);
         if(ret == null)
         {
-            // avoid double penetration
-            ret = i2cDevices.get(i2cID);
-            if(ret == null)
+            synchronized (this)
             {
-                ret = new I2CGeneric(name, bus, address);
+                ret = i2cDevices.get(i2cID);
+                if (ret == null) {
+                    ret = new I2CGeneric(name, bus, address);
+                    i2cDevices.put(i2cID, ret);
+                }
             }
         }
 
         return ret;
     }
 
-    public CodecManager<I2CMessageBase> getI2cCodecManager()
+    public CodecManager<I2CCodecBase> getI2cCodecManager()
     {
         return I2C_CODEC_MANAGER;
     }
@@ -139,7 +153,7 @@ public class I2CUtil
         System.err.println("I2CUtil parameters");
         System.err.println(VERSION + " usage :" + token + " scan    bus-id start-address end-address");
 
-        System.err.println(VERSION + " usage :" + token + " command bus-id i2c-device-address [i2cCommand]... \n\n");
+        System.err.println(VERSION + " usage :" + token + " cmd bus-id i2c-device-address [i2cCommand]... \n\n");
 
         MessageCodec[] all = I2C_CODEC_MANAGER.all();
         for(MessageCodec mc : all)
@@ -193,21 +207,46 @@ public class I2CUtil
                     }
                 }
                 break;
-                case "command":
+                case "cmd":
                     int busID = SharedUtil.parseInt(args[index++]);
                     int address = SharedUtil.parseInt(args[index++]);
+                    long delay = 0;
+                    log.info(index + " " + args[index] );
+                    if (args[index].equalsIgnoreCase("delay"))
+                    {
+                        delay = Const.TimeInMillis.toMillis(args[++index]);
+                        index++;
+
+                    }
+                    log.info("Delay: " + Const.TimeInMillis.toString(delay));
                     for (; index < args.length;) {
                         commandCount++;
+                        int addressOverride = address;
+
                         String rawCommand = args[index++];
+                        int indexOfAddress = rawCommand.indexOf(':');
+                        if( indexOfAddress != -1)
+                        {
+                            try
+                            {
+                                addressOverride =  SharedUtil.parseInt(rawCommand.substring(0, indexOfAddress));
+                                rawCommand = rawCommand.substring(indexOfAddress + 1);
+                            }
+                            catch(Exception e)
+                            {
+                            }
+                        }
 
-                        SimpleMessage resp = I2CUtil.SINGLETON.sendI2CCommand(busID, address, rawCommand);
+                        SimpleMessage resp = I2CUtil.SINGLETON.sendI2CCommand(busID, addressOverride, rawCommand, 0);
 
 
-                        MessageCodec mc = I2C_CODEC_MANAGER.lookup(rawCommand);
+                        //MessageCodec mc2 = I2C_CODEC_MANAGER.lookup(rawCommand);
                         System.out.println("Sending [" + rawCommand + "]");
                         StringBuilder sb = new StringBuilder();
                         sb.append("Request [" + rawCommand + "] response: " + GSONUtil.DEFAULT_GSON.toJson(resp));
                         System.out.println(commandCount + " " + sb.toString());
+                        if(delay > 0)
+                            TaskUtil.sleep(delay);
                     }
                 break;
                 default:

@@ -2,6 +2,7 @@ package io.xlogistx.iot.gpio;
 
 import io.xlogistx.iot.gpio.data.CommandToBytes;
 import io.xlogistx.iot.gpio.data.I2CEcho;
+import io.xlogistx.iot.gpio.data.I2CResp;
 import org.junit.jupiter.api.Test;
 import org.zoxweb.server.util.GSONUtil;
 import org.zoxweb.shared.data.SimpleMessage;
@@ -33,7 +34,7 @@ public class I2cEchoTest {
         };
 
         for(byte[] message : messages) {
-            SimpleMessage resp = I2CEcho.SINGLETON.decode(message);
+            SimpleMessage resp = I2CEcho.SINGLETON.decode(I2CResp.build(1, 10, message));
             System.out.println(GSONUtil.DEFAULT_GSON.toJson(resp));
         }
     }

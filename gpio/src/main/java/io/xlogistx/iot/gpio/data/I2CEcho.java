@@ -7,7 +7,7 @@ import org.zoxweb.shared.util.*;
 
 
 
-public class I2CEcho extends I2CMessageCodec {
+public class I2CEcho extends I2CCodec {
     public static final I2CEcho SINGLETON = new I2CEcho();
     private I2CEcho()
     {
@@ -15,22 +15,22 @@ public class I2CEcho extends I2CMessageCodec {
     }
 
     @Override
-    public SimpleMessage decode(byte[] input)
+    public SimpleMessage decode(I2CResp input)
     {
         // OK:I,L:VALUE
-        SimpleMessage ret = createDecoderResponse();
+        SimpleMessage ret = createDecoderResponse(input.bus, input.address);
         int offset = 0;
 
-        ret.setStatus(BytesValue.SHORT.toValue(input, offset));
+        ret.setStatus(BytesValue.SHORT.toValue(input.data, offset));
         offset += 3;
 
-        switch(input[offset++])
+        switch(input.data[offset++])
         {
             case 'I':
-                ret.getProperties().add(new NVInt("short", BytesValue.SHORT.toValue(input, ++offset)));
+                ret.getProperties().add(new NVInt("short", BytesValue.SHORT.toValue(input.data, ++offset)));
                 break;
             case 'L':
-                ret.getProperties().add(new NVInt("int", BytesValue.INT.toValue(input, ++offset)));
+                ret.getProperties().add(new NVInt("int", BytesValue.INT.toValue(input.data, ++offset)));
                 break;
         }
 
