@@ -77,7 +77,7 @@ public class Main
             }
             if(i2cCommand != null)
             {
-                I2CUtil.main(params.namelessValues(i2cCommand));
+                I2CUtil.exec(params);
             }
 
             if(wsConfig == null && flowConfig == null && cronConfig == null && i2cCommand==null)

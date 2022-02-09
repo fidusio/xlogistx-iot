@@ -60,6 +60,6 @@ extends I2CBaseDevice
      */
     @Override
     public void close() throws Exception {
-
+        getI2CBus().close();
     }
 }

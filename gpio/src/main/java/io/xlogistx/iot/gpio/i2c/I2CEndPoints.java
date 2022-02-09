@@ -29,14 +29,29 @@ public class I2CEndPoints
     private static final Logger log = Logger.getLogger(I2CEndPoints.class.getName());
 
 
-    @EndPointProp(methods = {HTTPMethod.GET}, name="i2c-command", uris="/i2c/command/{i2c-bus}/{i2c-address}/{command}")
+    @EndPointProp(methods = {HTTPMethod.GET}, name="i2c-command", uris="/i2c/command/{i2c-bus}/{i2c-address}/{command}/{delay}")
     public SimpleMessage i2cCommand(@ParamProp(name="i2c-bus") int bus,
                                     @ParamProp(name="i2c-address") String addressID,
-                                    @ParamProp(name="command") String command)
+                                    @ParamProp(name="command") String command,
+                                    @ParamProp(name="delay",optional = true) String delay)
             throws IOException, I2CFactory.UnsupportedBusNumberException
     {
         int address = SharedUtil.parseInt(addressID);
-        SimpleMessage response = I2CUtil.SINGLETON.sendI2CCommand(bus, address, command, 0);
+        long delayBetweenRW = 0;
+        try
+        {
+            if(delay != null)
+            {
+                long parsedDelay = Const.TimeInMillis.toMillis(delay);
+                if(parsedDelay > 0)
+                    delayBetweenRW = parsedDelay;
+            }
+        }
+        catch(Exception e)
+        {
+
+        }
+        SimpleMessage response = I2CUtil.SINGLETON.sendI2CCommand(bus, address, command, delayBetweenRW);
         return response;
     }
 

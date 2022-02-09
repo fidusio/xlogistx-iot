@@ -7,12 +7,20 @@ import io.xlogistx.common.data.CodecManager;
 import io.xlogistx.common.data.MessageCodec;
 import io.xlogistx.iot.gpio.data.*;
 import io.xlogistx.iot.gpio.i2c.modules.I2CGeneric;
+import org.zoxweb.server.http.HTTPCall;
+import org.zoxweb.server.io.IOUtil;
 import org.zoxweb.server.task.TaskUtil;
 import org.zoxweb.server.util.GSONUtil;
 import org.zoxweb.shared.data.SimpleMessage;
 import org.zoxweb.shared.filters.TokenFilter;
+import org.zoxweb.shared.http.HTTPMessageConfig;
+import org.zoxweb.shared.http.HTTPMessageConfigInterface;
+import org.zoxweb.shared.http.HTTPResponseData;
+import org.zoxweb.shared.http.HTTPStatusCode;
 import org.zoxweb.shared.util.Const;
 
+import org.zoxweb.shared.util.ParamUtil;
+import org.zoxweb.shared.util.SharedStringUtil;
 import org.zoxweb.shared.util.SharedUtil;
 
 
@@ -24,7 +32,7 @@ import java.util.logging.Logger;
 public class I2CUtil
 {
 
-    public static final String VERSION = "I2C-UTIL-1.03.73";
+    public static final String VERSION = "I2C-UTIL-1.03.90";
     private static final Logger log = Logger.getLogger(I2CUtil.class.getName());
     private static final CodecManager<I2CCodecBase> I2C_CODEC_MANAGER = new CodecManager<I2CCodecBase>("I2CCodecManager", TokenFilter.UPPER_COLON, "I2CProtocol")
             .add(new I2CCodec("ping", "Ping the device return the ping value as java int, usage: PING"))
@@ -42,13 +50,13 @@ public class I2CUtil
 
 
 
-    private final Map<String, I2CBaseDevice> i2cDevices = new LinkedHashMap<String, I2CBaseDevice>();
+    //private final Map<String, I2CBaseDevice> i2cDevices = new LinkedHashMap<String, I2CBaseDevice>();
 
     private I2CUtil(){}
 
 
 
-    public SimpleMessage sendI2CCommand(int bus, int address, String command, long delay) throws IOException, I2CFactory.UnsupportedBusNumberException {
+    public synchronized SimpleMessage sendI2CCommand(int bus, int address, String command, long delay) throws IOException, I2CFactory.UnsupportedBusNumberException {
         SharedUtil.checkIfNulls("null command.", command);
         I2CBaseDevice i2cDevice = createI2CDevice("generic", bus, address);
         String rawCommand = command.toUpperCase();
@@ -64,39 +72,48 @@ public class I2CUtil
         // from the bus in the i2c implementation there is a lock
         // the current lock is just precautionary is case of implementation changes
         I2CDevice i2cDev = i2cDevice.getI2CDevice();
-        synchronized (this)
+
         {
             mc.resetTimeStamp();
-            // send i2c command
-            i2cDev.write(i2cCommand.data(), 0, i2cCommand.size());
-            // sleep if delay set
             if(delay > 0)
+            {
+                // send i2c command
+                i2cDev.write(i2cCommand.data(), 0, i2cCommand.size());
+                // sleep if delay set
                 TaskUtil.sleep(delay);
-            // get i2c response
-            i2cDev.read(respData, 0, respData.length);
+                // get i2c response
+                i2cDev.read(respData, 0, respData.length);
+            }
+            else
+                i2cDev.read(i2cCommand.data(), 0, i2cCommand.size(), respData, 0, respData.length);
+
+            // close the bus
+            IOUtil.close(i2cDevice);
         }
         SimpleMessage ret = mc.decode(I2CResp.build(bus, address, respData));
-//        ret.getProperties().add(new NVInt("address", address));
 
         return ret;
     }
 
     public I2CBaseDevice createI2CDevice(String name, int bus, int address) throws IOException, I2CFactory.UnsupportedBusNumberException {
-        String i2cID  = I2CBaseDevice.i2cDeviceID(bus, address);
-        I2CBaseDevice ret = i2cDevices.get(i2cID);
-        if(ret == null)
-        {
-            synchronized (this)
-            {
-                ret = i2cDevices.get(i2cID);
-                if (ret == null) {
-                    ret = new I2CGeneric(name, bus, address);
-                    i2cDevices.put(i2cID, ret);
-                }
-            }
-        }
 
-        return ret;
+        return new I2CGeneric(name, bus, address);
+
+//        String i2cID  = I2CBaseDevice.i2cDeviceID(bus, address);
+//        I2CBaseDevice ret = i2cDevices.get(i2cID);
+//        if(ret == null)
+//        {
+//            synchronized (this)
+//            {
+//                ret = i2cDevices.get(i2cID);
+//                if (ret == null) {
+//                    ret = new I2CGeneric(name, bus, address);
+//                    //i2cDevices.put(i2cID, ret);
+//                }
+//            }
+//        }
+//
+//        return ret;
     }
 
     public CodecManager<I2CCodecBase> getI2cCodecManager()
@@ -104,7 +121,7 @@ public class I2CUtil
         return I2C_CODEC_MANAGER;
     }
 
-    public I2CDevice[] scanI2CDevices(int bus, int startAddress, int endAddress) throws IOException,
+    public synchronized I2CDevice[]  scanI2CDevices(int bus, int startAddress, int endAddress) throws IOException,
             I2CFactory.UnsupportedBusNumberException
     {
         I2CBus i2CBus = I2CFactory.getInstance(bus);
@@ -123,6 +140,15 @@ public class I2CUtil
                 {
                 }
             }
+        }
+        try
+        {
+            if (i2CBus != null)
+                i2CBus.close();
+        }
+        catch (Exception e)
+        {
+
         }
 
         return ret.toArray(new I2CDevice[ret.size()]);
@@ -151,9 +177,9 @@ public class I2CUtil
         }
         System.err.println();
         System.err.println("I2CUtil parameters");
-        System.err.println(VERSION + " usage :" + token + " scan    bus-id start-address end-address");
+        System.err.println(VERSION + " usage :" + token + " -i2c scan bus=bus-id");
 
-        System.err.println(VERSION + " usage :" + token + " cmd bus-id i2c-device-address [i2cCommand]... \n\n");
+        System.err.println(VERSION + " usage :" + token + " -i2c cmd bus=bus-id address=i2c-address [uri=i2cCommand1 uri=2icCommand2]... \n\n");
 
         MessageCodec[] all = I2C_CODEC_MANAGER.all();
         for(MessageCodec mc : all)
@@ -165,7 +191,7 @@ public class I2CUtil
 
 
 
-    public static void main(String[] args) {
+    public static void mainOld(String[] args) {
 
         long ts = System.currentTimeMillis();
 
@@ -177,6 +203,8 @@ public class I2CUtil
 
             // print program title/header
             log.info("I2CUtil:" + VERSION);
+
+
 
 
             int index = 0;
@@ -252,6 +280,123 @@ public class I2CUtil
                 default:
                     error(null);
             }
+
+
+
+
+
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+            error(null);
+
+        }
+
+        ts = System.currentTimeMillis() - ts;
+        log.info("It took: " + Const.TimeInMillis.toString(ts) + " to process " + commandCount + " commands.");
+
+
+    }
+
+
+    public static void exec(ParamUtil.ParamMap params) throws Exception
+    {
+        String i2cCommand = params.stringValue("-i2c", "cmd");
+        String url = params.stringValue("url", true);
+        List<String> uris = params.lookup("uri");
+        String httpMethod = params.stringValue("method", "GET");
+        int busID = params.smartIntValue("bus", 0);
+        int address = params.smartIntValue("address", 0);
+        long delay = 0;
+        if(params.stringValue("delay", true) != null)
+        {
+            delay = Const.TimeInMillis.toMillis(params.stringValue("delay"));
+        }
+        log.info(""+params);
+
+        switch(i2cCommand)
+        {
+            case "cmd":
+                int commandCount = 0;
+                for(String uri : uris)
+                {
+                    commandCount++;
+                    try
+                    {
+                        if(url != null)
+                        {
+                            if(busID > 0 )
+                                uri = SharedStringUtil.embedText(uri, "{bus}", ""+busID);
+
+                            if(address > 0)
+                                uri = SharedStringUtil.embedText(uri, "{address}", ""+address);
+                            HTTPMessageConfigInterface hmci = HTTPMessageConfig.createAndInit(url, uri, httpMethod, false);
+                            HTTPCall hc = new HTTPCall(hmci);
+                            HTTPResponseData hrd = hc.sendRequest();
+                            if(hrd.getStatus() == HTTPStatusCode.OK.CODE)
+                            {
+                                log.info(SharedStringUtil.toString(hrd.getData()));
+                            }
+                            else
+                                log.info("" + hrd);
+                        }
+                        else
+                        {
+                            SimpleMessage resp = I2CUtil.SINGLETON.sendI2CCommand(busID, address, uri, 0);
+
+
+                            //MessageCodec mc2 = I2C_CODEC_MANAGER.lookup(rawCommand);
+                            System.out.println("Sending [" + uri + "]");
+                            StringBuilder sb = new StringBuilder();
+                            sb.append("Request [" + uri + "] response: " + GSONUtil.DEFAULT_GSON.toJson(resp));
+                            System.out.println(commandCount + " " + sb.toString());
+
+                        }
+                        if(delay > 0)
+                            TaskUtil.sleep(delay);
+                    }
+                    catch(Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+                break;
+            case "scan":
+                try
+                {
+                    int[] ids = I2CFactory.getBusIds();
+                    log.info("Found follow I2C busses: " + Arrays.toString(ids));
+                } catch (IOException exception) {
+                    log.info("I/O error during fetch of I2C busses occurred");
+                }
+                I2CDevice[] devs = I2CUtil.SINGLETON.scanI2CDevices(busID, 4, 127);
+
+                for (I2CDevice dev : devs) {
+                    System.out.println("I2C Device Address: " + String.format("%x", dev.getAddress()));
+                }
+                break;
+            default:
+                error(null);
+        }
+
+
+
+    }
+
+    public static void main(String[] args) {
+
+        long ts = System.currentTimeMillis();
+
+        int commandCount = 0;
+        try {
+
+            // print program title/header
+            log.info("I2CUtil:" + VERSION);
+            ParamUtil.ParamMap params = ParamUtil.parse("=", args);
+            log.info("" + params);
+
+            exec(params);
 
 
 
