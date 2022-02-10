@@ -9,6 +9,7 @@ import io.xlogistx.iot.gpio.data.*;
 import io.xlogistx.iot.gpio.i2c.modules.I2CGeneric;
 import org.zoxweb.server.http.HTTPCall;
 import org.zoxweb.server.io.IOUtil;
+import org.zoxweb.server.logging.LoggerUtil;
 import org.zoxweb.server.task.TaskUtil;
 import org.zoxweb.server.util.GSONUtil;
 import org.zoxweb.shared.data.SimpleMessage;
@@ -32,7 +33,7 @@ import java.util.logging.Logger;
 public class I2CUtil
 {
 
-    public static final String VERSION = "I2C-UTIL-1.03.90";
+    public static final String VERSION = "I2C-UTIL-1.03.92";
     private static final Logger log = Logger.getLogger(I2CUtil.class.getName());
     private static final CodecManager<I2CCodecBase> I2C_CODEC_MANAGER = new CodecManager<I2CCodecBase>("I2CCodecManager", TokenFilter.UPPER_COLON, "I2CProtocol")
             .add(new I2CCodec("ping", "Ping the device return the ping value as java int, usage: PING"))
@@ -87,7 +88,8 @@ public class I2CUtil
             else
                 i2cDev.read(i2cCommand.data(), 0, i2cCommand.size(), respData, 0, respData.length);
 
-            // close the bus
+            // close the bus it is must
+            // to avoid bus read issues specially with io set commands
             IOUtil.close(i2cDevice);
         }
         SimpleMessage ret = mc.decode(I2CResp.build(bus, address, respData));
@@ -190,117 +192,7 @@ public class I2CUtil
     }
 
 
-
-    public static void mainOld(String[] args) {
-
-        long ts = System.currentTimeMillis();
-
-        int commandCount = 0;
-        try {
-            // create Pi4J console wrapper/helper
-            // (This is a utility class to abstract some of the boilerplate code)
-
-
-            // print program title/header
-            log.info("I2CUtil:" + VERSION);
-
-
-
-
-            int index = 0;
-            String command = args[index++].toLowerCase();
-
-
-
-
-            switch(command)
-            {
-                case "scan":
-                {
-                    int busID = SharedUtil.parseInt(args[index++]);
-                    int startAddress = SharedUtil.parseInt(args[index++]);
-                    int endAddress = SharedUtil.parseInt(args[index++]);
-
-                    // fetch all available busses
-                    try {
-                        int[] ids = I2CFactory.getBusIds();
-                        log.info("Found follow I2C busses: " + Arrays.toString(ids));
-                    } catch (IOException exception) {
-                        log.info("I/O error during fetch of I2C busses occurred");
-                    }
-                    I2CDevice[] devs = I2CUtil.SINGLETON.scanI2CDevices(busID, startAddress, endAddress);
-
-                    for (I2CDevice dev : devs) {
-                        System.out.println("I2C Device Address: " + String.format("%x", dev.getAddress()));
-                    }
-                }
-                break;
-                case "cmd":
-                    int busID = SharedUtil.parseInt(args[index++]);
-                    int address = SharedUtil.parseInt(args[index++]);
-                    long delay = 0;
-                    log.info(index + " " + args[index] );
-                    if (args[index].equalsIgnoreCase("delay"))
-                    {
-                        delay = Const.TimeInMillis.toMillis(args[++index]);
-                        index++;
-
-                    }
-                    log.info("Delay: " + Const.TimeInMillis.toString(delay));
-                    for (; index < args.length;) {
-                        commandCount++;
-                        int addressOverride = address;
-
-                        String rawCommand = args[index++];
-                        int indexOfAddress = rawCommand.indexOf(':');
-                        if( indexOfAddress != -1)
-                        {
-                            try
-                            {
-                                addressOverride =  SharedUtil.parseInt(rawCommand.substring(0, indexOfAddress));
-                                rawCommand = rawCommand.substring(indexOfAddress + 1);
-                            }
-                            catch(Exception e)
-                            {
-                            }
-                        }
-
-                        SimpleMessage resp = I2CUtil.SINGLETON.sendI2CCommand(busID, addressOverride, rawCommand, 0);
-
-
-                        //MessageCodec mc2 = I2C_CODEC_MANAGER.lookup(rawCommand);
-                        System.out.println("Sending [" + rawCommand + "]");
-                        StringBuilder sb = new StringBuilder();
-                        sb.append("Request [" + rawCommand + "] response: " + GSONUtil.DEFAULT_GSON.toJson(resp));
-                        System.out.println(commandCount + " " + sb.toString());
-                        if(delay > 0)
-                            TaskUtil.sleep(delay);
-                    }
-                break;
-                default:
-                    error(null);
-            }
-
-
-
-
-
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-            error(null);
-
-        }
-
-        ts = System.currentTimeMillis() - ts;
-        log.info("It took: " + Const.TimeInMillis.toString(ts) + " to process " + commandCount + " commands.");
-
-
-    }
-
-
-    public static void exec(ParamUtil.ParamMap params) throws Exception
+    public static int exec(ParamUtil.ParamMap params) throws Exception
     {
         String i2cCommand = params.stringValue("-i2c", "cmd");
         String url = params.stringValue("url", true);
@@ -309,16 +201,18 @@ public class I2CUtil
         int busID = params.smartIntValue("bus", 0);
         int address = params.smartIntValue("address", 0);
         long delay = 0;
+
         if(params.stringValue("delay", true) != null)
         {
             delay = Const.TimeInMillis.toMillis(params.stringValue("delay"));
         }
         log.info(""+params);
-
+        int commandCount = 0;
+        long ts = System.currentTimeMillis();
         switch(i2cCommand)
         {
             case "cmd":
-                int commandCount = 0;
+
                 for(String uri : uris)
                 {
                     commandCount++;
@@ -347,10 +241,10 @@ public class I2CUtil
 
 
                             //MessageCodec mc2 = I2C_CODEC_MANAGER.lookup(rawCommand);
-                            System.out.println("Sending [" + uri + "]");
+                            log.info("Sending [" + uri + "]");
                             StringBuilder sb = new StringBuilder();
                             sb.append("Request [" + uri + "] response: " + GSONUtil.DEFAULT_GSON.toJson(resp));
-                            System.out.println(commandCount + " " + sb.toString());
+                            log.info(commandCount + " " + sb.toString());
 
                         }
                         if(delay > 0)
@@ -373,22 +267,23 @@ public class I2CUtil
                 I2CDevice[] devs = I2CUtil.SINGLETON.scanI2CDevices(busID, 4, 127);
 
                 for (I2CDevice dev : devs) {
-                    System.out.println("I2C Device Address: " + String.format("%x", dev.getAddress()));
+                    log.info("I2C Device Address: " + String.format("%x", dev.getAddress()));
                 }
                 break;
             default:
                 error(null);
         }
-
-
+        ts = System.currentTimeMillis() - ts;
+        log.info("It took: " + Const.TimeInMillis.toString(ts) + " to process " + commandCount + " commands.");
+        return commandCount;
 
     }
 
     public static void main(String[] args) {
 
-        long ts = System.currentTimeMillis();
 
-        int commandCount = 0;
+        LoggerUtil.enableDefaultLogger("io.xlogistx");
+
         try {
 
             // print program title/header
@@ -396,7 +291,7 @@ public class I2CUtil
             ParamUtil.ParamMap params = ParamUtil.parse("=", args);
             log.info("" + params);
 
-            exec(params);
+           exec(params);
 
 
 
@@ -410,8 +305,7 @@ public class I2CUtil
 
         }
 
-        ts = System.currentTimeMillis() - ts;
-        log.info("It took: " + Const.TimeInMillis.toString(ts) + " to process " + commandCount + " commands.");
+
 
 
     }

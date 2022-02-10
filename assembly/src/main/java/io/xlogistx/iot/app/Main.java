@@ -10,6 +10,7 @@ import io.xlogistx.iot.gpio.PinStateMonitorConfig;
 import io.xlogistx.iot.gpio.i2c.I2CUtil;
 import io.xlogistx.iot.net.SunriseSunsetScheduler;
 import org.zoxweb.server.io.IOUtil;
+import org.zoxweb.server.logging.LoggerUtil;
 import org.zoxweb.server.task.TaskUtil;
 import org.zoxweb.server.util.GSONUtil;
 import org.zoxweb.shared.http.HTTPServerConfig;
@@ -25,6 +26,7 @@ public class Main
     {
         try
         {
+            LoggerUtil.enableDefaultLogger("io.xlogistx");
             ParamUtil.ParamMap params = ParamUtil.parse("-", args);
             String wsConfig = params.stringValue("-wsc", true);
             String flowConfig = params.stringValue("-fc", true);
