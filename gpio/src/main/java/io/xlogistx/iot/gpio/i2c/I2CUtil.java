@@ -33,7 +33,7 @@ import java.util.logging.Logger;
 public class I2CUtil
 {
 
-    public static final String VERSION = "I2C-UTIL-1.03.92";
+    public static final String VERSION = "I2C-UTIL-1.03.95";
     private static final Logger log = Logger.getLogger(I2CUtil.class.getName());
     private static final CodecManager<I2CCodecBase> I2C_CODEC_MANAGER = new CodecManager<I2CCodecBase>("I2CCodecManager", TokenFilter.UPPER_COLON, "I2CProtocol")
             .add(new I2CCodec("ping", "Ping the device return the ping value as java int, usage: PING"))
@@ -200,61 +200,51 @@ public class I2CUtil
         String httpMethod = params.stringValue("method", "GET");
         int busID = params.smartIntValue("bus", 0);
         int address = params.smartIntValue("address", 0);
-        long delay = 0;
+        int repeat = params.intValue("repeat", 1);
+        long delay = Const.TimeInMillis.toMillisNullZero(params.stringValue("delay"));
 
-        if(params.stringValue("delay", true) != null)
-        {
-            delay = Const.TimeInMillis.toMillis(params.stringValue("delay"));
-        }
         log.info(""+params);
         int commandCount = 0;
         long ts = System.currentTimeMillis();
         switch(i2cCommand)
         {
             case "cmd":
+                do {
+                    for (String uri : uris) {
+                        commandCount++;
+                        try {
+                            if (url != null) {
+                                if (busID > 0)
+                                    uri = SharedStringUtil.embedText(uri, "{bus}", "" + busID);
 
-                for(String uri : uris)
-                {
-                    commandCount++;
-                    try
-                    {
-                        if(url != null)
-                        {
-                            if(busID > 0 )
-                                uri = SharedStringUtil.embedText(uri, "{bus}", ""+busID);
+                                if (address > 0)
+                                    uri = SharedStringUtil.embedText(uri, "{address}", "" + address);
+                                HTTPMessageConfigInterface hmci = HTTPMessageConfig.createAndInit(url, uri, httpMethod, false);
+                                HTTPCall hc = new HTTPCall(hmci);
+                                HTTPResponseData hrd = hc.sendRequest();
+                                if (hrd.getStatus() == HTTPStatusCode.OK.CODE) {
+                                    log.info(SharedStringUtil.toString(hrd.getData()));
+                                } else
+                                    log.info("" + hrd);
+                            } else {
+                                SimpleMessage resp = I2CUtil.SINGLETON.sendI2CCommand(busID, address, uri, 0);
 
-                            if(address > 0)
-                                uri = SharedStringUtil.embedText(uri, "{address}", ""+address);
-                            HTTPMessageConfigInterface hmci = HTTPMessageConfig.createAndInit(url, uri, httpMethod, false);
-                            HTTPCall hc = new HTTPCall(hmci);
-                            HTTPResponseData hrd = hc.sendRequest();
-                            if(hrd.getStatus() == HTTPStatusCode.OK.CODE)
-                            {
-                                log.info(SharedStringUtil.toString(hrd.getData()));
+
+                                //MessageCodec mc2 = I2C_CODEC_MANAGER.lookup(rawCommand);
+                                log.info("Sending [" + uri + "]");
+                                StringBuilder sb = new StringBuilder();
+                                sb.append("Request [" + uri + "] response: " + GSONUtil.DEFAULT_GSON.toJson(resp));
+                                log.info(commandCount + " " + sb.toString());
+
                             }
-                            else
-                                log.info("" + hrd);
+                            if (delay > 0)
+                                TaskUtil.sleep(delay);
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
-                        else
-                        {
-                            SimpleMessage resp = I2CUtil.SINGLETON.sendI2CCommand(busID, address, uri, 0);
-
-
-                            //MessageCodec mc2 = I2C_CODEC_MANAGER.lookup(rawCommand);
-                            log.info("Sending [" + uri + "]");
-                            StringBuilder sb = new StringBuilder();
-                            sb.append("Request [" + uri + "] response: " + GSONUtil.DEFAULT_GSON.toJson(resp));
-                            log.info(commandCount + " " + sb.toString());
-
-                        }
-                        if(delay > 0)
-                            TaskUtil.sleep(delay);
                     }
-                    catch(Exception e)
-                    {
-                        e.printStackTrace();
-                    }
-                }
+                    repeat--;
+                }while(repeat > 0);
                 break;
             case "scan":
                 try

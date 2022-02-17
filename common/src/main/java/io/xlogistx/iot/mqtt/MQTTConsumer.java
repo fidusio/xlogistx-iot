@@ -42,6 +42,7 @@ public class MQTTConsumer {
 //      connOpts.setSocketFactory(SSLCheckDisabler.SINGLETON.getSSLFactory());
 
       connOpts.setAutomaticReconnect(true);
+      connOpts.setKeepAliveInterval(60);
 
       //connOpts.setCleanSession(true);
       connOpts.setConnectionTimeout(10);
