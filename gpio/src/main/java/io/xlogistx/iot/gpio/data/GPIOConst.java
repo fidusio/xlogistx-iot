@@ -11,7 +11,7 @@ public final class GPIOConst {
     {
         ANALOG("A"),
         DIGITAL("D"),
-        PWM("P")
+        PROVISIONING("P")
         ;
 
         private final String name;

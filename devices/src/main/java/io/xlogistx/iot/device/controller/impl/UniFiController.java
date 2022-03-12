@@ -57,9 +57,9 @@ public class UniFiController
         HTTPMessageConfigInterface hmci = HTTPMessageConfig.createAndInit(getProperties().getValue("url"), uri, "get", false);
         hmci.getHeaders().add(getSecurityCookie());
         HTTPResponseData hrd = new HTTPCall(hmci).sendRequest();
-        NVGenericMap nvgm = GSONUtil.fromJSONGenericMap(hrd.getData());
 
-        return nvgm;
+
+        return GSONUtil.fromJSONGenericMap(hrd.getData());
     }
 
     public void restart(String site, String mac, String rebootType) throws IOException {
@@ -84,7 +84,7 @@ public class UniFiController
         for(GetNameValue<?> nvgm :  localSites.values()){
             try {
 
-                restart(((NVGenericMap) nvgm).getName());
+                restart(nvgm.getName());
             }
             catch(Exception e)
             {
@@ -111,21 +111,6 @@ public class UniFiController
                 }
             }
         }
-//        log.info("Site: " + site);
-//        NVGenericMap localSite = (NVGenericMap) getAllSites().get(site);
-//        NVGenericMap nvgm = new NVGenericMap();
-//        nvgm.add("cmd", "restart");
-//        nvgm.add("reboot_type", "soft");
-//        nvgm.add("mac", mac.toLowerCase());
-//        String uri = "/api/s/" + localSite.getValue("name") + "/cmd/devmgr";
-//        HTTPMessageConfigInterface hmci = HTTPMessageConfig.createAndInit(getProperties().getValue("url"), uri, "post", false);
-//        hmci.setContentType("application/json;charset=UTF-8");
-//        hmci.getHeaderParameters().add(getSecurityCookie());
-//        hmci.setContent(GSONUtil.toJSONGenericMap(nvgm, false, false, false));
-//        HTTPCall hc = new HTTPCall(hmci);
-//        log.info("" + hc.sendRequest());
-
-
     }
 
     public  NVGenericMap getAllSites() throws IOException {
@@ -165,13 +150,6 @@ public class UniFiController
     }
 
 
-//    public static HTTPResponseData restart(String host, GetNameValue<String> cookie, String site, String macAddress)
-//    {
-//        NVGenericMap nvgm = new NVGenericMap();
-//        nvgm.add("cmd", "restart");
-//        nvgm.add("reboot_type", "soft");
-//        nvgm.add("mac", macAddress.toLowerCase());
-//    }
     public  GetNameValue<String> login()
             throws IOException {
         NVGenericMap nvgm = new NVGenericMap();
@@ -188,10 +166,7 @@ public class UniFiController
         {
             throw new IOException("" + hrd);
         }
-        //log.info(""+hrd);
-
-        GetNameValue<String> cookies = HTTPUtil.extractHeaderCookie(hrd);
-        return cookies;
+        return HTTPUtil.extractHeaderCookie(hrd);
     }
 
     public GetNameValue<String> getSecurityCookie() throws IOException {
@@ -222,18 +197,6 @@ public class UniFiController
             unifi.getProperties().add("site", site);
             unifi.getProperties().add("mac", macAddress);
 
-//            if (macAddress != null) {
-//                log.info("Restart device: " + site + "-" + macAddress);
-//                unifi.restart(site, macAddress, "hard");
-//            }
-//            else if (site != null) {
-//                log.info("Restart site: " + site);
-//                unifi.restart(site);
-//            }
-//            else {
-//                log.info("Restart all sites");
-//                unifi.restartAll();
-//            }
             unifi.run();
         }
         catch(Exception e){

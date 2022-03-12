@@ -33,7 +33,7 @@ import java.util.logging.Logger;
 public class I2CUtil
 {
 
-    public static final String VERSION = "I2C-UTIL-1.03.95";
+    public static final String VERSION = "I2C-UTIL-1.03.98";
     private static final Logger log = Logger.getLogger(I2CUtil.class.getName());
     private static final CodecManager<I2CCodecBase> I2C_CODEC_MANAGER = new CodecManager<I2CCodecBase>("I2CCodecManager", TokenFilter.UPPER_COLON, "I2CProtocol")
             .add(new I2CCodec("ping", "Ping the device return the ping value as java int, usage: PING"))
