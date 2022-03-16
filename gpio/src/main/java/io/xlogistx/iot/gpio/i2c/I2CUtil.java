@@ -33,13 +33,13 @@ import java.util.logging.Logger;
 public class I2CUtil
 {
 
-    public static final String VERSION = "I2C-UTIL-1.03.98";
+    public static final String VERSION = "I2C-UTIL-1.04.08";
     private static final Logger log = Logger.getLogger(I2CUtil.class.getName());
     private static final CodecManager<I2CCodecBase> I2C_CODEC_MANAGER = new CodecManager<I2CCodecBase>("I2CCodecManager", TokenFilter.UPPER_COLON, "I2CProtocol")
             .add(new I2CCodec("ping", "Ping the device return the ping value as java int, usage: PING"))
             .add(new I2CCodec("messages", "The number i2c messages processed by the device return the count value as java int, usage: MESSAGES"))
             .add(new I2CCodec("cpu-speed", "Get the device cpu frequency in hz, value as java int, usage: CPU-SPEED"))
-            .add(new I2CCodec("aref", "Get the device aref , value as java short, usage: AREF"))
+            .add(new I2CAref())
             .add(new I2CCodec("reset", "Reboot the device, no return value bus will throw exception, usage: RESET"))
             .add(I2CUptime.SINGLETON)
             .add(I2CVersion.SINGLETON)

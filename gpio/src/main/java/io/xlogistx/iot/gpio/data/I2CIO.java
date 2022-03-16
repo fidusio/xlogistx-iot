@@ -6,12 +6,39 @@ import org.zoxweb.shared.util.*;
 
 public class I2CIO
         extends I2CCodec {
+    public enum PinMode
+        implements GetName
+    {
+        INPUT("I"),
+        OUTPUT("O"),
+        INPUT_PULLUP("P");
+        ;
 
-    public I2CIO() {
-        super("IO", "Control the GPIO on the device usage: IO:[G,S,U,D]:[A,D,P]:pin:value");
+        private final String name;
+        PinMode(String name)
+        {
+            this.name = name;
+        }
+        @Override
+        public String getName() {
+            return name;
+        }
     }
 
-    private String action;
+    public enum IOAction
+    {
+        G,
+        S,
+        D,
+        U,
+        P
+    }
+
+    public I2CIO() {
+        super("IO", "Control the GPIO on the device usage: IO:[G,S,U,D]:[A,D]:pin:value or IO:P:pin:[I,O,P]");
+    }
+
+
 
 
 
@@ -26,7 +53,7 @@ public class I2CIO
         index = input.data[index] == ':' ? ++index : index;
         String portType = SharedStringUtil.toString(input.data, index, 1);
         GPIOConst.PortType pt = GPIOConst.PortType.lookup(portType);
-        //System.out.println("pt: " + portType + " " + SharedStringUtil.bytesToHex(input));
+        System.out.println(ret.getStatus() +" pt: " + portType + " " + SharedStringUtil.bytesToHex(input.data));
         ret.getProperties().add(new NVEnum("port_type", pt));
         index++;
 
@@ -48,7 +75,8 @@ public class I2CIO
                 ret.getProperties().add(new NVBoolean(Token.RESULT, result != 0));
                 break;
             case PROVISIONING:
-                ret.getProperties().add(Token.RESULT.getName(), new String(input.data, index, 1));
+                result = BytesValue.INT.toValue(input.data, index);
+                ret.getProperties().add(new NVEnum(Token.RESULT, SharedUtil.lookupEnum(result, PinMode.values())));
                 break;
         }
 //        int result = BytesValue.INT.toValue(input.data, index);
@@ -57,10 +85,50 @@ public class I2CIO
 //        else
 //            ret.getProperties().add(new NVInt(Token.RESULT, result));
 
-        index += 2;
+        //index += 2;
 
         return ret;
     }
+
+
+
+//    @Override
+//    public synchronized  CommandToBytes encode(String input) {
+//        // input is ignored
+//        String[] tokens = SharedStringUtil.parseString(input, ":", true);
+//        int index = 0;
+//        CommandToBytes ret = new CommandToBytes(16, ':').command(TokenFilter.UPPER_COLON.validate(tokens[index++]));
+//        action = tokens[index++];
+//        String pinType = tokens[index++];
+//        ret.toBytes(action).toBytes(pinType);
+//
+//        int  pin = SharedUtil.parseInt(tokens[index++]);
+//        ret.toBytes((byte)pin);
+//        if(index < tokens.length)
+//        {
+//            if (action.equals("P"))
+//            {
+//                String provisioning = tokens[index++];
+//                switch (provisioning)
+//                {
+//                    case "P":
+//                    case "I":
+//                    case "O":
+//                        ret.toBytes(provisioning);
+//                        break;
+//                    default:
+//                        throw new IllegalArgumentException("Invalid Provisioning value [P,I,O]:" + provisioning);
+//                }
+//            }
+//            else
+//            {
+//                int value = SharedUtil.parseInt(tokens[index++]);
+//                ret.toBytes((short) value);
+//            }
+//        }
+//
+//        return ret;
+//    }
 
     @Override
     public synchronized  CommandToBytes encode(String input) {
@@ -68,35 +136,43 @@ public class I2CIO
         String[] tokens = SharedStringUtil.parseString(input, ":", true);
         int index = 0;
         CommandToBytes ret = new CommandToBytes(16, ':').command(TokenFilter.UPPER_COLON.validate(tokens[index++]));
-        action = tokens[index++];
-        String pinType = tokens[index++];
-        ret.toBytes(action).toBytes(pinType);
+        IOAction action = SharedUtil.lookupEnum(tokens[index++], IOAction.values());
+        ret.toBytes(action.name());
 
-        int  pin = SharedUtil.parseInt(tokens[index++]);
-        ret.toBytes((byte)pin);
-        if(index < tokens.length)
+        switch(action)
         {
-            if (action.equals("P"))
-            {
-                String provisioning = tokens[index++];
-                switch (provisioning)
+
+            case G:
+            case S:
+            case U:
+                String pinType = tokens[index++];
+                ret.toBytes(pinType);
+                int pin = SharedUtil.parseInt(tokens[index++]);
+                ret.toBytes((byte)pin);
+                if(index < tokens.length)
                 {
-                    case "P":
-                    case "I":
-                    case "O":
-                        ret.toBytes(provisioning);
-                        break;
-                    default:
-                        throw new IllegalArgumentException("Invalid Provisioning value [P,I,O]:" + provisioning);
+                    int value = SharedUtil.parseInt(tokens[index++]);
+                    ret.toBytes((short) value);
                 }
-            }
-            else
-            {
-                int value = SharedUtil.parseInt(tokens[index++]);
-                ret.toBytes((short) value);
-            }
+                break;
+            case P:
+                pin = SharedUtil.parseInt(tokens[index++]);
+                ret.toBytes((byte)pin);
+                PinMode pinMode = SharedUtil.lookupEnum(tokens[index], PinMode.values());
+
+                if(pinMode != null)
+                    ret.toBytes(pinMode.getName());
+                else
+                    throw new IllegalArgumentException("Invalid Provisioning value [P,I,O]: " + tokens[index]);
+
+                break;
+            case D:
+                throw new IllegalArgumentException("delete no supported");
+
+
         }
 
         return ret;
     }
+
 }
