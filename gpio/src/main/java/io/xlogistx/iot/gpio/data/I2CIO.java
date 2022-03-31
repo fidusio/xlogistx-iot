@@ -53,7 +53,7 @@ public class I2CIO
         index = input.data[index] == ':' ? ++index : index;
         String portType = SharedStringUtil.toString(input.data, index, 1);
         GPIOConst.PortType pt = GPIOConst.PortType.lookup(portType);
-        System.out.println(ret.getStatus() +" pt: " + portType + " " + SharedStringUtil.bytesToHex(input.data));
+        //System.out.println(ret.getStatus() +" pt: " + portType + " " + SharedStringUtil.bytesToHex(input.data));
         ret.getProperties().add(new NVEnum("port_type", pt));
         index++;
 
