@@ -68,7 +68,7 @@ public class SunriseSunset {
     public NVGenericMap lookup(String latitude, String longitude, String date)
             throws IOException
     {
-        HTTPMessageConfigInterface hmci = HTTPMessageConfig.createAndInit(endpoint, null, HTTPMethod.GET);
+        HTTPMessageConfigInterface hmci = HTTPMessageConfig.createAndInit(endpoint, null, HTTPMethod.GET, false);
         hmci.setHTTPParameterFormatter(HTTPEncoder.URL_ENCODED);
         hmci.getParameters().add(new NVPair(Params.LATITUDE, latitude));
         hmci.getParameters().add(new NVPair(Params.LONGITUDE, longitude));

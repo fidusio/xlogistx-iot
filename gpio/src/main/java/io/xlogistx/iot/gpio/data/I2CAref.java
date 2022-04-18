@@ -11,7 +11,7 @@ public class I2CAref
     public enum ArefType
     {
         DEFAULT,
-        EXTERNAl,
+        EXTERNAL,
         INTERNAL
     }
 
