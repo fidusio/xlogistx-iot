@@ -3,17 +3,19 @@ package io.xlogistx.iot.net.apis;
 import org.zoxweb.server.http.HTTPCall;
 import org.zoxweb.server.util.GSONUtil;
 import org.zoxweb.shared.http.*;
+import org.zoxweb.shared.util.Const;
 import org.zoxweb.shared.util.GetNameValue;
 import org.zoxweb.shared.util.NVGenericMap;
 import org.zoxweb.shared.util.NVPair;
 
 import java.io.IOException;
+import java.util.Date;
 
 public class SunriseSunset {
     public enum Params
             implements GetNameValue<String>
     {
-        URL("url", "https://api.sunrise-sunset.org/json"),
+        URL("url", "http://api.sunrise-sunset.org/json"),
         LATITUDE("lat", null),
         LONGITUDE("lng", null),
         FORMATTED("formatted", "0"),
@@ -47,6 +49,7 @@ public class SunriseSunset {
     {
         this(Params.URL.getValue());
     }
+
     public SunriseSunset(String endpoint)
     {
         this.endpoint = endpoint;
@@ -68,7 +71,8 @@ public class SunriseSunset {
     public NVGenericMap lookup(String latitude, String longitude, String date)
             throws IOException
     {
-        HTTPMessageConfigInterface hmci = HTTPMessageConfig.createAndInit(endpoint, null, HTTPMethod.GET, false);
+        HTTPMessageConfigInterface hmci = HTTPMessageConfig.createAndInit(endpoint, null, HTTPMethod.GET, true);
+        hmci.setRedirectEnabled(true);
         hmci.setHTTPParameterFormatter(HTTPEncoder.URL_ENCODED);
         hmci.getParameters().add(new NVPair(Params.LATITUDE, latitude));
         hmci.getParameters().add(new NVPair(Params.LONGITUDE, longitude));
@@ -79,5 +83,38 @@ public class SunriseSunset {
         HTTPResponseData hrd = hc.sendRequest();
         NVGenericMap result = GSONUtil.fromJSONGenericMap(hrd.getData());
         return (NVGenericMap) result.get("results");
+    }
+
+    public static void main(String... args)
+    {
+        try
+        {
+            int index = 0;
+            String ip = args.length > index ? args[index++] : null;
+            IPGeoLocation ipGeoLocation = new IPGeoLocation();
+            NVGenericMap resultGeoLoc = ipGeoLocation.lookup(ip);//"iot.xlogistx.io");
+            SunriseSunset sunsetSunrise = new SunriseSunset();
+            NVGenericMap resultSS = sunsetSunrise.lookup( (float)resultGeoLoc.getValue(IPGeoLocation.Params.LATITUDE), resultGeoLoc.getValue(IPGeoLocation.Params.LONGITUDE), null);
+
+
+            System.out.println("sunrise: "+ new Date((long)resultSS.getValue(SunriseSunset.Params.SUNRISE.getName())) +" sunset: " +
+                    new Date((long)resultSS.getValue(SunriseSunset.Params.SUNSET.getName())));
+
+
+            long sunrise = resultSS.getValue(SunriseSunset.Params.SUNRISE.getName());
+            long sunset = resultSS.getValue(SunriseSunset.Params.SUNSET.getName());
+
+            long current = System.currentTimeMillis();
+            long deltaSunrise = sunrise - current;
+            long deltaSunset = sunset - current;
+
+            System.out.println("To sunrise: " + deltaSunrise +  " " + Const.TimeInMillis.toString(deltaSunrise));
+            System.out.println("To sunset: " + deltaSunrise +  " " + Const.TimeInMillis.toString(deltaSunset));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+
+        }
     }
 }

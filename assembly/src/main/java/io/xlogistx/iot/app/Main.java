@@ -64,6 +64,7 @@ public class Main
                     try
                     {
                         SunriseSunsetScheduler ssc = new SunriseSunsetScheduler(TaskUtil.getDefaultTaskProcessor(), null);
+                        ssc.setAPIService(cc.getAPIEndpoint());
                         CronTask cronTask = ct.registerCronTask("day", ssc, ssc);
                         ct.registerCronTask("night", cronTask);
                         for (CronSchedulerConfig scs : cc.getConfigs())

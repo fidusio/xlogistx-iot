@@ -12,7 +12,7 @@ public class APIsTest
     @Test
     public void ipGeoLocationTest() throws IOException {
         IPGeoLocation ipGeoLocation = new IPGeoLocation();
-        NVGenericMap result = ipGeoLocation.lookup("iot.xlogistx.io");
+        NVGenericMap result = ipGeoLocation.lookup();
         System.out.println("ip: "+ result.getValue(IPGeoLocation.Params.IP) +" latitude: " +
                 result.getValue(IPGeoLocation.Params.LATITUDE) + " longitude: " + result.getValue(IPGeoLocation.Params.LONGITUDE) );
     }
@@ -22,7 +22,8 @@ public class APIsTest
     @Test
     public void sunsetSunriseTest() throws IOException {
         IPGeoLocation ipGeoLocation = new IPGeoLocation();
-        NVGenericMap resultGeoLoc = ipGeoLocation.lookup("iot.xlogistx.io");
+        NVGenericMap resultGeoLoc = ipGeoLocation.lookup();//"iot.xlogistx.io");
+        System.out.println(resultGeoLoc);
         SunriseSunset sunsetSunrise = new SunriseSunset();
         NVGenericMap resultSS = sunsetSunrise.lookup( (float)resultGeoLoc.getValue(IPGeoLocation.Params.LATITUDE), resultGeoLoc.getValue(IPGeoLocation.Params.LONGITUDE), null);
 
@@ -38,7 +39,8 @@ public class APIsTest
         long deltaSunrise = sunrise - current;
         long deltaSunset = sunset - current;
 
-        System.out.println(deltaSunrise +  " " + Const.TimeInMillis.toString(deltaSunset));
+        System.out.println("To sunrise: " + deltaSunrise +  " " + Const.TimeInMillis.toString(deltaSunrise));
+        System.out.println("To sunset: " + deltaSunrise +  " " + Const.TimeInMillis.toString(deltaSunset));
 
         // day sunset is always > sunrise
         // if deltaSunrise and deltaSunset negative, we are past sunset must look for next day
