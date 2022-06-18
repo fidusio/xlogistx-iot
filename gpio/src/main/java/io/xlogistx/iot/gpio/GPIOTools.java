@@ -352,7 +352,7 @@ public class GPIOTools
 						GPIOConfig gm = new GPIOConfig().monitorSetter(gpioPin).followersSetter(toSet.toArray(new GPIOPin[0])).followersHighDelaySetter("10sec").followersLowDelaySetter("0sec").nameSetter(gpioPin.toString()).inverseSetter(inverse);
 
 						System.out.println(GSONUtil.DEFAULT_GSON.toJson(gm));
-						PinStateMonitor psm = new PinStateMonitor(gm, null);
+						PinStateMonitor psm = new PinStateMonitor(gm, null, TaskUtil.getDefaultTaskScheduler());
 
 						input.addListener(psm);
 

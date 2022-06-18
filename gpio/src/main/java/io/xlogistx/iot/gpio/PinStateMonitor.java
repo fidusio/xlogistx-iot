@@ -4,7 +4,10 @@ import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
 import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
+
+import org.zoxweb.server.task.TaskSchedulerProcessor;
 import org.zoxweb.server.task.TaskUtil;
 import org.zoxweb.shared.util.Const;
 import org.zoxweb.shared.util.SharedUtil;
@@ -20,15 +23,18 @@ public class PinStateMonitor
   private transient FlowProcessor fp;
 
   private transient long lastEventTS = 0;
+  private transient TaskSchedulerProcessor tsp;
+  private transient AtomicLong counter = new AtomicLong();
 
   public PinStateMonitor()
   {
   }
 
-  public PinStateMonitor(GPIOConfig gpiom, FlowProcessor fp)
+  public PinStateMonitor(GPIOConfig gpiom, FlowProcessor fp, TaskSchedulerProcessor tsp)
   {
     SharedUtil.checkIfNulls("GPIOM can't be null.", gpiom);
     this.gpiom = gpiom;
+    this.tsp = tsp;
     this.fp = fp;
   }
 
@@ -43,16 +49,27 @@ public class PinStateMonitor
     else
     {
       PinState state = event.getState();
-      TaskUtil.getDefaultTaskScheduler()
-              .queue(state.isHigh() ? gpiom.getHighDelay() : gpiom.getLowDelay(), (Runnable) () -> {
-                if (state == PinState.HIGH)
-                  gpiom.timestamp.set(System.currentTimeMillis());
-                setPinState(state);
-                if (state == PinState.LOW) {
-                  gpiom.timestamp.set(System.currentTimeMillis() - gpiom.timestamp.get());
-                  log.info("It took: " + Const.TimeInMillis.toString(gpiom.timestamp.get()) + " " + gpiom.getName());
-                }
-              });
+      log.info("[" + counter.incrementAndGet() + "] " + event.getPin().getName() + ":" + state );
+      if (tsp != null)
+      {
+        tsp.queue(state.isHigh() ? gpiom.getHighDelay() : gpiom.getLowDelay(), (Runnable) () -> {
+          if (state == PinState.HIGH)
+            gpiom.timestamp.set(System.currentTimeMillis());
+          setPinState(state);
+          if (state == PinState.LOW) {
+            gpiom.timestamp.set(System.currentTimeMillis() - gpiom.timestamp.get());
+            try {
+              log.info("It took: " + Const.TimeInMillis.toString(gpiom.timestamp.get()) + " " + gpiom.getName());
+            }
+            catch(Exception e)
+            {
+              //e.printStackTrace();
+
+            }
+          }
+        });
+      }
+
     }
   }
 
