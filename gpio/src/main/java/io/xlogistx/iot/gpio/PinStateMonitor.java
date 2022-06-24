@@ -42,14 +42,14 @@ public class PinStateMonitor
   public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent event)
   {
     lastEventTS = System.currentTimeMillis();
-    log.info(Thread.currentThread() + " --> GPIO PIN STATE : " + event.getPin() + " = "
+    log.info("[" + counter.incrementAndGet() + "] " + event.getPin() + " = "
         + GPIOTools.SINGLETON.getPinState(GPIOPin.lookup(event.getPin().getPin())));
     if(fp != null)
       fp.publish(new FlowEvent<GpioPinDigitalStateChangeEvent>(this, event));
     else
     {
       PinState state = event.getState();
-      log.info("[" + counter.incrementAndGet() + "] " + event.getPin().getName() + ":" + state );
+//      log.info("[" + counter.incrementAndGet() + "] " + event.getPin().getName() + ":" + state );
       if (tsp != null)
       {
         tsp.queue(state.isHigh() ? gpiom.getHighDelay() : gpiom.getLowDelay(), (Runnable) () -> {
@@ -58,14 +58,14 @@ public class PinStateMonitor
           setPinState(state);
           if (state == PinState.LOW) {
             gpiom.timestamp.set(System.currentTimeMillis() - gpiom.timestamp.get());
-            try {
-              log.info("It took: " + Const.TimeInMillis.toString(gpiom.timestamp.get()) + " " + gpiom.getName());
-            }
-            catch(Exception e)
-            {
-              //e.printStackTrace();
-
-            }
+//            try {
+//              log.info("It took: " + Const.TimeInMillis.toString(gpiom.timestamp.get()) + " " + gpiom.getName());
+//            }
+//            catch(Exception e)
+//            {
+//              //e.printStackTrace();
+//
+//            }
           }
         });
       }

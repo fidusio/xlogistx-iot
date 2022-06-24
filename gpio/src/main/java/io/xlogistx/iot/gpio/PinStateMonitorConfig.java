@@ -1,10 +1,14 @@
 package io.xlogistx.iot.gpio;
 
 
+
+
 public class PinStateMonitorConfig
 {
     private PinStateMonitor master;
     private PinStateMonitor[] slaves;
+//    private StateMachineInt stateMachine;
+//    private String triggerID;
 
     public PinStateMonitor getMaster() {
         return master;
@@ -21,5 +25,13 @@ public class PinStateMonitorConfig
     public void setSlaves(PinStateMonitor... slaves) {
         this.slaves = slaves;
     }
+
+//    public void setStateTrigger(StateMachineInt state, String triggerID)
+//    {
+//        this.stateMachine = state;
+//        this.triggerID = triggerID;
+//
+//    }
+
 
 }

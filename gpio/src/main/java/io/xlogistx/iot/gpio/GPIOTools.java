@@ -14,8 +14,10 @@ import java.util.logging.Logger;
 
 import java.util.regex.Pattern;
 
+import io.xlogistx.common.fsm.StateMachine;
 import io.xlogistx.iot.gpio.data.PWMConfig;
 import org.zoxweb.server.io.IOUtil;
+import org.zoxweb.server.logging.LoggerUtil;
 import org.zoxweb.server.task.SupplierTask;
 import org.zoxweb.server.task.TaskSchedulerProcessor;
 import org.zoxweb.server.task.TaskUtil;
@@ -297,6 +299,7 @@ public class GPIOTools
 	{
 		try
 		{
+			LoggerUtil.enableDefaultLogger("io.xlogistx");
 			int index = 0;
 			long durationBeforeExit = -1;
 			long delta = System.currentTimeMillis();
@@ -358,6 +361,14 @@ public class GPIOTools
 
 						psm.setEnabled(true);
 						//input.addListener(new PinStateListener(toSet.toArray(new GPIOPin[0])));
+						break;
+					case STATE_MONITOR:
+						log.info("State monitor");
+
+						PinStateMachine pinStateMachine = new PinStateMachine(TaskUtil.getDefaultTaskScheduler());
+						pinStateMachine.start(true);
+						pinStateMachine.monitorDigitalPin(args[index++], "pod-counter");
+
 						break;
 					case SET:
 						NVCollection<String> param = decoder.decode(args[index]);

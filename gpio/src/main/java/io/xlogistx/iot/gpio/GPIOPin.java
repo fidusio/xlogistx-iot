@@ -190,7 +190,7 @@ implements GetValue<Pin>, GetName
 	public static GPIOPin mapGIOName(String userDefinedName, String gpioName)
 	{
 		userDefinedName = SharedStringUtil.trimOrNull(userDefinedName);
-		SharedUtil.checkIfNulls("GPIO name or GIPIO can't be null", userDefinedName, gpioName);
+		SharedUtil.checkIfNulls("GPIO name or GPIO can't be null", userDefinedName, gpioName);
 		GPIOPin gpio = lookupGPIO(gpioName);
 		if(gpio == null)
 			throw new IllegalArgumentException(gpioName + " not found");
