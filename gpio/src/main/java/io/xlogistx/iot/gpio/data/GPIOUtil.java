@@ -1,10 +1,11 @@
 package io.xlogistx.iot.gpio.data;
 
+import com.pi4j.io.gpio.PinState;
 import org.zoxweb.shared.util.GetName;
 import org.zoxweb.shared.util.SharedUtil;
 
-public final class GPIOConst {
-    private GPIOConst(){}
+public final class GPIOUtil {
+    private GPIOUtil(){}
 
     public enum PortType
         implements GetName
@@ -28,6 +29,11 @@ public final class GPIOConst {
         {
             return SharedUtil.lookupEnum(str, PortType.values());
         }
+    }
+
+    public static boolean state(PinState state)
+    {
+        return state == PinState.HIGH;
     }
 
 

@@ -3,9 +3,11 @@ package io.xlogistx.iot.gpio;
 import com.pi4j.io.gpio.GpioPinDigitalInput;
 import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
 import com.pi4j.io.gpio.event.GpioPinListenerDigital;
+import com.pi4j.wiringpi.GpioUtil;
+import io.xlogistx.common.data.DataTriggerAfterWait;
 import io.xlogistx.common.fsm.*;
 
-import org.zoxweb.server.task.TaskCallback;
+import io.xlogistx.iot.gpio.data.GPIOUtil;
 import org.zoxweb.server.task.TaskSchedulerProcessor;
 
 import org.zoxweb.shared.util.NVGenericMap;
@@ -15,7 +17,6 @@ public class PinStateMachine
         implements GpioPinListenerDigital
 {
 
-
     private TriggerConsumerInt<Void> init = new TriggerConsumer<Void>(StateInt.States.INIT) {
         @Override
         public void accept(Void o) {
@@ -24,6 +25,8 @@ public class PinStateMachine
             publish(new Trigger(getState(), PinStatus.WAITING, null));
         }
     };
+
+
 
     public enum PinStatus
     {
@@ -35,7 +38,7 @@ public class PinStateMachine
 
 
 
-    public class WaitTrigger extends TriggerConsumer<TaskCallback<Long, Long>>
+    public class WaitTrigger extends TriggerConsumer<DataTriggerAfterWait>
     {
         public WaitTrigger()
         {
@@ -43,19 +46,22 @@ public class PinStateMachine
         }
 
         @Override
-        public void accept(TaskCallback<Long, Long> waitTime) {
+        public void accept(DataTriggerAfterWait waitTime) {
             if(waitTime != null)
             {
-                if (waitTime.get() > 0)
+                if (waitTime.getWaitTime() > 0)
                 {
                     // use scheduler
+                    getStateMachine().getScheduler().queue(waitTime.getWaitTime(), ()->{
+                        publish(waitTime.getName(), waitTime.getData());
+                    });
                 }
             }
         }
     }
     public class StateChangeTrigger extends TriggerConsumer<GpioPinDigitalStateChangeEvent>
     {
-
+        DigitalGPIOStats digitalGPIOStats;
         public StateChangeTrigger() {
             super(PinStatus.PIN_CHANGED);
         }
@@ -63,7 +69,18 @@ public class PinStateMachine
         @Override
         public void accept(GpioPinDigitalStateChangeEvent event)
         {
-            log.info( event.getPin() + " state :" + event.getState());
+            if(digitalGPIOStats == null)
+            {
+                synchronized (this)
+                {
+                    if(digitalGPIOStats == null)
+                        digitalGPIOStats = new DigitalGPIOStats(GPIOPin.lookup(event.getPin().getPin()));
+                }
+            }
+
+            digitalGPIOStats.updateStats(GPIOUtil.state(event.getState()));
+            if(digitalGPIOStats.getLastState() == false)
+                log.info( "[" + digitalGPIOStats.getLowCounter() + "] " + digitalGPIOStats);
             publishSync(PinStatus.WAITING, null);
         }
     }
