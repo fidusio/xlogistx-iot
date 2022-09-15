@@ -88,7 +88,7 @@ public class I2CUtil
             else
                 i2cDev.read(i2cCommand.data(), 0, i2cCommand.size(), respData, 0, respData.length);
 
-            // close the bus it is must
+            // close the bus it is a must
             // to avoid bus read issues specially with io set commands
             IOUtil.close(i2cDevice);
         }
