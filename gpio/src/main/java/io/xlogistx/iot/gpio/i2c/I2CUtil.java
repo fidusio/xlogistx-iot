@@ -233,7 +233,7 @@ public class I2CUtil
                                 //MessageCodec mc2 = I2C_CODEC_MANAGER.lookup(rawCommand);
                                 log.info("Sending [" + uri + "]");
                                 StringBuilder sb = new StringBuilder();
-                                sb.append("Request [" + uri + "] response: " + GSONUtil.DEFAULT_GSON.toJson(resp));
+                                sb.append("Request [" + uri + "] response: " + GSONUtil.toJSONDefault(resp));
                                 log.info(commandCount + " " + sb.toString());
 
                             }

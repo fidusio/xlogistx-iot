@@ -35,7 +35,7 @@ public class I2cEchoTest {
 
         for(byte[] message : messages) {
             SimpleMessage resp = I2CEcho.SINGLETON.decode(I2CResp.build(1, 10, message));
-            System.out.println(GSONUtil.DEFAULT_GSON.toJson(resp));
+            System.out.println(GSONUtil.toJSONDefault(resp));
         }
     }
 }

@@ -50,7 +50,7 @@ public class Main
                 File file = IOUtil.locateFile(flowConfig);
                 String jsonFC = IOUtil.inputStreamToString(file);
                 log.info("" + jsonFC);
-                PinStateMonitorConfig pinStateMonitorConfig = GSONUtil.DEFAULT_GSON.fromJson(jsonFC, PinStateMonitorConfig.class);
+                PinStateMonitorConfig pinStateMonitorConfig = GSONUtil.fromJSONDefault(jsonFC, PinStateMonitorConfig.class);
                 new GPIOFlowProcessor(pinStateMonitorConfig, TaskUtil.getDefaultTaskScheduler()).init();
             }
             if(cronConfig != null)

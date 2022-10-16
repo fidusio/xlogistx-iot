@@ -354,7 +354,7 @@ public class GPIOTools
 								.provisionDigitalInputPin(gpioPin.getValue());
 						GPIOConfig gm = new GPIOConfig().monitorSetter(gpioPin).followersSetter(toSet.toArray(new GPIOPin[0])).followersHighDelaySetter("10sec").followersLowDelaySetter("0sec").nameSetter(gpioPin.toString()).inverseSetter(inverse);
 
-						System.out.println(GSONUtil.DEFAULT_GSON.toJson(gm));
+						System.out.println(GSONUtil.toJSONDefault(gm));
 						PinStateMonitor psm = new PinStateMonitor(gm, null, TaskUtil.getDefaultTaskScheduler());
 
 						input.addListener(psm);
@@ -397,7 +397,7 @@ public class GPIOTools
 						break;
 					case PWM:
 						String jsonCmd = args[index];
-						PWMConfig pwmConfig = GSONUtil.DEFAULT_GSON.fromJson(IOUtil.inputStreamToString(jsonCmd), PWMConfig.class);
+						PWMConfig pwmConfig = GSONUtil.fromJSONDefault(IOUtil.inputStreamToString(jsonCmd), PWMConfig.class);
 						durationBeforeExit = SINGLETON.setPWM(pwmConfig);
 						break;
 					case FLOW:
@@ -418,7 +418,7 @@ public class GPIOTools
 							tsp = TaskUtil.getSimpleTaskScheduler();
 							log.info("Single threaded scheduler");
 						}
-						PinStateMonitorConfig pinStateMonitorConfig = GSONUtil.DEFAULT_GSON.fromJson(jsonConfig, PinStateMonitorConfig.class);
+						PinStateMonitorConfig pinStateMonitorConfig = GSONUtil.fromJSONDefault(jsonConfig, PinStateMonitorConfig.class);
 						new GPIOFlowProcessor(pinStateMonitorConfig, tsp).init();
 
 						break;
