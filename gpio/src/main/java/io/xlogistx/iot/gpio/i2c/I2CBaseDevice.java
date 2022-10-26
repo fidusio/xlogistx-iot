@@ -4,10 +4,10 @@ import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
 import com.pi4j.io.i2c.impl.I2CDeviceImpl;
-import io.xlogistx.common.data.NamedDescription;
+
 import org.zoxweb.shared.util.CanonicalID;
 
-import org.zoxweb.shared.util.SetName;
+import org.zoxweb.shared.util.NamedDescription;
 import org.zoxweb.shared.util.SharedUtil;
 
 import java.io.IOException;
