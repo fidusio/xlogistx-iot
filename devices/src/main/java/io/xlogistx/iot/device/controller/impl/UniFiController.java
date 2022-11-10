@@ -3,11 +3,9 @@ package io.xlogistx.iot.device.controller.impl;
 import io.xlogistx.common.task.RunnableProperties;
 import org.zoxweb.server.http.HTTPCall;
 import org.zoxweb.server.http.HTTPUtil;
+import org.zoxweb.server.logging.LogWrapper;
 import org.zoxweb.server.util.GSONUtil;
-import org.zoxweb.shared.http.HTTPMessageConfig;
-import org.zoxweb.shared.http.HTTPMessageConfigInterface;
-import org.zoxweb.shared.http.HTTPResponseData;
-import org.zoxweb.shared.http.HTTPStatusCode;
+import org.zoxweb.shared.http.*;
 import org.zoxweb.shared.util.GetNameValue;
 import org.zoxweb.shared.util.NVGenericMap;
 import org.zoxweb.shared.util.NVGenericMapList;
@@ -21,7 +19,8 @@ import java.util.logging.Logger;
 public class UniFiController
     extends RunnableProperties
 {
-    private transient static final Logger log = Logger.getLogger(UniFiController.class.getName());
+    //private  static final Logger log = Logger.getLogger(UniFiController.class.getName());
+    public static final LogWrapper log = new LogWrapper(UniFiController.class);
 
     private GetNameValue<String> securityCookie;
     private NVGenericMap sites = null;
@@ -56,14 +55,14 @@ public class UniFiController
         String uri = "/api/s/" + localSite.getValue("name") + "/stat/device-basic";
         HTTPMessageConfigInterface hmci = HTTPMessageConfig.createAndInit(getProperties().getValue("url"), uri, "get", false);
         hmci.getHeaders().add(getSecurityCookie());
-        HTTPResponseData hrd = new HTTPCall(hmci).sendRequest();
+        //HTTPResponseData hrd = new HTTPCall(hmci).sendRequest();
+        HTTPResponseObject<NVGenericMap> hro = HTTPCall.send(hmci, NVGenericMap.class);
 
-
-        return GSONUtil.fromJSONGenericMap(hrd.getData());
+        return hro.getData();
     }
 
     public void restart(String site, String mac, String rebootType) throws IOException {
-        log.info("Site: " + site);
+        log.getLogger().info("Site: " + site);
         NVGenericMap localSite = (NVGenericMap) getAllSites().get(site);
         NVGenericMap nvgm = new NVGenericMap();
         nvgm.add("cmd", "restart");
@@ -121,12 +120,12 @@ public class UniFiController
                     hmci.setSecureCheckEnabled(false);
                     hmci.setContentType("application/json;charset=UTF-8");
                     hmci.getHeaders().add(getSecurityCookie());
-                    HTTPResponseData hrd = new HTTPCall(hmci).sendRequest();
-                    if (hrd.getStatus() != HTTPStatusCode.OK.CODE) {
-                        throw new IOException("" + hrd);
+                    HTTPResponseObject<NVGenericMap> hro = HTTPCall.send(hmci, NVGenericMap.class);
+                    if (hro.getStatus() != HTTPStatusCode.OK.CODE) {
+                        throw new IOException("" + hro);
                     }
-                    NVGenericMap nvgm = GSONUtil.fromJSONGenericMap(hrd.getData());
-                    setSites(nvgm);
+
+                    setSites(hro.getData());
                 }
             }
         }
@@ -151,7 +150,8 @@ public class UniFiController
 
 
     public  GetNameValue<String> login()
-            throws IOException {
+            throws IOException
+    {
         NVGenericMap nvgm = new NVGenericMap();
         nvgm.add(getProperties().get("username"));
         nvgm.add(getProperties().get("password"));
@@ -160,8 +160,8 @@ public class UniFiController
         hmci.setSecureCheckEnabled(false);
         hmci.setContent(GSONUtil.toJSONGenericMap(nvgm, false, false, false));
         hmci.setContentType("application/json;charset=UTF-8");
-        HTTPCall hc = new HTTPCall(hmci);
-        HTTPResponseData hrd = hc.sendRequest();
+        //HTTPCall hc = new HTTPCall(hmci);
+        HTTPResponseData hrd = HTTPCall.send(hmci);
         if (hrd.getStatus() != HTTPStatusCode.OK.CODE)
         {
             throw new IOException("" + hrd);
