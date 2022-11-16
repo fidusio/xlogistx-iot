@@ -14,9 +14,6 @@
   <artifactId>xlogistx-iot-devices</artifactId>
 
 
-  <properties>
-    <usb-java.version>1.3.0</usb-java.version>
-  </properties>
 
 
 

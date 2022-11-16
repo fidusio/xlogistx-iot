@@ -14,9 +14,7 @@
   <name>xlogistx-iot-common</name>
   <artifactId>xlogistx-iot-common</artifactId>
 
-  <properties>
-    <hive.version>1.2.1</hive.version>
-  </properties>
+
 
 
   <dependencies>

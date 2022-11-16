@@ -11,10 +11,7 @@
 
     <name>xlogistx-iot-net</name>
     <artifactId>xlogistx-iot-net</artifactId>
-    <properties>
-        <jna.version>5.12.1</jna.version>
-        <pcap4j.version>1.8.2</pcap4j.version>
-    </properties>
+
 
 
     <dependencies>
