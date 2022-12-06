@@ -4,7 +4,7 @@ import io.xlogistx.common.cron.CronConfig;
 import io.xlogistx.common.cron.CronSchedulerConfig;
 import io.xlogistx.common.cron.CronTask;
 import io.xlogistx.common.cron.CronTool;
-import io.xlogistx.http.HTTPServerCreator;
+import io.xlogistx.http.NIOHTTPServerCreator;
 import io.xlogistx.iot.gpio.GPIOFlowProcessor;
 import io.xlogistx.iot.gpio.PinStateMonitorConfig;
 import io.xlogistx.iot.gpio.i2c.I2CUtil;
@@ -41,7 +41,7 @@ public class Main
                 HTTPServerConfig hsc = GSONUtil.fromJSON(IOUtil.inputStreamToString(file), HTTPServerConfig.class);
                 log.info("HTTPServerConfig:" + hsc);
                 log.info("WebServer json:" + hsc.getConnectionConfigs());
-                HTTPServerCreator httpServerCreator = new HTTPServerCreator();
+                NIOHTTPServerCreator httpServerCreator = new NIOHTTPServerCreator();
                 httpServerCreator.setAppConfig(hsc);
                 httpServerCreator.createApp();
             }

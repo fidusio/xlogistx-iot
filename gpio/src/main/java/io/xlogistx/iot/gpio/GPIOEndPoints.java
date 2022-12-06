@@ -270,7 +270,7 @@ extends PropertyHolder
 //        return response;
 //    }
 
-    protected void propertiesUpdated()
+    protected void refreshProperties()
     {
         log.info("WE MUST UPDATE");
         if(getProperties() != null)

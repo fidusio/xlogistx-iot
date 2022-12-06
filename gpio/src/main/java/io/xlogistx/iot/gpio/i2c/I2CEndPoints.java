@@ -176,7 +176,7 @@ public class I2CEndPoints
     }
 
     @Override
-    protected void propertiesUpdated() {
+    protected void refreshProperties() {
 
     }
 }
