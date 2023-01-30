@@ -60,7 +60,7 @@ public class MQTTClient {
         message.setQos(lqos);
 
         sampleClient.publish(topic, message);
-        System.out.println(lqos +": Message published: " + msg);
+        //System.out.println(lqos +": Message published: " + msg);
       }
       ts = System.currentTimeMillis() - ts;
 

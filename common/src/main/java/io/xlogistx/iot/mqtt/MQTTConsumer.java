@@ -79,9 +79,10 @@ public class MQTTConsumer {
         @Override
         public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
           counter++;
-          //if(counter%100 == 0)
-          String hash = da.appendToString(mqttMessage.getPayload());
-            System.out.println(SharedUtil.toCanonicalID(':',Thread.currentThread(), counter, mqttMessage, hash));
+          if(counter%200 == 0) {
+            //String hash = da.appendToString(mqttMessage.getPayload());
+            System.out.println(SharedUtil.toCanonicalID(':', Thread.currentThread(), counter, mqttMessage));
+          }
           //System.out.println(mqttMessage);
         }
 
