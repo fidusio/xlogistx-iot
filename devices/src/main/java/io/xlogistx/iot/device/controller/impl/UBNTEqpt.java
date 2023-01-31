@@ -1,25 +1,18 @@
 package io.xlogistx.iot.device.controller.impl;
 
+import org.zoxweb.server.http.HTTPCall;
+import org.zoxweb.server.http.HTTPUtil;
+import org.zoxweb.server.net.ssl.SSLCheckDisabler;
+import org.zoxweb.shared.http.*;
+import org.zoxweb.shared.net.InetSocketAddressDAO;
+import org.zoxweb.shared.util.NVPair;
+import org.zoxweb.shared.util.SetNameValue;
+
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-
-
-import org.zoxweb.server.security.SSLCheckDisabler;
-import org.zoxweb.server.http.HTTPCall;
-import org.zoxweb.server.http.HTTPUtil;
-import org.zoxweb.shared.http.HTTPCallException;
-import org.zoxweb.shared.http.HTTPMessageConfig;
-import org.zoxweb.shared.http.HTTPMessageConfigInterface;
-import org.zoxweb.shared.http.HTTPMethod;
-import org.zoxweb.shared.http.HTTPMimeType;
-import org.zoxweb.shared.http.HTTPResponseData;
-import org.zoxweb.shared.http.HTTPStatusCode;
-import org.zoxweb.shared.net.InetSocketAddressDAO;
-import org.zoxweb.shared.util.NVPair;
-import org.zoxweb.shared.util.SetNameValue;
 
 /**
  * This class communicates with Ubiqutiti equipments
