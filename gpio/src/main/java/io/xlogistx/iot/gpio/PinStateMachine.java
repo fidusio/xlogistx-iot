@@ -3,13 +3,10 @@ package io.xlogistx.iot.gpio;
 import com.pi4j.io.gpio.GpioPinDigitalInput;
 import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
 import com.pi4j.io.gpio.event.GpioPinListenerDigital;
-import com.pi4j.wiringpi.GpioUtil;
 import io.xlogistx.common.data.DataTriggerAfterWait;
-import io.xlogistx.common.fsm.*;
-
 import io.xlogistx.iot.gpio.data.GPIOUtil;
+import org.zoxweb.server.fsm.*;
 import org.zoxweb.server.task.TaskSchedulerProcessor;
-
 import org.zoxweb.shared.util.NVGenericMap;
 
 public class PinStateMachine

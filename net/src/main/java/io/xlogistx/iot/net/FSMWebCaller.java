@@ -1,7 +1,7 @@
 package io.xlogistx.iot.net;
 
 
-import io.xlogistx.common.fsm.*;
+import org.zoxweb.server.fsm.*;
 
 import io.xlogistx.iot.net.data.TaskConfig;
 import org.zoxweb.server.http.HTTPCall;

@@ -1,9 +1,7 @@
 package io.xlogistx.iot.mqtt;
 
-//import org.eclipse.paho.client.mqttv3.*;
-//import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-//import org.zoxweb.server.security.SSLCheckDisabler;
-import io.xlogistx.crypto.DigestAppender;
+
+import io.xlogistx.common.crypto.DigestAppender;
 import org.eclipse.paho.mqttv5.client.*;
 import org.eclipse.paho.mqttv5.client.persist.MemoryPersistence;
 import org.eclipse.paho.mqttv5.common.MqttException;

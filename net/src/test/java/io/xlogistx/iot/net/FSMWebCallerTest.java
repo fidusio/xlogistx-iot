@@ -1,8 +1,8 @@
 package io.xlogistx.iot.net;
 
 
-import io.xlogistx.common.fsm.StateInt;
-import io.xlogistx.common.fsm.StateMachineInt;
+import org.zoxweb.server.fsm.StateInt;
+import org.zoxweb.server.fsm.StateMachineInt;
 import io.xlogistx.iot.net.data.TaskConfig;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

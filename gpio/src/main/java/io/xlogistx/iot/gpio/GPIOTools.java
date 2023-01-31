@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 
 import java.util.regex.Pattern;
 
-import io.xlogistx.common.fsm.StateMachine;
+import org.zoxweb.server.fsm.StateMachine;
 import io.xlogistx.iot.gpio.data.PWMConfig;
 import org.zoxweb.server.io.IOUtil;
 import org.zoxweb.server.logging.LoggerUtil;
