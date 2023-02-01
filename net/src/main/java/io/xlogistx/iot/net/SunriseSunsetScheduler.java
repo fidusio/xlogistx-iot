@@ -26,7 +26,7 @@ public class SunriseSunsetScheduler
     implements WaitTime<SunriseSunsetScheduler>, Runnable, CronScheduler
 {
 
-    private static final transient Logger log = Logger.getLogger(SunriseSunsetScheduler.class.getName());
+    private static final Logger log = Logger.getLogger(SunriseSunsetScheduler.class.getName());
     private final String ip;
     private final Set<Runnable> duringDay = new LinkedHashSet<Runnable>();
     private final Set<Runnable> duringNight = new LinkedHashSet<Runnable>();
@@ -108,16 +108,14 @@ public class SunriseSunsetScheduler
             }
             else
             {
-                HTTPMessageConfigInterface hmci = HTTPMessageConfig.createAndInit(apiService, null, HTTPMethod.GET);
-                HTTPCall hc = new HTTPCall(hmci);
-                HTTPResponseData hrd = hc.sendRequest();
+                HTTPResponseData hrd = HTTPCall.send(HTTPMessageConfig.createAndInit(apiService, null, HTTPMethod.GET));
                 NVGenericMap resp = GSONUtil.fromJSONGenericMap(hrd.getData());
                 deltaSunrise = (int)resp.getValue("sunrise-millis");
                 deltaSunset = (int)resp.getValue("sunset-millis");
             }
 
             log.info("To sunrise: " + deltaSunrise +  " " + Const.TimeInMillis.toString(deltaSunrise));
-            log.info("To sunset: " + deltaSunrise +  " " + Const.TimeInMillis.toString(deltaSunset));
+            log.info("To sunset: " + deltaSunset +  " " + Const.TimeInMillis.toString(deltaSunset));
             // day sunset is always > sunrise
             // if deltaSunrise and deltaSunset negative, we are past sunset must look for next day
             // if deltaSunrise and deltaSunset positive, wait till sunrise
