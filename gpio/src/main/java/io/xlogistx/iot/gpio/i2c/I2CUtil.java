@@ -19,11 +19,9 @@ import org.zoxweb.shared.http.HTTPMessageConfigInterface;
 import org.zoxweb.shared.http.HTTPResponseData;
 import org.zoxweb.shared.http.HTTPStatusCode;
 import org.zoxweb.shared.util.Const;
-
 import org.zoxweb.shared.util.ParamUtil;
 import org.zoxweb.shared.util.SharedStringUtil;
 import org.zoxweb.shared.util.SharedUtil;
-
 
 import java.io.IOException;
 import java.util.*;
@@ -33,8 +31,10 @@ import java.util.logging.Logger;
 public class I2CUtil
 {
 
-    public static final String VERSION = "I2C-UTIL-1.04.08";
+    public static final String VERSION = "I2C-UTIL-1.04.10";
     private static final Logger log = Logger.getLogger(I2CUtil.class.getName());
+
+    //private Map<String, I2CBaseDevice> i2cDevices = new HashMap<>();
     private static final CodecManager<I2CCodecBase> I2C_CODEC_MANAGER = new CodecManager<I2CCodecBase>("I2CCodecManager", TokenFilter.UPPER_COLON, "I2CProtocol")
             .add(new I2CCodec("ping", "Ping the device return the ping value as java int, usage: PING"))
             .add(new I2CCodec("messages", "The number i2c messages processed by the device return the count value as java int, usage: MESSAGES"))
@@ -63,7 +63,8 @@ public class I2CUtil
         String rawCommand = command.toUpperCase();
 
         I2CCodecBase mc = I2C_CODEC_MANAGER.lookup(rawCommand);
-        if(mc == null){
+        if(mc == null)
+        {
             throw new IllegalArgumentException("Command not supported: " + command);
         }
         CommandToBytes i2cCommand = I2C_CODEC_MANAGER.lookup(rawCommand).encode(rawCommand);
@@ -74,24 +75,24 @@ public class I2CUtil
         // the current lock is just precautionary is case of implementation changes
         I2CDevice i2cDev = i2cDevice.getI2CDevice();
 
-        {
-            mc.resetTimeStamp();
-            if(delay > 0)
-            {
-                // send i2c command
-                i2cDev.write(i2cCommand.data(), 0, i2cCommand.size());
-                // sleep if delay set
-                TaskUtil.sleep(delay);
-                // get i2c response
-                i2cDev.read(respData, 0, respData.length);
-            }
-            else
-                i2cDev.read(i2cCommand.data(), 0, i2cCommand.size(), respData, 0, respData.length);
 
-            // close the bus it is a must
-            // to avoid bus read issues specially with io set commands
-            IOUtil.close(i2cDevice);
+        mc.resetTimeStamp();
+        if(delay > 0)
+        {
+            // send i2c command
+            i2cDev.write(i2cCommand.data(), 0, i2cCommand.size());
+            // sleep if delay set
+            TaskUtil.sleep(delay);
+            // get i2c response
+            i2cDev.read(respData, 0, respData.length);
         }
+        else
+            i2cDev.read(i2cCommand.data(), 0, i2cCommand.size(), respData, 0, respData.length);
+
+        // close the bus it is a must
+        // to avoid bus read issues specially with io set commands
+        IOUtil.close(i2cDevice);
+
         SimpleMessage ret = mc.decode(I2CResp.build(bus, address, respData));
 
         return ret;
@@ -99,7 +100,9 @@ public class I2CUtil
 
     public I2CBaseDevice createI2CDevice(String name, int bus, int address) throws IOException, I2CFactory.UnsupportedBusNumberException {
 
+
         return new I2CGeneric(name, bus, address);
+
 
 //        String i2cID  = I2CBaseDevice.i2cDeviceID(bus, address);
 //        I2CBaseDevice ret = i2cDevices.get(i2cID);

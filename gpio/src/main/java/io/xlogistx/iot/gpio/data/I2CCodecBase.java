@@ -37,11 +37,16 @@ public abstract  class I2CCodecBase extends MessageCodec<String, CommandToBytes,
         return 16;
     }
 
-    public void resetTimeStamp()
+    public synchronized void resetTimeStamp()
     {
         timeStamp = System.nanoTime();
     }
-    public long deltaInNanos()
+
+    /**
+     * Return the delta in nanos second NOT millis
+     * @return the time difference in nanos
+     */
+    public synchronized long delta()
     {
         return System.nanoTime() - timeStamp;
     }
@@ -55,7 +60,7 @@ public abstract  class I2CCodecBase extends MessageCodec<String, CommandToBytes,
 
     protected SimpleMessage createDecoderResponse(int bus, int address)
     {
-        long delta = deltaInNanos();
+        long delta = delta();
         I2CMessage ret = new I2CMessage();
         ret.setName(getName());
         ret.setBus(bus);
