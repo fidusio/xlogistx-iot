@@ -16,7 +16,6 @@ import org.zoxweb.shared.util.Const;
 import org.zoxweb.shared.util.SharedStringUtil;
 import org.zoxweb.shared.util.SharedUtil;
 
-
 import java.util.UUID;
 
 public class MQTTClient {
@@ -40,7 +39,7 @@ public class MQTTClient {
       qos =  args.length > index ? SharedUtil.parseInt(args[index++]) : -1;
       MqttClient sampleClient = new MqttClient(broker, clientId, persistence);
       MqttConnectionOptions connOpts = new MqttConnectionOptions();
-      //connOpts.setCleanSession(true);
+      connOpts.setCleanStart(true);
       System.out.println("Connecting to broker: "+broker);
       if(username != null)
         connOpts.setUserName(username);
@@ -52,6 +51,7 @@ public class MQTTClient {
       sampleClient.connect(connOpts);
       System.out.println("Connected");
       System.out.println("Publishing message: "+content);
+      System.out.println("SSLProperties: " + connOpts.getSSLProperties());
       long ts = System.currentTimeMillis();
       for (int i = 0; i < repeat; i++) {
         String msg = clientId +":["+ (i +1) + ":" + System.currentTimeMillis() + "]: " + content;
@@ -62,12 +62,18 @@ public class MQTTClient {
         sampleClient.publish(topic, message);
         //System.out.println(lqos +": Message published: " + msg);
       }
+
       ts = System.currentTimeMillis() - ts;
 
-      //sampleClient.disconnect();
       float rate = ((float)repeat/(float)ts)*1000;
       System.out.println("Disconnected it took: " + Const.TimeInMillis.toString(ts) + " to send " + repeat + " rate " + rate +" msg/s");
-      System.exit(0);
+      MqttMessage last = new MqttMessage(SharedStringUtil.getBytes("Last message of " +repeat));
+
+      last.setQos(qos);
+      sampleClient.publish(topic, last);
+
+      //TaskUtil.sleep(Const.TimeInMillis.SECOND.MILLIS*10);
+
     } catch(MqttException me) {
       System.out.println("reason "+me.getReasonCode());
       System.out.println("msg "+me.getMessage());
@@ -76,6 +82,9 @@ public class MQTTClient {
       System.out.println("exception "+me);
       me.printStackTrace();
     }
+
+
+    System.exit(0);
   }
 
 }

@@ -9,27 +9,28 @@ import org.zoxweb.shared.http.*;
 import org.zoxweb.shared.util.GetNameValue;
 import org.zoxweb.shared.util.NVGenericMap;
 import org.zoxweb.shared.util.NVGenericMapList;
-
+import org.zoxweb.shared.util.RateCounter;
 
 import java.io.IOException;
-
-
-import java.util.logging.Logger;
 
 public class UniFiController
     extends RunnableProperties
 {
-    //private  static final Logger log = Logger.getLogger(UniFiController.class.getName());
     public static final LogWrapper log = new LogWrapper(UniFiController.class);
 
     private GetNameValue<String> securityCookie;
     private NVGenericMap sites = null;
+    public final RateCounter success = new RateCounter("Success");
+
+    public final RateCounter failed = new RateCounter("Failed");
 
     public UniFiController() {
     }
 
 
     public void run(){
+        failed.reset();
+        success.reset();
         try {
             if (getProperties().getValue("mac") != null) {
                 log.info("Restart device: " + getProperties().getValue("site") + "-" + getProperties().getValue("mac") );
@@ -48,6 +49,8 @@ public class UniFiController
             System.err.println("usage UniFiController url username password [site] [device mac address]");
         }
 
+        System.out.println(success);
+        System.out.println(failed);
     }
 
     public NVGenericMap getSiteDevices(String site) throws IOException {
@@ -61,7 +64,20 @@ public class UniFiController
         return hro.getData();
     }
 
-    public void restart(String site, String mac, String rebootType) throws IOException {
+    public void restart(String site, String mac, String rebootType) throws IOException{
+        long delta = System.currentTimeMillis();
+        try
+        {
+            internalRestart(site, mac, rebootType);
+            success.register(System.currentTimeMillis() - delta);
+        }
+        catch (IOException e)
+        {
+            failed.register(System.currentTimeMillis() - delta);
+            throw e;
+        }
+    }
+    private void internalRestart(String site, String mac, String rebootType) throws IOException {
         log.getLogger().info("Site: " + site);
         NVGenericMap localSite = (NVGenericMap) getAllSites().get(site);
         NVGenericMap nvgm = new NVGenericMap();
@@ -73,9 +89,7 @@ public class UniFiController
         hmci.setContentType("application/json;charset=UTF-8");
         hmci.getHeaders().add(getSecurityCookie());
         hmci.setContent(GSONUtil.toJSONGenericMap(nvgm, false, false, false));
-        HTTPCall hc = new HTTPCall(hmci);
-        hc.sendRequest();
-        //log.info("" + hc.sendRequest());
+        HTTPCall.send(hmci);
     }
 
     public void restartAll() throws IOException {

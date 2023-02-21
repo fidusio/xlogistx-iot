@@ -33,13 +33,13 @@
     </dependency>
 
 
-    <!--
+
     <dependency>
       <groupId>com.hivemq</groupId>
       <artifactId>hivemq-mqtt-client</artifactId>
       <version>${hive.version}</version>
     </dependency>
-
+    <!--
     <dependency>
       <groupId>org.zoxweb</groupId>
       <artifactId>zoxweb-core</artifactId>

@@ -8,6 +8,8 @@ import org.eclipse.paho.mqttv5.common.MqttException;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
 import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
 import org.zoxweb.server.task.TaskUtil;
+import org.zoxweb.shared.util.Const;
+import org.zoxweb.shared.util.RateCounter;
 import org.zoxweb.shared.util.SharedStringUtil;
 import org.zoxweb.shared.util.SharedUtil;
 
@@ -16,7 +18,7 @@ import java.util.UUID;
 
 public class MQTTConsumer {
 
-  static int counter = 0;
+  static RateCounter counter = new RateCounter("Received");
 
   public static void main(String[] args) {
 
@@ -43,7 +45,7 @@ public class MQTTConsumer {
       connOpts.setKeepAliveInterval(60);
 
       //connOpts.setCleanSession(true);
-      connOpts.setConnectionTimeout(10);
+      //connOpts.setConnectionTimeout(10);
       if(username != null)
         connOpts.setUserName(username);
       if(password != null)
@@ -76,10 +78,11 @@ public class MQTTConsumer {
 
         @Override
         public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
-          counter++;
-          if(counter%200 == 0) {
+          counter.inc();
+          //if(counter.getCounts()%200 == 0)
+          {
             //String hash = da.appendToString(mqttMessage.getPayload());
-            System.out.println(SharedUtil.toCanonicalID(':', Thread.currentThread(), counter, mqttMessage));
+            System.out.println(SharedUtil.toCanonicalID(':', Thread.currentThread(), counter, SharedStringUtil.toString(mqttMessage.getPayload())));
           }
           //System.out.println(mqttMessage);
         }
@@ -110,7 +113,13 @@ public class MQTTConsumer {
 //      sampleClient.publish(topic, message);
 
       System.out.println("Connected");
-      TaskUtil.getDefaultTaskScheduler();
+      TaskUtil.getDefaultTaskScheduler().queue(Const.TimeInMillis.SECOND.MILLIS * 5, new Runnable() {
+        @Override
+        public void run() {
+          System.out.println(counter);
+          TaskUtil.getDefaultTaskScheduler().queue(Const.TimeInMillis.SECOND.MILLIS*5, this);
+        }
+      });
 
     } catch(Exception me) {
       if(me instanceof MqttException)
