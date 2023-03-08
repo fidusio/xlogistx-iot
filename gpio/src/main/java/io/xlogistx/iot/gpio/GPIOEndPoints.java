@@ -2,32 +2,24 @@ package io.xlogistx.iot.gpio;
 
 import com.pi4j.io.gpio.Pin;
 import com.pi4j.io.gpio.PinState;
-import com.pi4j.io.i2c.I2CFactory;
-import io.xlogistx.common.data.MessageCodec;
 import io.xlogistx.common.data.PropertyHolder;
-
-import io.xlogistx.iot.gpio.i2c.I2CUtil;
-import io.xlogistx.iot.gpio.i2c.modules.ADS1115;
 import org.zoxweb.shared.annotation.EndPointProp;
 import org.zoxweb.shared.annotation.ParamProp;
 import org.zoxweb.shared.annotation.SecurityProp;
+import org.zoxweb.shared.crypto.CryptoConst;
 import org.zoxweb.shared.data.Range;
 import org.zoxweb.shared.data.SimpleMessage;
 import org.zoxweb.shared.http.HTTPMethod;
 import org.zoxweb.shared.http.HTTPStatusCode;
 import org.zoxweb.shared.http.URIScheme;
-import org.zoxweb.shared.security.SecurityConsts;
 import org.zoxweb.shared.util.*;
 
-import java.io.IOException;
-
-import java.util.Arrays;
 import java.util.logging.Logger;
 
 
-@SecurityProp(authentications = {SecurityConsts.AuthenticationType.BASIC,
-                                 SecurityConsts.AuthenticationType.BEARER,
-                                 SecurityConsts.AuthenticationType.JWT},
+@SecurityProp(authentications = {CryptoConst.AuthenticationType.BASIC,
+        CryptoConst.AuthenticationType.BEARER,
+        CryptoConst.AuthenticationType.JWT},
               roles = "local-admin,remote-admin")
 public class GPIOEndPoints
 extends PropertyHolder
@@ -115,9 +107,9 @@ extends PropertyHolder
 
 
     @EndPointProp(methods = {HTTPMethod.GET, HTTPMethod.POST}, name="read-pwm-config", uris="/lookup/pwm")
-    @SecurityProp(authentications = {SecurityConsts.AuthenticationType.BASIC,
-            SecurityConsts.AuthenticationType.BEARER,
-            SecurityConsts.AuthenticationType.JWT},
+    @SecurityProp(authentications = {CryptoConst.AuthenticationType.BASIC,
+            CryptoConst.AuthenticationType.BEARER,
+            CryptoConst.AuthenticationType.JWT},
             roles = "local-admin,remote-admin",
             protocols = {URIScheme.HTTPS})
     public NVGenericMap pwmConfig()

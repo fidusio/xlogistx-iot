@@ -3,17 +3,17 @@ package io.xlogistx.iot.device.controller.impl;
 import org.zoxweb.shared.annotation.EndPointProp;
 import org.zoxweb.shared.annotation.ParamProp;
 import org.zoxweb.shared.annotation.SecurityProp;
+import org.zoxweb.shared.crypto.CryptoConst;
 import org.zoxweb.shared.data.SimpleMessage;
 import org.zoxweb.shared.http.HTTPMethod;
 import org.zoxweb.shared.http.HTTPStatusCode;
 import org.zoxweb.shared.http.URIScheme;
-import org.zoxweb.shared.security.SecurityConsts;
 import org.zoxweb.shared.util.Const;
 import org.zoxweb.shared.util.NVPair;
 
 import java.io.IOException;
 
-@SecurityProp(authentications = {SecurityConsts.AuthenticationType.ALL}, protocols = {URIScheme.HTTPS})
+@SecurityProp(authentications = {CryptoConst.AuthenticationType.ALL}, protocols = {URIScheme.HTTPS})
 public class UBNTEndPoints {
 
     @EndPointProp(methods = {HTTPMethod.GET}, name="ubnt-power", uris="/ubnt/power/{ip}/{user}/{password}/{port}/{state}")
