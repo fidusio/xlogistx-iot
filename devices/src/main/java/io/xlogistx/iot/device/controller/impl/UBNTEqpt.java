@@ -108,7 +108,7 @@ public class UBNTEqpt
   {
     HTTPMessageConfigInterface reboot = HTTPMessageConfig.createAndInit(url, "reboot.cgi", HTTPMethod.POST);
     reboot.getHeaders().add(sessionCookie);
-    reboot.setContentType(HTTPMimeType.MULTIPART_FORM_DATA);
+    reboot.setContentType(HTTPMediaType.MULTIPART_FORM_DATA);
     //System.out.println( ""+reboot);
     HTTPCall hc = new HTTPCall(reboot, SSLCheckDisabler.SINGLETON);
     return hc.sendRequest();
@@ -120,7 +120,7 @@ public class UBNTEqpt
     NVPair cookie = loginCookie(url, user, passwd, proxy);
     HTTPMessageConfigInterface reboot = HTTPMessageConfig.createAndInit(url, "reboot.cgi", HTTPMethod.POST);
     reboot.getHeaders().add(cookie);
-    reboot.setContentType(HTTPMimeType.MULTIPART_FORM_DATA);
+    reboot.setContentType(HTTPMediaType.MULTIPART_FORM_DATA);
     //reboot.setMultiPartEncoding(true);
     reboot.setProxyAddress(proxy);
     reboot.setRedirectEnabled(true);

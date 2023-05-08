@@ -10,7 +10,7 @@ import org.zoxweb.server.security.JSPrincipal;
 import org.zoxweb.shared.http.HTTPMessageConfig;
 import org.zoxweb.shared.http.HTTPMessageConfigInterface;
 import org.zoxweb.shared.http.HTTPMethod;
-import org.zoxweb.shared.http.HTTPMimeType;
+import org.zoxweb.shared.http.HTTPMediaType;
 import org.zoxweb.shared.util.SharedUtil;
 
 import javax.security.auth.Subject;
@@ -35,7 +35,7 @@ public class ArtemisSM
             HTTPMessageConfigInterface hmci = HTTPMessageConfig.createAndInit(loginURL, null, HTTPMethod.GET);
             hmci.setUser(user);
             hmci.setPassword(password);
-            hmci.setContentType(HTTPMimeType.APPLICATION_JSON);
+            hmci.setContentType(HTTPMediaType.APPLICATION_JSON);
             HTTPCall.send(hmci);
             ret = new Subject();
             ret.getPrincipals().add(new JSPrincipal(user));
