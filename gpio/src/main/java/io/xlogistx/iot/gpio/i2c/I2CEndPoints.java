@@ -96,7 +96,7 @@ public class I2CEndPoints
 
         int address = Integer.parseInt(addressID, 16);
         String id = SharedUtil.toCanonicalID('-', "ADS1115", bus, Integer.toHexString(address));
-        ADS1115 device = ResourceManager.SINGLETON.lookup(id);
+        ADS1115 device = ResourceManager.lookupResource(id);
         ADS1115.PGA pga = ADS1115.PGA.match(voltRef);
 
         if (pga == null)
@@ -109,7 +109,7 @@ public class I2CEndPoints
                 if(ResourceManager.SINGLETON.lookup(id) == null)
                 {
                     device = new ADS1115(bus, address);
-                    ResourceManager.SINGLETON.map(device.toCanonicalID(), device);
+                    ResourceManager.SINGLETON.register(device.toCanonicalID(), device);
                 }
             }
         }
@@ -142,7 +142,7 @@ public class I2CEndPoints
 
         int address = Integer.parseInt(addressID, 16);
         String id = SharedUtil.toCanonicalID('-', "ADS1115", bus, Integer.toHexString(address));
-        ADS1115 device = ResourceManager.SINGLETON.lookup(id);
+        ADS1115 device = ResourceManager.lookupResource(id);
 
 
 
@@ -153,7 +153,7 @@ public class I2CEndPoints
                 if(ResourceManager.SINGLETON.lookup(id) == null)
                 {
                     device = new ADS1115(bus, address);
-                    ResourceManager.SINGLETON.map(device.toCanonicalID(), device);
+                    ResourceManager.SINGLETON.register(device.toCanonicalID(), device);
                 }
             }
         }
