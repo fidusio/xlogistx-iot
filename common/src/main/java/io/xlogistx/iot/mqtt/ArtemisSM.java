@@ -7,10 +7,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager5;
 import org.zoxweb.server.http.HTTPCall;
 import org.zoxweb.server.security.JSPrincipal;
-import org.zoxweb.shared.http.HTTPMessageConfig;
-import org.zoxweb.shared.http.HTTPMessageConfigInterface;
-import org.zoxweb.shared.http.HTTPMethod;
-import org.zoxweb.shared.http.HTTPMediaType;
+import org.zoxweb.shared.http.*;
 import org.zoxweb.shared.util.SharedUtil;
 
 import javax.security.auth.Subject;
@@ -33,8 +30,7 @@ public class ArtemisSM
             log.info(Thread.currentThread() + ":" + SharedUtil.toCanonicalID(':', user,remotingConnection));
             log.info("RemoteConnection id: " + remotingConnection.getID());
             HTTPMessageConfigInterface hmci = HTTPMessageConfig.createAndInit(loginURL, null, HTTPMethod.GET);
-            hmci.setUser(user);
-            hmci.setPassword(password);
+            hmci.setAuthorization(new HTTPAuthorizationBasic(user, password));
             hmci.setContentType(HTTPMediaType.APPLICATION_JSON);
             HTTPCall.send(hmci);
             ret = new Subject();
