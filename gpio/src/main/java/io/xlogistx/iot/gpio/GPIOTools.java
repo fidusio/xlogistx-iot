@@ -1,38 +1,29 @@
 package io.xlogistx.iot.gpio;
 
 
-
 import com.pi4j.io.gpio.*;
-
-import java.util.ArrayList;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Logger;
-
-import java.util.regex.Pattern;
-
-import org.zoxweb.server.fsm.StateMachine;
+import com.pi4j.wiringpi.Gpio;
 import io.xlogistx.iot.gpio.data.PWMConfig;
 import org.zoxweb.server.io.IOUtil;
 import org.zoxweb.server.logging.LoggerUtil;
-import org.zoxweb.server.task.SupplierTask;
 import org.zoxweb.server.task.TaskSchedulerProcessor;
 import org.zoxweb.server.task.TaskUtil;
 import org.zoxweb.server.util.GSONUtil;
-
 import org.zoxweb.shared.data.Range;
+import org.zoxweb.shared.task.SupplierTask;
 import org.zoxweb.shared.util.Const.Bool;
 import org.zoxweb.shared.util.Const.TimeInMillis;
 import org.zoxweb.shared.util.NVCollection;
 import org.zoxweb.shared.util.NVCollectionStringDecoder;
 import org.zoxweb.shared.util.SharedUtil;
 
-import com.pi4j.wiringpi.Gpio;
-
-import javax.swing.plaf.IconUIResource;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 
 public class GPIOTools
