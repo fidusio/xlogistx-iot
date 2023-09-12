@@ -59,7 +59,7 @@ public class UniFiController
         HTTPMessageConfigInterface hmci = HTTPMessageConfig.createAndInit(getProperties().getValue("url"), uri, "get", false);
         hmci.getHeaders().add(getSecurityCookie());
         //HTTPResponseData hrd = new HTTPCall(hmci).sendRequest();
-        HTTPResponseObject<NVGenericMap> hro = HTTPCall.send(hmci, NVGenericMap.class);
+        HTTPAPIResult<NVGenericMap> hro = HTTPCall.send(hmci, NVGenericMap.class);
 
         return hro.getData();
     }
@@ -134,7 +134,7 @@ public class UniFiController
                     hmci.setSecureCheckEnabled(false);
                     hmci.setContentType("application/json;charset=UTF-8");
                     hmci.getHeaders().add(getSecurityCookie());
-                    HTTPResponseObject<NVGenericMap> hro = HTTPCall.send(hmci, NVGenericMap.class);
+                    HTTPAPIResult<NVGenericMap> hro = HTTPCall.send(hmci, NVGenericMap.class);
                     if (hro.getStatus() != HTTPStatusCode.OK.CODE) {
                         throw new IOException("" + hro);
                     }
