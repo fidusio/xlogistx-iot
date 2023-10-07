@@ -1,21 +1,16 @@
 package io.xlogistx.iot.net.util;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.util.concurrent.Executor;
-import java.util.logging.Logger;
-
-import org.pcap4j.core.NotOpenException;
-import org.pcap4j.core.PacketListener;
-import org.pcap4j.core.PcapHandle;
-import org.pcap4j.core.PcapNativeException;
-import org.pcap4j.core.PcapStat;
+import com.sun.jna.Platform;
 import org.pcap4j.core.BpfProgram.BpfCompileMode;
+import org.pcap4j.core.*;
 import org.zoxweb.server.io.IOUtil;
 import org.zoxweb.shared.util.SharedStringUtil;
 import org.zoxweb.shared.util.SharedUtil;
 
-import com.sun.jna.Platform;
+import java.io.Closeable;
+import java.io.IOException;
+import java.util.concurrent.Executor;
+import java.util.logging.Logger;
 
 public abstract class PacketListenerHandler
 	implements Runnable, PacketListener, Closeable
@@ -93,6 +88,8 @@ public abstract class PacketListenerHandler
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
+		log.info("***************************** PacketListener handler end of run method ******************************");
 		   
 		IOUtil.close(handle);
 	}
