@@ -44,8 +44,8 @@ public class UBNTRebootNew
             nvgm.add(getProperties().get("password"));
 
             hmci.setContent(GSONUtil.toJSONGenericMap(nvgm, false, false, false));
-            HTTPCall hc = new HTTPCall(hmci);
-            HTTPResponseData rd = hc.sendRequest();
+            //HTTPCall hc = new HTTPCall(hmci);
+            HTTPResponseData rd = HTTPCall.send(hmci);//hc.sendRequest();
 
 
             String authToken = rd.getHeaders().get("x-auth-token").get(0);
@@ -53,8 +53,8 @@ public class UBNTRebootNew
             hmci.setContentType("application/json");
             hmci.getHeaders().add(new NVPair("x-auth-token", authToken));
 
-            hc = new HTTPCall(hmci);
-            rd = hc.sendRequest();
+            //hc = new HTTPCall(hmci);
+            rd = HTTPCall.send(hmci);
             log.info("Device: " + getProperties().getValue("host") + ", " + SharedStringUtil.toString(rd.getData()));
         }
         catch(Exception e)
