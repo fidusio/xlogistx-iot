@@ -69,7 +69,7 @@ public class GPIOTools
 		output.setState(state);
 		if(durationInMillis > 0)
 		{
-			TaskUtil.getDefaultTaskScheduler().queue(durationInMillis, new SupplierTask<GpioPinDigitalOutput>(output)
+			TaskUtil.defaultTaskScheduler().queue(durationInMillis, new SupplierTask<GpioPinDigitalOutput>(output)
 		    {
 				@Override
 				public void run() {
@@ -135,7 +135,7 @@ public class GPIOTools
 
 	public synchronized void setPWMRangeMod(int range, int mod)
 	{
-		if(!PWM_RANGE.contains(range))
+		if(!PWM_RANGE.within(range))
 			throw new IllegalArgumentException(range + " value out of range [2-4095]");
 		this.pwmRangeValue = range;
 		Gpio.pwmSetMode(Gpio.PWM_MODE_MS);
@@ -170,7 +170,7 @@ public class GPIOTools
 		Gpio.pwmSetClock((int)clock);
 		pwmOutputPin.setPwmRange(getPWMRange());
 
-		TaskUtil.getDefaultTaskScheduler().queue(0, new PWMRangeExec(pwmOutputPin, new Range<Integer>(dutyCycleToPWM(dutyCycle.getStart()), dutyCycleToPWM(dutyCycle.getEnd())), cycleDelay, repeat) );
+		TaskUtil.defaultTaskScheduler().queue(0, new PWMRangeExec(pwmOutputPin, new Range<Integer>(dutyCycleToPWM(dutyCycle.getStart()), dutyCycleToPWM(dutyCycle.getEnd())), cycleDelay, repeat) );
 
 
 		return pwmOutputPin;
@@ -207,7 +207,7 @@ public class GPIOTools
 		pwmOutputPin.setPwm(pwm);
 
 		if(duration > 0) {
-			TaskUtil.getDefaultTaskScheduler().queue(duration, () -> {
+			TaskUtil.defaultTaskScheduler().queue(duration, () -> {
 				try{
 					pwmOutputPin.setPwm(0);
 					pwmOutputPin.removeAllListeners();
@@ -257,7 +257,7 @@ public class GPIOTools
 		outputs.forEach((pwmPin)-> log.info(pwmPin.getName()+ " pwm set to :"+pwmPin.getPwm()));
 
 		 if(pwmConfig.getDuration() > 0) {
-			 TaskUtil.getDefaultTaskScheduler().queue(pwmConfig.getDuration(), () -> {
+			 TaskUtil.defaultTaskScheduler().queue(pwmConfig.getDuration(), () -> {
 					outputs.forEach((gppo)->{
 						try{
 							gppo.setPwm(0);
@@ -321,7 +321,7 @@ public class GPIOTools
 						}
 						break;
 					case MONITOR:
-						TaskUtil.getDefaultTaskScheduler();
+						TaskUtil.defaultTaskScheduler();
 						boolean inverse = false;
 
 						String pins[] = args[index].split(Pattern.quote(","));
@@ -346,7 +346,7 @@ public class GPIOTools
 						GPIOConfig gm = new GPIOConfig().monitorSetter(gpioPin).followersSetter(toSet.toArray(new GPIOPin[0])).followersHighDelaySetter("10sec").followersLowDelaySetter("0sec").nameSetter(gpioPin.toString()).inverseSetter(inverse);
 
 						System.out.println(GSONUtil.toJSONDefault(gm));
-						PinStateMonitor psm = new PinStateMonitor(gm, null, TaskUtil.getDefaultTaskScheduler());
+						PinStateMonitor psm = new PinStateMonitor(gm, null, TaskUtil.defaultTaskScheduler());
 
 						input.addListener(psm);
 
@@ -356,7 +356,7 @@ public class GPIOTools
 					case STATE_MONITOR:
 						log.info("State monitor");
 
-						PinStateMachine pinStateMachine = new PinStateMachine(TaskUtil.getDefaultTaskScheduler());
+						PinStateMachine pinStateMachine = new PinStateMachine(TaskUtil.defaultTaskScheduler());
 						pinStateMachine.start(true);
 						pinStateMachine.monitorDigitalPin(args[index++], "pod-counter");
 
@@ -400,7 +400,7 @@ public class GPIOTools
 						{
 							if (args[index++].equalsIgnoreCase("-m"))
 							{
-								tsp = TaskUtil.getDefaultTaskScheduler();
+								tsp = TaskUtil.defaultTaskScheduler();
 								log.info("Parallel scheduler");
 							}
 						}

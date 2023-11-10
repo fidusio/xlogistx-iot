@@ -245,7 +245,7 @@ public final class FSMWebCaller {
             String name = args[index++];
             String json = IOUtil.inputStreamToString(args[index++]);
             TaskConfig tc = GSONUtil.fromJSON(json, TaskConfig.class);
-            StateMachineInt<TaskConfig> fsm = create(name, TaskUtil.getDefaultTaskScheduler(), tc);
+            StateMachineInt<TaskConfig> fsm = create(name, TaskUtil.defaultTaskScheduler(), tc);
 
             fsm.lookupState(StateInt.States.FINAL).getProperties().add(new NVBoolean(FSMWebCaller.SMWebCaller.SHUTDOWN.getName(), true));
 

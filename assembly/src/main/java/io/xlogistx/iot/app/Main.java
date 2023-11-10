@@ -51,19 +51,19 @@ public class Main
                 String jsonFC = IOUtil.inputStreamToString(file);
                 log.info("" + jsonFC);
                 PinStateMonitorConfig pinStateMonitorConfig = GSONUtil.fromJSONDefault(jsonFC, PinStateMonitorConfig.class);
-                new GPIOFlowProcessor(pinStateMonitorConfig, TaskUtil.getDefaultTaskScheduler()).init();
+                new GPIOFlowProcessor(pinStateMonitorConfig, TaskUtil.defaultTaskScheduler()).init();
             }
             if(cronConfig != null)
             {
 
                 CronConfig cc = GSONUtil.fromJSON(IOUtil.inputStreamToString(cronConfig), CronConfig.class);
 
-                CronTool ct = new CronTool(TaskUtil.getDefaultTaskScheduler());
-                TaskUtil.getDefaultTaskScheduler().queue(cc.getSetupDelay(), ()->
+                CronTool ct = new CronTool(TaskUtil.defaultTaskScheduler());
+                TaskUtil.defaultTaskScheduler().queue(cc.getSetupDelay(), ()->
                 {
                     try
                     {
-                        SunriseSunsetScheduler ssc = new SunriseSunsetScheduler(TaskUtil.getDefaultTaskProcessor(), null);
+                        SunriseSunsetScheduler ssc = new SunriseSunsetScheduler(TaskUtil.defaultTaskProcessor(), null);
                         ssc.setAPIService(cc.getAPIEndpoint());
                         CronTask cronTask = ct.registerCronTask("day", ssc, ssc);
                         ct.registerCronTask("night", cronTask);

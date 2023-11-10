@@ -113,11 +113,11 @@ public class MQTTConsumer {
 //      sampleClient.publish(topic, message);
 
       System.out.println("Connected");
-      TaskUtil.getDefaultTaskScheduler().queue(Const.TimeInMillis.SECOND.MILLIS * 5, new Runnable() {
+      TaskUtil.defaultTaskScheduler().queue(Const.TimeInMillis.SECOND.MILLIS * 5, new Runnable() {
         @Override
         public void run() {
           System.out.println(counter);
-          TaskUtil.getDefaultTaskScheduler().queue(Const.TimeInMillis.SECOND.MILLIS*5, this);
+          TaskUtil.defaultTaskScheduler().queue(Const.TimeInMillis.SECOND.MILLIS*5, this);
         }
       });
 

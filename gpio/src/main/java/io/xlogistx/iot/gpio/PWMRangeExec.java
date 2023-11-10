@@ -42,7 +42,7 @@ public class PWMRangeExec
         count--;
         if(count > 0)
         {
-            TaskUtil.getDefaultTaskScheduler().queue(delay, this);
+            TaskUtil.defaultTaskScheduler().queue(delay, this);
         }
         else
         {
