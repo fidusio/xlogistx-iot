@@ -406,7 +406,7 @@ public class GPIOTools
 						}
 						if ( tsp == null )
 						{
-							tsp = TaskUtil.getSimpleTaskScheduler();
+							tsp = TaskUtil.simpleTaskScheduler();
 							log.info("Single threaded scheduler");
 						}
 						PinStateMonitorConfig pinStateMonitorConfig = GSONUtil.fromJSONDefault(jsonConfig, PinStateMonitorConfig.class);
