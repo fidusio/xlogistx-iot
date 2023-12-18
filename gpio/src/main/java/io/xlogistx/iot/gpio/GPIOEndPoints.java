@@ -20,7 +20,8 @@ import java.util.logging.Logger;
 @SecurityProp(authentications = {CryptoConst.AuthenticationType.BASIC,
         CryptoConst.AuthenticationType.BEARER,
         CryptoConst.AuthenticationType.JWT},
-              roles = "local-admin,remote-admin")
+        permissions = "gpio:access",
+        protocols = {URIScheme.HTTPS})
 public class GPIOEndPoints
 extends PropertyHolder
 {
@@ -107,11 +108,6 @@ extends PropertyHolder
 
 
     @EndPointProp(methods = {HTTPMethod.GET, HTTPMethod.POST}, name="read-pwm-config", uris="/lookup/pwm")
-    @SecurityProp(authentications = {CryptoConst.AuthenticationType.BASIC,
-            CryptoConst.AuthenticationType.BEARER,
-            CryptoConst.AuthenticationType.JWT},
-            roles = "local-admin,remote-admin",
-            protocols = {URIScheme.HTTPS})
     public NVGenericMap pwmConfig()
     {
         NVGenericMap ret = new NVGenericMap();

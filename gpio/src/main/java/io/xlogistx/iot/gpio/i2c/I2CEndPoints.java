@@ -12,6 +12,7 @@ import org.zoxweb.shared.crypto.CryptoConst;
 import org.zoxweb.shared.data.SimpleMessage;
 import org.zoxweb.shared.http.HTTPMethod;
 import org.zoxweb.shared.http.HTTPStatusCode;
+import org.zoxweb.shared.security.model.SecurityModel;
 import org.zoxweb.shared.util.*;
 
 import java.io.IOException;
@@ -21,14 +22,14 @@ import java.util.logging.Logger;
 @SecurityProp(authentications = {CryptoConst.AuthenticationType.BASIC,
         CryptoConst.AuthenticationType.BEARER,
         CryptoConst.AuthenticationType.JWT},
-        roles = "local-admin,remote-admin")
+        permissions = "i2c:access")
 public class I2CEndPoints
     extends PropertyHolder
 {
     private static final Logger log = Logger.getLogger(I2CEndPoints.class.getName());
 
 
-    @EndPointProp(methods = {HTTPMethod.GET}, name="i2c-command", uris="/i2c/command/{i2c-bus}/{i2c-address}/{command}/{delay}")
+    @EndPointProp(methods = {HTTPMethod.GET}, name="i2c-command", uris="/i2c/{i2c-bus}/{i2c-address}/{command}/{delay}")
     public SimpleMessage i2cCommand(@ParamProp(name="i2c-bus") int bus,
                                     @ParamProp(name="i2c-address") String addressID,
                                     @ParamProp(name="command") String command,
@@ -54,7 +55,8 @@ public class I2CEndPoints
         return response;
     }
 
-    @EndPointProp(methods = {HTTPMethod.GET}, name="i2c-all-commands", uris="/i2c/commands")
+    @EndPointProp(methods = {HTTPMethod.GET}, name="i2c-all-commands", uris="/i2c/help")
+    @SecurityProp(permissions = SecurityModel.PERM_RESOURCE_ANY)
     public SimpleMessage i2cSupportedCommands()
     {
 
