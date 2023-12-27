@@ -31,7 +31,7 @@ import java.util.logging.Logger;
 public class I2CUtil
 {
 
-    public static final String VERSION = "I2C-UTIL-1.04.10";
+    public static final String VERSION = "I2C-UTIL-1.04.11";
     private static final Logger log = Logger.getLogger(I2CUtil.class.getName());
 
     //private Map<String, I2CBaseDevice> i2cDevices = new HashMap<>();
@@ -57,7 +57,7 @@ public class I2CUtil
 
 
 
-    public synchronized SimpleMessage sendI2CCommand(int bus, int address, String command, long delay) throws IOException, I2CFactory.UnsupportedBusNumberException {
+    public synchronized SimpleMessage sendI2CCommand(int bus, int address, String command, String filterID) throws IOException, I2CFactory.UnsupportedBusNumberException {
         SharedUtil.checkIfNulls("null command.", command);
         I2CBaseDevice i2cDevice = createI2CDevice("generic", bus, address);
         String rawCommand = command.toUpperCase();
@@ -67,6 +67,8 @@ public class I2CUtil
         {
             throw new IllegalArgumentException("Command not supported: " + command);
         }
+
+        log.info("Filer ID: " + filterID);
         CommandToBytes i2cCommand = I2C_CODEC_MANAGER.lookup(rawCommand).encode(rawCommand);
         log.info("sending: " + rawCommand + " " + i2cCommand);
         byte[] respData = new byte[mc.responseLength()];
@@ -77,23 +79,26 @@ public class I2CUtil
 
 
         mc.resetTimeStamp();
-        if(delay > 0)
-        {
-            // send i2c command
-            i2cDev.write(i2cCommand.data(), 0, i2cCommand.size());
-            // sleep if delay set
-            TaskUtil.sleep(delay);
-            // get i2c response
-            i2cDev.read(respData, 0, respData.length);
-        }
-        else
-            i2cDev.read(i2cCommand.data(), 0, i2cCommand.size(), respData, 0, respData.length);
+//        if(delay > 0)
+//        {
+//            // send i2c command
+//            i2cDev.write(i2cCommand.data(), 0, i2cCommand.size());
+//            // sleep if delay set
+//            TaskUtil.sleep(delay);
+//            // get i2c response
+//            i2cDev.read(respData, 0, respData.length);
+//        }
+//        else
+
+
+
+        i2cDev.read(i2cCommand.data(), 0, i2cCommand.size(), respData, 0, respData.length);
 
         // close the bus it is a must
         // to avoid bus read issues specially with io set commands
         IOUtil.close(i2cDevice);
 
-        SimpleMessage ret = mc.decode(I2CResp.build(bus, address, respData));
+        SimpleMessage ret = mc.decode(I2CResp.build(bus, address, respData, filterID));
 
         return ret;
     }
@@ -230,7 +235,7 @@ public class I2CUtil
                                 } else
                                     log.info("" + hrd);
                             } else {
-                                SimpleMessage resp = I2CUtil.SINGLETON.sendI2CCommand(busID, address, uri, 0);
+                                SimpleMessage resp = I2CUtil.SINGLETON.sendI2CCommand(busID, address, uri, null);
 
 
                                 //MessageCodec mc2 = I2C_CODEC_MANAGER.lookup(rawCommand);

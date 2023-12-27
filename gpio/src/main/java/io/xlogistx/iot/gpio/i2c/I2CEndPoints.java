@@ -5,6 +5,8 @@ import com.pi4j.io.i2c.I2CFactory;
 import io.xlogistx.common.data.MessageCodec;
 import io.xlogistx.common.data.PropertyHolder;
 import io.xlogistx.iot.gpio.i2c.modules.ADS1115;
+import io.xlogistx.iot.gpio.DataFilterManager;
+import io.xlogistx.iot.gpio.MultiplierDataFilter;
 import org.zoxweb.shared.annotation.EndPointProp;
 import org.zoxweb.shared.annotation.ParamProp;
 import org.zoxweb.shared.annotation.SecurityProp;
@@ -29,29 +31,37 @@ public class I2CEndPoints
     private static final Logger log = Logger.getLogger(I2CEndPoints.class.getName());
 
 
-    @EndPointProp(methods = {HTTPMethod.GET}, name="i2c-command", uris="/i2c/{i2c-bus}/{i2c-address}/{command}/{delay}")
+    @EndPointProp(methods = {HTTPMethod.GET}, name="i2c-command", uris="/i2c/{i2c-bus}/{i2c-address}/{command}")
     public SimpleMessage i2cCommand(@ParamProp(name="i2c-bus") int bus,
                                     @ParamProp(name="i2c-address") String addressID,
-                                    @ParamProp(name="command") String command,
-                                    @ParamProp(name="delay",optional = true) String delay)
+                                    @ParamProp(name="command") String command)
             throws IOException, I2CFactory.UnsupportedBusNumberException
     {
         int address = SharedUtil.parseInt(addressID);
-        long delayBetweenRW = 0;
-        try
-        {
-            if(delay != null)
-            {
-                long parsedDelay = Const.TimeInMillis.toMillis(delay);
-                if(parsedDelay > 0)
-                    delayBetweenRW = parsedDelay;
-            }
-        }
-        catch(Exception e)
-        {
+        return I2CUtil.SINGLETON.sendI2CCommand(bus, address, command, SharedUtil.toCanonicalID('/', "i2c", bus, Integer.toHexString(address), command).toUpperCase());
+    }
 
-        }
-        SimpleMessage response = I2CUtil.SINGLETON.sendI2CCommand(bus, address, command, delayBetweenRW);
+
+
+    @EndPointProp(methods = {HTTPMethod.GET}, name="i2c-date-filter-map", uris="/resource-filter/{i2c-bus}/{i2c-address}/{command}/{type}/{data-filter-name}/{multiplier}/{unit}")
+    public SimpleMessage i2cDataFilterMap(@ParamProp(name="i2c-bus") int bus,
+                                          @ParamProp(name="i2c-address") String addressID,
+                                          @ParamProp(name="command") String command,
+                                          @ParamProp(name="type") String type,
+                                          @ParamProp(name="data-filter-name") String dataFilterName,
+                                          @ParamProp(name="multiplier") float multiplier,
+                                          @ParamProp(name="unit") String unit)
+
+            throws IOException, I2CFactory.UnsupportedBusNumberException
+    {
+        SimpleMessage response = new SimpleMessage();
+        String filerID = SharedUtil.toCanonicalID('/', "i2c", bus, Integer.toHexString(SharedUtil.parseInt(addressID)), command).toUpperCase();
+
+        MultiplierDataFilter mdf = new MultiplierDataFilter(type, filerID, dataFilterName, filerID);
+        mdf.setMultiplier(multiplier);
+        mdf.setUnit(unit);
+        DataFilterManager.SINGLETON.register(mdf);
+
         return response;
     }
 

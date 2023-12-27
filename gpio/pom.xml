@@ -25,6 +25,7 @@
       <version>${xlogistx.version}</version>
     </dependency>
 
+
     <dependency>
       <groupId>org.jsoup</groupId>
       <artifactId>jsoup</artifactId>
@@ -51,7 +52,6 @@
       <version>${pi4j.version}</version>
       <scope>compile</scope>
     </dependency>
-
 
 
 
