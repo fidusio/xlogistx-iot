@@ -3,10 +3,7 @@ package io.xlogistx.iot.gpio.i2c;
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
-import com.pi4j.io.i2c.impl.I2CDeviceImpl;
-
 import org.zoxweb.shared.util.CanonicalID;
-
 import org.zoxweb.shared.util.NamedDescription;
 import org.zoxweb.shared.util.SharedUtil;
 
@@ -40,8 +37,6 @@ public abstract class I2CBaseDevice
         SharedUtil.checkIfNulls("bus or device can't be null", i2cBus, i2cDevice);
         this.i2cBus = i2cBus;
         this.i2cDevice = i2cDevice;
-        I2CDeviceImpl j;
-
     }
 
 

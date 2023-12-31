@@ -38,7 +38,7 @@ public class I2CEndPoints
             throws IOException, I2CFactory.UnsupportedBusNumberException
     {
         int address = SharedUtil.parseInt(addressID);
-        return I2CUtil.SINGLETON.sendI2CCommand(bus, address, command, SharedUtil.toCanonicalID('/', "i2c", bus, Integer.toHexString(address), command).toUpperCase());
+        return I2CUtil.SINGLETON.sendI2CCommand(bus, address, command, SharedUtil.toCanonicalID('/', "i2c", bus, Integer.toHexString(address), command).toUpperCase(), 1);
     }
 
 
