@@ -28,12 +28,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 public class I2CUtil
 {
 
-    public static final String VERSION = "I2C-UTIL-1.04.11";
+    public static final String VERSION = "I2C-UTIL-1.04.12";
     public static final LogWrapper log = new LogWrapper(I2CUtil.class);
 
     //private Map<String, I2CBaseDevice> i2cDevices = new HashMap<>();
@@ -51,15 +53,27 @@ public class I2CUtil
 
     public static final I2CUtil SINGLETON = new I2CUtil();
 
+    private final Lock lock = new ReentrantLock();
+
 
 
     //private final Map<String, I2CBaseDevice> i2cDevices = new LinkedHashMap<String, I2CBaseDevice>();
 
     private I2CUtil(){}
 
+    public void acquireLock(boolean lockStat)
+    {
+        if(lockStat)
+            lock.lock();
+    }
 
+    public void releaseLock(boolean lockStat)
+    {
+        if(lockStat)
+            lock.unlock();
+    }
 
-    public synchronized SimpleMessage sendI2CCommand(int bus, int address, String command, String filterID, int repeat) throws IOException, I2CFactory.UnsupportedBusNumberException {
+    public SimpleMessage sendI2CCommand(int bus, int address, String command, String filterID, int repeat) throws IOException, I2CFactory.UnsupportedBusNumberException {
         SharedUtil.checkIfNulls("null command.", command);
         if (repeat < 1)
             repeat = 1;
@@ -83,17 +97,43 @@ public class I2CUtil
         // from the bus in the i2c implementation there is a lock
         // the current lock is just precautionary is case of implementation changes
 
-        mc.resetTimeStamp();
-        for(int i = 0; i < repeat; i++)
-            i2cDev.read(i2cCommand.data(), 0, i2cCommand.size(), respData, 0, respData.length);
+        acquireLock(true);
+        try
+        {
+            mc.resetTimeStamp();
+            for(int i = 0; i < repeat; i++)
+                i2cDev.read(i2cCommand.data(), 0, i2cCommand.size(), respData, 0, respData.length);
 
         // close the bus it is a must
         // to avoid bus read issues specially with io set commands
-        IOUtil.close(i2cDevice);
+        }
+        finally
+        {
+            IOUtil.close(i2cDevice);
+            releaseLock(true);
+        }
 
         SimpleMessage ret = mc.decode(I2CResp.build(bus, address, respData, filterID));
 
         return ret;
+    }
+
+
+    public void writeToI2C(boolean lockStat, int bus, int address, byte[] data)
+            throws IOException, I2CFactory.UnsupportedBusNumberException
+    {
+        I2CBaseDevice i2cDevice = createI2CDevice("generic", bus, address);
+        acquireLock(lockStat);
+        try
+        {
+            I2CDevice i2cDev = i2cDevice.getI2CDevice();
+            i2cDev.write(data);
+        }
+        finally
+        {
+            IOUtil.close(i2cDevice);
+            releaseLock(lockStat);
+        }
     }
 
     public I2CBaseDevice createI2CDevice(String name, int bus, int address) throws IOException, I2CFactory.UnsupportedBusNumberException {
