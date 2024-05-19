@@ -64,12 +64,12 @@ public class I2CIO
         index++;
         // int value
         index = input.data[index] == ':' ? ++index : index;
-
+        int result;
         switch(pt)
         {
 
             case ANALOG:
-                int result = BytesValue.INT.toValue(input.data, index);
+                result = BytesValue.INT.toValue(input.data, index);
                 MultiplierDataFilter df = DataFilterManager.SINGLETON.lookup(input.command);
                 if(df != null)
                     ret.getProperties().add(df.decode(result));
