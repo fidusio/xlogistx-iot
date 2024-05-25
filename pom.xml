@@ -27,11 +27,11 @@
 
     <properties>
 
-        <mqtt-paho.version>1.2.5</mqtt-paho.version>
+        <mqtt-paho.version>RELEASE</mqtt-paho.version>
         <pi4j.version>1.3</pi4j.version>
-        <hive.version>1.3.0</hive.version>
-        <usb-java.version>1.3.0</usb-java.version>
-        <jna.version>5.14.0</jna.version>
+        <hive.version>RELEASE</hive.version>
+        <usb-java.version>RELEASE</usb-java.version>
+        <jna.version>RELEASE</jna.version>
         <pcap4j.version>1.8.2</pcap4j.version>
 
     </properties>
