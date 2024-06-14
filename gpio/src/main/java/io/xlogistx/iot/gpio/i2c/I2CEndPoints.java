@@ -72,7 +72,8 @@ public class I2CEndPoints
 
         MessageCodec[] allMessages = I2CUtil.SINGLETON.getI2cCodecManager().all();
         SimpleMessage response = new SimpleMessage();
-        response.setDescription("All supported messages");
+        response.setDescription("All supported messages, for web calls ie https://host:port/i2s/{bus-id}/{i2c-device-address}/[command]");
+        response.getProperties().build("BUS-SCAN", "Scan i2c bus ie https://host:port/i2c/scan/{bus-id}");
         for(MessageCodec icmb : allMessages)
         {
             response.getProperties().add(icmb.getName(), icmb.getDescription());
