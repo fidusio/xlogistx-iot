@@ -220,9 +220,9 @@ public class I2CUtil
         }
         System.err.println();
         System.err.println("I2CUtil parameters");
-        System.err.println(VERSION + " usage :" + token + " -i2c scan bus=bus-id");
+        System.err.println(VERSION + " usage :" + token + " i2c=scan bus=bus-id");
 
-        System.err.println(VERSION + " usage :" + token + " -i2c cmd bus=bus-id address=i2c-address [uri=i2cCommand1 uri=2icCommand2]... \n\n");
+        System.err.println(VERSION + " usage :" + token + " [i2c=cmd] bus=bus-id address=i2c-address [uri=i2cCommand1 uri=2icCommand2]... \n\n");
 
         MessageCodec[] all = I2C_CODEC_MANAGER.all();
         for(MessageCodec mc : all)
@@ -235,9 +235,9 @@ public class I2CUtil
 
     public static int exec(ParamUtil.ParamMap params) throws Exception
     {
-        String i2cCommand = params.stringValue("-i2c", "cmd");
-        String user = params.stringValue("user");
-        String password = params.stringValue("password");
+        String i2cCommand = params.stringValue("i2c", "cmd");
+        String user = params.stringValue("user", null);
+        String password = params.stringValue("password", null);
         String url = params.stringValue("url", true);
         List<String> uris = params.lookup("uri");
         String httpMethod = params.stringValue("method", "GET");

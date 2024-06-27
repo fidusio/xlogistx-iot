@@ -118,10 +118,7 @@ public class IOTDeviceInfo
 
     public Port[] getPorts()
     {
-        ArrayValues av = (ArrayValues) lookup(Param.PORTS);
-        Port[] ret = new Port[av.size()];
-        av.values(ret);
-        return ret;
+        return ((ArrayValues<NVEntity>) lookup(Param.PORTS)).valuesAs( new Port[0]);
     }
 
 
