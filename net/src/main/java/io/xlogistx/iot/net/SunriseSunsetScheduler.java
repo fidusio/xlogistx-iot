@@ -79,7 +79,7 @@ public class SunriseSunsetScheduler
     }
 
     @Override
-    public SunriseSunsetScheduler get() {
+    public SunriseSunsetScheduler getType() {
         return this;
     }
 
