@@ -4,7 +4,7 @@ import org.zoxweb.server.http.HTTPCall;
 import org.zoxweb.server.http.HTTPUtil;
 import org.zoxweb.server.net.ssl.SSLCheckDisabler;
 import org.zoxweb.shared.http.*;
-import org.zoxweb.shared.net.InetSocketAddressDAO;
+import org.zoxweb.shared.net.IPAddress;
 import org.zoxweb.shared.util.NVPair;
 import org.zoxweb.shared.util.SetNameValue;
 
@@ -21,7 +21,7 @@ public class UBNTEqpt
 {
   private static final Logger log = Logger.getLogger(UBNTEqpt.class.getName());
 
-  public static NVPair loginCookie(String url, String user, String passwd, InetSocketAddressDAO proxy) throws IOException
+  public static NVPair loginCookie(String url, String user, String passwd, IPAddress proxy) throws IOException
   {
     HTTPCall hc;
     String uri = "login.cgi";
@@ -62,14 +62,14 @@ public class UBNTEqpt
     return cookie;
   }
 
-  public static HTTPResponseData controlPort(String url, String user, String passwd, int port, boolean on, InetSocketAddressDAO proxy) throws IOException
+  public static HTTPResponseData controlPort(String url, String user, String passwd, int port, boolean on, IPAddress proxy) throws IOException
   {
     NVPair cookie = loginCookie(url, user, passwd, proxy);
     return controlPort(url, cookie, port, on, proxy);
   }
 
 
-  public static HTTPResponseData controlPort(String url, NVPair sessionCookie, int port, boolean on, InetSocketAddressDAO proxy) throws IOException
+  public static HTTPResponseData controlPort(String url, NVPair sessionCookie, int port, boolean on, IPAddress proxy) throws IOException
   {
 
     // create the control message
@@ -86,7 +86,7 @@ public class UBNTEqpt
     return hc.sendRequest();
   }
 
-  public static HTTPResponseData getSensorsStatus(String url, NVPair sessionCookie, InetSocketAddressDAO proxy) throws IOException
+  public static HTTPResponseData getSensorsStatus(String url, NVPair sessionCookie, IPAddress proxy) throws IOException
   {
 
     // create the control message
@@ -115,7 +115,7 @@ public class UBNTEqpt
   }
 
 
-  public static HTTPResponseData reboot(String url, String user, String passwd, InetSocketAddressDAO proxy) throws IOException
+  public static HTTPResponseData reboot(String url, String user, String passwd, IPAddress proxy) throws IOException
   {
     NVPair cookie = loginCookie(url, user, passwd, proxy);
     HTTPMessageConfigInterface reboot = HTTPMessageConfig.createAndInit(url, "reboot.cgi", HTTPMethod.POST);
@@ -143,11 +143,11 @@ public class UBNTEqpt
       String[] urls = args[index++].split(Pattern.quote(","));
       String user = args[index++];
       String password = args[index++];
-      InetSocketAddressDAO proxy = null;
+      IPAddress proxy = null;
 
       if (args.length > index)
       {
-        proxy = new InetSocketAddressDAO(args[index++]);
+        proxy = new IPAddress(args[index++]);
       }
 
       for (String url: urls) {

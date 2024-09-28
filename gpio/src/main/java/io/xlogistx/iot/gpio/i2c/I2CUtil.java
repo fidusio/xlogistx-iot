@@ -259,7 +259,7 @@ public class I2CUtil
                         for (String uri : uris) {
                             commandCount++;
                             try {
-                                if (url != null) {
+                                if (uri != null) {
                                     if (busID > 0)
                                         uri = SharedStringUtil.embedText(uri, "{bus}", "" + busID);
 

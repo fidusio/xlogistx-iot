@@ -22,7 +22,7 @@ import org.zoxweb.shared.http.HTTPMessageConfig;
 import org.zoxweb.shared.http.HTTPMessageConfigInterface;
 import org.zoxweb.shared.http.HTTPMethod;
 import org.zoxweb.shared.http.HTTPResponseData;
-import org.zoxweb.shared.net.InetSocketAddressDAO;
+import org.zoxweb.shared.net.IPAddress;
 import org.zoxweb.shared.util.NVPair;
 import org.zoxweb.shared.util.SetNameValue;
 
@@ -38,7 +38,7 @@ public class UBNTSwitch
       String uri = args[i++];
       String user = args[i++];
       String passwd = args[i++];
-      InetSocketAddressDAO proxy = new InetSocketAddressDAO("10.0.0.114", 8080);
+      IPAddress proxy = new IPAddress("10.0.0.114", 8080);
 
       HTTPMessageConfigInterface hcc = new HTTPMessageConfig();
       hcc.setURL(url);

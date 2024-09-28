@@ -3,7 +3,7 @@ package io.xlogistx.iot.device.controller.impl;
 import java.util.regex.Pattern;
 
 import org.zoxweb.shared.http.HTTPResponseData;
-import org.zoxweb.shared.net.InetSocketAddressDAO;
+import org.zoxweb.shared.net.IPAddress;
 import org.zoxweb.shared.util.Const.Bool;
 import org.zoxweb.shared.util.NVPair;
 
@@ -19,10 +19,10 @@ public class MPowerController
       String passwd = args[i++];
       int port = Integer.parseInt(args[i++]);
       boolean on = Bool.lookupValue(args[i++]);//Boolean.parseBoolean(args[i++]);
-      InetSocketAddressDAO proxy = null;
+      IPAddress proxy = null;
       if (args.length > i)
       {
-        proxy = new InetSocketAddressDAO(args[i++]);
+        proxy = new IPAddress(args[i++]);
         proxy.setProxyType("http");
         System.out.println(proxy);
       }
