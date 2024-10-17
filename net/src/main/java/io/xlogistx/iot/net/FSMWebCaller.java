@@ -250,7 +250,7 @@ public final class FSMWebCaller {
             fsm.lookupState(StateInt.States.FINAL).getProperties().add(new NVBoolean(FSMWebCaller.SMWebCaller.SHUTDOWN.getName(), true));
 
 
-            fsm.lookupState(SMWebCaller.WEB_EXEC).lookupTriggerConsumer(SMWebCaller.WEB_EXEC).setFunction(new Function<HTTPMessageConfigInterface[], Boolean>() {
+            fsm.lookupState(SMWebCaller.WEB_EXEC).lookupTriggerConsumer((GetName) SMWebCaller.WEB_EXEC).setFunction(new Function<HTTPMessageConfigInterface[], Boolean>() {
 
                 int count = 0;
                 @Override

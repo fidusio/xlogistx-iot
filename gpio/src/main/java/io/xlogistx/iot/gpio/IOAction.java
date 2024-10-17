@@ -13,6 +13,8 @@ public enum IOAction implements GetValue<String> {
   PROVISION("-p"),
   // pulse width modulation
   PWM("-pwm"),
+  SET_PULL_UP("-spu"),
+  SET_PULL_DOWN("-spd")
   ;
 
   private final String value;

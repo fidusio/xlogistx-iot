@@ -133,6 +133,14 @@ public class GPIOTools
 		}
 	}
 
+	public synchronized void setInputPin(PinPullResistance ppr, GPIOPin ...gpios)
+	{
+		for(GPIOPin gpio : gpios)
+		{
+			getGpioController().provisionDigitalInputPin(gpio.getValue(), ppr);
+		}
+	}
+
 	public synchronized void setPWMRangeMod(int range, int mod)
 	{
 		if(!PWM_RANGE.within(range))
@@ -320,6 +328,20 @@ public class GPIOTools
 							System.out.println(gpioP + ", " + SINGLETON.getPinState(gpioP));
 						}
 						break;
+					case SET_PULL_DOWN:
+						gpioPins = GPIOPin.lookup(args[index]);
+						for(GPIOPin gpioP: gpioPins) {
+							SINGLETON.setInputPin(PinPullResistance.PULL_DOWN, gpioP);
+							System.out.println(gpioP + ", " + SINGLETON.getPinState(gpioP));
+						}
+						break;
+					case SET_PULL_UP:
+						gpioPins = GPIOPin.lookup(args[index]);
+						for(GPIOPin gpioP: gpioPins) {
+							SINGLETON.setInputPin(PinPullResistance.PULL_UP, gpioP);
+							System.out.println(gpioP + ", " + SINGLETON.getPinState(gpioP));
+						}
+						break;
 					case MONITOR:
 						TaskUtil.defaultTaskScheduler();
 						boolean inverse = false;
@@ -358,7 +380,10 @@ public class GPIOTools
 
 						PinStateMachine pinStateMachine = new PinStateMachine(TaskUtil.defaultTaskScheduler());
 						pinStateMachine.start(true);
-						pinStateMachine.monitorDigitalPin(args[index++], "pod-counter");
+
+						GPIOPin.GPIONameMap gpioNameMap = GPIOPin.toGPIONameMap(args[index]);
+
+						pinStateMachine.monitorDigitalPin(PinPullResistance.PULL_DOWN, args[index], gpioNameMap != null ? gpioNameMap.nameMap : "pod-counter");
 
 						break;
 					case SET:

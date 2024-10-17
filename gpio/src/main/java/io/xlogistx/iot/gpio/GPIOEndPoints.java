@@ -122,7 +122,7 @@ extends PropertyHolder
                                   @ParamProp(name="name") String name)
     {
         GPIOPin gpioPin = GPIOPin.lookupGPIO(gpio);
-        GPIOPin.mapGIOName(name, gpioPin);
+        GPIOPin.mapGPIOName(name, gpioPin);
 
         SimpleMessage response = new SimpleMessage(gpioPin.getName() + " successfully mapped to " + name,
                 HTTPStatusCode.OK.CODE);
@@ -268,7 +268,7 @@ extends PropertyHolder
                 for (GetNameValue<?> pinInfo : gpiosMap.values()) {
                     try
                     {
-                        GPIOPin gpio = GPIOPin.mapGIOName(pinInfo.getName(), ""+pinInfo.getValue());
+                        GPIOPin gpio = GPIOPin.mapGPIOName(pinInfo.getName(), ""+pinInfo.getValue());
                         log.info(gpio.getName() +" --> " + pinInfo.getName());
                     }
                     catch (Exception e)

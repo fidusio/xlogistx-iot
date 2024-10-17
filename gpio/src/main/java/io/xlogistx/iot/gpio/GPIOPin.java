@@ -17,23 +17,24 @@
 package io.xlogistx.iot.gpio;
 
 
+import com.pi4j.io.gpio.Pin;
+import com.pi4j.io.gpio.RaspiPin;
 import org.zoxweb.shared.util.GetName;
 import org.zoxweb.shared.util.GetValue;
 import org.zoxweb.shared.util.SharedStringUtil;
 import org.zoxweb.shared.util.SharedUtil;
 
-import com.pi4j.io.gpio.Pin;
-import com.pi4j.io.gpio.RaspiPin;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public enum GPIOPin
 implements GetValue<Pin>, GetName
-
 {
+
 	GPIO_00(RaspiPin.GPIO_00, 0),
 	GPIO_01(RaspiPin.GPIO_01, 1),
 	GPIO_02(RaspiPin.GPIO_02, 2),
@@ -68,7 +69,26 @@ implements GetValue<Pin>, GetName
 	GPIO_31(RaspiPin.GPIO_31)
 	;
 
-	private final static Map<String, GPIOPin> mappedGPIOs = new HashMap<String, GPIOPin>();
+
+	private static final Lock lock = new ReentrantLock();
+
+	public static class GPIONameMap
+	{
+
+		public final GPIOPin gpioPin;
+		public final String nameMap;
+		GPIONameMap(GPIOPin pin, String nameMap)
+		{
+			this.gpioPin = pin;
+			this.nameMap = nameMap;
+		}
+
+		@Override
+		public String toString() {
+			return gpioPin.name() + ":" + nameMap;
+		}
+	}
+	private final static Map<String, GPIONameMap> mappedGPIOs = new HashMap<String, GPIONameMap>();
 	private final Pin PIN;
 	private final int bcmPinID;
 
@@ -126,17 +146,19 @@ implements GetValue<Pin>, GetName
 			{
 				GPIOPin toAdd = null;
 				// try to get the mapped
-				if (toAdd == null)
-				{
-					// maybe mapped
-					toAdd = mappedGPIOs.get(pinID);
-				}
+
+
+				GPIONameMap toFind = mappedGPIOs.get(pinID);
+				// maybe mapped
+				if (toFind != null)
+					toAdd = toFind.gpioPin;
+
 
 				// maybe a string
 				if (toAdd == null)
 				{
 					pinID = pinID.replace('-', '_');
-					String split[] = pinID.split("_");
+					String[] split = pinID.split("_");
 					if (split.length == 2)
 					{
 						try
@@ -182,12 +204,59 @@ implements GetValue<Pin>, GetName
 	}
 
 
-	public static GPIOPin mapGIOName(String userDefinedName, GPIOPin gpio)
+	public static GPIOPin mapGPIOName(String gpioNameUserDefinedName)
 	{
-		return mapGIOName(userDefinedName, gpio.getName());
+		gpioNameUserDefinedName = SharedStringUtil.trimOrNull(gpioNameUserDefinedName);
+		SharedUtil.checkIfNulls("GPIO_ID:UserDefinedName can't be null", gpioNameUserDefinedName);
+
+		String[] tokens = gpioNameUserDefinedName.split("_");
+		if(tokens.length != 2)
+			throw new IllegalArgumentException("invalid gpioNameUserDefinedName " + gpioNameUserDefinedName);
+
+		return mapGPIOName(tokens[0], tokens[1]);
 	}
 
-	public static GPIOPin mapGIOName(String userDefinedName, String gpioName)
+	public static GPIONameMap toGPIONameMap(String gpioNameUserDefinedName)
+	{
+		gpioNameUserDefinedName = SharedStringUtil.trimOrNull(gpioNameUserDefinedName);
+		SharedUtil.checkIfNulls("GPIO_ID:UserDefinedName can't be null", gpioNameUserDefinedName);
+
+		String[] tokens = gpioNameUserDefinedName.split(":");
+//		System.out.println(Arrays.toString(tokens));
+		if(tokens.length != 2)
+			return null;
+
+		GPIONameMap ret = mappedGPIOs.get(tokens[1]);
+
+		if (ret == null)
+		{
+			GPIOPin pin = lookupGPIO(tokens[0]);
+			if(pin == null)
+			{
+				throw new IllegalArgumentException("Invalid GPIOPin name  " + tokens[0]);
+			}
+			ret = new GPIONameMap(pin, tokens[1]);
+		}
+
+		return ret;
+	}
+
+
+	public static GPIOPin mapGPIOName(GPIONameMap gpio)
+	{
+		GPIONameMap ret = mappedGPIOs.get(gpio.nameMap);
+		if (ret == null)
+			return mapGPIOName(gpio.nameMap, gpio.gpioPin);
+
+		return ret.gpioPin;
+	}
+
+	public static GPIOPin mapGPIOName(String userDefinedName, GPIOPin gpio)
+	{
+		return mapGPIOName(userDefinedName, gpio.getName());
+	}
+
+	public static GPIOPin mapGPIOName(String userDefinedName, String gpioName)
 	{
 		userDefinedName = SharedStringUtil.trimOrNull(userDefinedName);
 		SharedUtil.checkIfNulls("GPIO name or GPIO can't be null", userDefinedName, gpioName);
@@ -195,26 +264,61 @@ implements GetValue<Pin>, GetName
 		if(gpio == null)
 			throw new IllegalArgumentException(gpioName + " not found");
 
-		mappedGPIOs.put(userDefinedName, gpio);
+		GPIONameMap data = new GPIONameMap(gpio, userDefinedName);
+		lock.lock();
+		try
+		{
+			mappedGPIOs.put(userDefinedName, data);
+			mappedGPIOs.put(data.gpioPin.name(), data);
+		}
+		finally {
+			lock.unlock();
+		}
 		return gpio;
 	}
 
 	public static GPIOPin unmapGIOName(String userDefinedName)
 	{
-		return mappedGPIOs.remove(userDefinedName);
+		GPIONameMap toFind = mappedGPIOs.get(userDefinedName);
+		if (toFind != null)
+		{
+
+			lock.lock();
+			try
+			{
+				mappedGPIOs.remove(toFind.gpioPin.name());
+				mappedGPIOs.remove(toFind.nameMap);
+			}
+			finally {
+				lock.unlock();
+			}
+
+		}
+		return toFind != null ? toFind.gpioPin : null;
 	}
 
 
 	
 	public static Pin lookupPin(String pinID)
 	{
-		GPIOPin ret[] = lookup(pinID);
+		GPIOPin[] ret = lookup(pinID);
 		return ret.length != 0 ? ret[0].getValue() : null;
+	}
+
+	public static GPIONameMap lookupGPIONameMap(Pin pin)
+	{
+		GPIOPin gpioPin = GPIOPin.lookup(pin);
+		return gpioPin != null ? mappedGPIOs.get(gpioPin.name()) : null;
+	}
+
+	public static GPIONameMap lookupGPIONameMap(String pin)
+	{
+		return mappedGPIOs.get(pin);
 	}
 
 	public static GPIOPin lookupGPIO(String pinID)
 	{
-		GPIOPin ret[] = lookup(pinID);
+		GPIOPin[] ret = lookup(pinID);
 		return ret.length != 0 ? ret[0] : null;
 	}
 	
