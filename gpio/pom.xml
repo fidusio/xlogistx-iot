@@ -19,7 +19,7 @@
 
   <dependencies>
 
-    <dependency>
+    <!--<dependency>
       <groupId>io.xlogistx</groupId>
       <artifactId>xlogistx-common</artifactId>
       <version>${xlogistx.version}</version>
@@ -31,6 +31,7 @@
       <artifactId>jsoup</artifactId>
       <scope>compile</scope>
     </dependency>
+    -->
 
     <dependency>
       <groupId>com.pi4j</groupId>

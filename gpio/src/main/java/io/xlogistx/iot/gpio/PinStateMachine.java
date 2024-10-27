@@ -161,7 +161,13 @@ public class PinStateMachine
         {
             GPIOPin.GPIONameMap gpnm = GPIOPin.lookupGPIONameMap(event.getPin().getPin());
             log.getLogger().info( "high trigger state: " + event.getState() + (gpnm != null ? " " + gpnm : ""));
-
+            Function<Void, HTTPResponseData> webCaller = getFunction();
+            if (webCaller != null)
+            {
+                HTTPResponseData hrd = webCaller.apply(null);
+                if (hrd != null)
+                    log.getLogger().info("" + hrd);
+            }
             publishSync(PinStatus.WAITING, null);
         }
     }
@@ -267,27 +273,16 @@ public class PinStateMachine
             // very bad
             if (url != null)
             {
-                HTTPMessageConfigInterface hmci = HTTPMessageConfig.createAndInit(url, null, HTTPMethod.GET, false);;
+                HTTPMessageConfigInterface pinHMCI = HTTPMessageConfig.createAndInit(url, null, HTTPMethod.GET, false);;
                 pinStateMachine.lookupState(PinState.HIGH)
-                        .lookupTriggerConsumer(PinState.HIGH).setFunction(new Function<Void, HTTPResponseData>() {
-
-                            /**
-                             * Applies this function to the given argument.
-                             *
-                             * @param unused the function argument
-                             * @return the function result
-                             */
-                            @Override
-                            public HTTPResponseData apply(Void unused) {
-                                HTTPResponseData ret = null;
-                                try {
-                                    ret = HTTPCall.send(hmci);
-                                } catch (Exception e) {
-                                   e.printStackTrace();
-                                }
-                                return ret;
+                        .lookupTriggerConsumer(PinState.HIGH).setFunction((p) -> {
+                            HTTPResponseData ret = null;
+                            try {
+                                ret = HTTPCall.send(pinHMCI);
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
-                        });
+                            return ret;});
             }
             PinPullResistance ppr = SharedUtil.lookupEnum(pullState, PinPullResistance.values());
             pinStateMachine.start(true);
