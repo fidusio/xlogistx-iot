@@ -4,7 +4,7 @@ import com.sun.jna.Platform;
 import org.pcap4j.core.BpfProgram.BpfCompileMode;
 import org.pcap4j.core.*;
 import org.zoxweb.server.io.IOUtil;
-import org.zoxweb.shared.util.SharedStringUtil;
+import org.zoxweb.shared.util.SUS;
 import org.zoxweb.shared.util.SharedUtil;
 
 import java.io.Closeable;
@@ -49,7 +49,7 @@ public abstract class PacketListenerHandler
 		log.info(Thread.currentThread() + ":Start");
 		try 
 		{
-			if (!SharedStringUtil.isEmpty(filter)) 
+			if (SUS.isNotEmpty(filter))
 			{
 				handle.setFilter(filter, BpfCompileMode.OPTIMIZE);
 				log.info(Thread.currentThread() + ":Filer set" + filter);

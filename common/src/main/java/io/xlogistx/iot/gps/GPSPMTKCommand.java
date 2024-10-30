@@ -16,14 +16,9 @@
 
 package io.xlogistx.iot.gps;
 
+import org.zoxweb.shared.util.*;
+
 import java.util.ArrayList;
-import org.zoxweb.shared.util.NVConfig;
-import org.zoxweb.shared.util.NVConfigEntity;
-import org.zoxweb.shared.util.NVConfigEntityLocal;
-import org.zoxweb.shared.util.NVConfigManager;
-import org.zoxweb.shared.util.NVPair;
-import org.zoxweb.shared.util.SharedStringUtil;
-import org.zoxweb.shared.util.SharedUtil;
 
 /**
  * This class is used to generate the GPS input commands 
@@ -119,7 +114,7 @@ public class GPSPMTKCommand extends GPSInput
 //		
 //		for(NVPair tmp : getDataFields())
 //		{
-//			if(!SharedStringUtil.isEmpty(tmp.getValue()))
+//			if(SUS.isNotEmpty(tmp.getValue()))
 //			{
 //				command = command + "," + tmp.getValue();
 //			}
@@ -146,7 +141,7 @@ public class GPSPMTKCommand extends GPSInput
 		for(NVPair tmp : getDataFields())
 		{	
 			sb.append(',');
-			if(!SharedStringUtil.isEmpty(tmp.getValue()))
+			if(SUS.isNotEmpty(tmp.getValue()))
 			{
 				sb.append(tmp.getValue());
 			}

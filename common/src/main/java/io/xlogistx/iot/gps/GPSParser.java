@@ -17,16 +17,13 @@
 package io.xlogistx.iot.gps;
 
 
-import static io.xlogistx.iot.gps.GPSConst.*;
-
 import io.xlogistx.iot.util.DateFormatter;
+import org.zoxweb.shared.util.*;
+
 import java.text.ParseException;
 import java.util.List;
-import org.zoxweb.shared.util.NVConfig;
-import org.zoxweb.shared.util.NVConfigEntity;
-import org.zoxweb.shared.util.NVPair;
-import org.zoxweb.shared.util.SharedStringUtil;
-import org.zoxweb.shared.util.SharedUtil;
+
+import static io.xlogistx.iot.gps.GPSConst.*;
 
 
 /**
@@ -191,7 +188,7 @@ public class GPSParser
 		{
 			if(i > 2 && i < 15)
 			{
-				if(!SharedStringUtil.isEmpty(tokens[i]))
+				if(SUS.isNotEmpty(tokens[i]))
 				{
 					active.getSatellitesUsed().add(new NVPair("sat[" + (i-2) + "]" ,tokens[i]));					
 				}

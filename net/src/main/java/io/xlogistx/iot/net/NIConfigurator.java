@@ -1,28 +1,19 @@
 package io.xlogistx.iot.net;
 
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import org.zoxweb.server.io.IOUtil;
 import org.zoxweb.server.util.GSONUtil;
 import org.zoxweb.server.util.RuntimeUtil;
-import org.zoxweb.shared.net.InetProp.InetProto;
 import org.zoxweb.shared.data.RuntimeResultDAO;
+import org.zoxweb.shared.net.InetProp.InetProto;
 import org.zoxweb.shared.net.NIConfigDAO;
 import org.zoxweb.shared.net.NIConfigDAO.Param;
-import org.zoxweb.shared.util.NVBase;
-import org.zoxweb.shared.util.NVConfig;
-import org.zoxweb.shared.util.GetNameValueComment;
-import org.zoxweb.shared.util.SharedStringUtil;
-import org.zoxweb.shared.util.SharedUtil;
+import org.zoxweb.shared.util.*;
+
+import java.io.*;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class NIConfigurator 
 {
@@ -89,7 +80,7 @@ public class NIConfigurator
     StringBuilder sb = new StringBuilder();
     for (String line: lines)
     {
-      if (!SharedStringUtil.isEmpty(line))
+      if (SUS.isNotEmpty(line))
       {
         if(sb.length() > 0)
           sb.append('\n');
