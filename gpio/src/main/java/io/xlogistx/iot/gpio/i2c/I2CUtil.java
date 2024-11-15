@@ -7,7 +7,7 @@ import io.xlogistx.common.data.CodecManager;
 import io.xlogistx.common.data.MessageCodec;
 import io.xlogistx.iot.gpio.data.*;
 import io.xlogistx.iot.gpio.i2c.modules.I2CGeneric;
-import org.zoxweb.server.http.HTTPCall;
+import org.zoxweb.server.http.OkHTTPCall;
 import org.zoxweb.server.io.IOUtil;
 import org.zoxweb.server.logging.LogWrapper;
 import org.zoxweb.server.logging.LoggerUtil;
@@ -267,7 +267,7 @@ public class I2CUtil
                                         uri = SharedStringUtil.embedText(uri, "{address}", "" + address);
                                     HTTPMessageConfigInterface hmci = HTTPMessageConfig.createAndInit(url, uri, httpMethod, false);
                                     hmci.setBasicAuthorization(user, password);
-                                    HTTPResponseData hrd = HTTPCall.send(hmci);
+                                    HTTPResponseData hrd = OkHTTPCall.send(hmci);
                                     if (hrd.getStatus() == HTTPStatusCode.OK.CODE) {
                                         if (log.isEnabled())
                                             log.getLogger().info(SharedStringUtil.toString(hrd.getData()));

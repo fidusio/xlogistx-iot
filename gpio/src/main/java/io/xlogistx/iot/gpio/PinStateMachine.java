@@ -8,7 +8,7 @@ import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 import io.xlogistx.common.data.DataTriggerAfterWait;
 import io.xlogistx.iot.gpio.data.GPIOUtil;
 import org.zoxweb.server.fsm.*;
-import org.zoxweb.server.http.HTTPCall;
+import org.zoxweb.server.http.OkHTTPCall;
 import org.zoxweb.server.task.TaskSchedulerProcessor;
 import org.zoxweb.server.task.TaskUtil;
 import org.zoxweb.shared.http.HTTPMessageConfig;
@@ -278,7 +278,7 @@ public class PinStateMachine
                         .lookupTriggerConsumer(PinState.HIGH).setFunction((p) -> {
                             HTTPResponseData ret = null;
                             try {
-                                ret = HTTPCall.send(pinHMCI);
+                                ret = OkHTTPCall.send(pinHMCI);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
