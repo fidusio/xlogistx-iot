@@ -5,7 +5,7 @@ import com.pi4j.io.gpio.*;
 import com.pi4j.wiringpi.Gpio;
 import io.xlogistx.iot.gpio.data.PWMConfig;
 import org.zoxweb.server.io.IOUtil;
-import org.zoxweb.server.logging.LoggerUtil;
+import org.zoxweb.server.logging.LogWrapper;
 import org.zoxweb.server.task.TaskSchedulerProcessor;
 import org.zoxweb.server.task.TaskUtil;
 import org.zoxweb.server.util.GSONUtil;
@@ -22,14 +22,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 
 public class GPIOTools
 {
-	public static final  Range<Integer> PWM_RANGE = new Range<Integer>(2, 4095);
-	private static final transient Logger log = Logger.getLogger(GPIOTools.class.getName());
+	public static final Range<Integer> PWM_RANGE = new Range<Integer>(2, 4095);
+	public static final LogWrapper log = new LogWrapper(GPIOTools.class);
 
 	// This statement must be the last static code
 	public static final GPIOTools SINGLETON = new GPIOTools();
@@ -41,7 +40,7 @@ public class GPIOTools
 
 	
 	private GPIOTools() {
-	  log.info("Wiring Pi setup:" + Gpio.wiringPiSetup());
+	  log.getLogger().info("Wiring Pi setup:" + Gpio.wiringPiSetup());
 	  gpioController = GpioFactory.getInstance();
 	  setPWMRangeMod(4095, 0);
 	}
@@ -62,7 +61,7 @@ public class GPIOTools
 
 	public synchronized void setOutputPin(Pin pin, PinState state, long durationInMillis)
 	{
-		log.info(SharedUtil.toCanonicalID(',', Thread.currentThread(), pin, state,  durationInMillis));
+		log.getLogger().info(SharedUtil.toCanonicalID(',', Thread.currentThread(), pin, state,  durationInMillis));
 		resetPin(pin);
 		GpioPinDigitalOutput output = getGpioController().provisionDigitalOutputPin(pin, state);
 		output.setShutdownOptions(false);
@@ -76,7 +75,7 @@ public class GPIOTools
 					GpioPinDigitalOutput gpdo = get();
 					PinState toBeSet = PinState.getInverseState(gpdo.getState());
 					gpdo.setState(toBeSet);
-					log.info(gpdo.getName() + " set to " + toBeSet);
+					log.getLogger().info(gpdo.getName() + " set to " + toBeSet);
 				}
 			});
 		}
@@ -84,7 +83,7 @@ public class GPIOTools
 	
 	public synchronized void setOutputPinState(Pin pin, PinState state, boolean persist, long durationInMillis, boolean delay)
 	{
-		log.info(SharedUtil.toCanonicalID(',', Thread.currentThread(), pin, state, persist, durationInMillis));
+		log.getLogger().info(SharedUtil.toCanonicalID(',', Thread.currentThread(), pin, state, persist, durationInMillis));
 		//synchronized(pin)
 		{
 
@@ -157,7 +156,7 @@ public class GPIOTools
 
 	public synchronized GpioPinPwmOutput setPWM(Pin pin, float frequency, Range<Float> dutyCycle, long cycleDelay, int repeat)
 	{
-		log.info(SharedUtil.toCanonicalID(',', pin, frequency, dutyCycle, cycleDelay, repeat));
+		log.getLogger().info(SharedUtil.toCanonicalID(',', pin, frequency, dutyCycle, cycleDelay, repeat));
 
 		if(dutyCycle.getStart() <0 || dutyCycle.getEnd() > 100)
 		{
@@ -170,8 +169,8 @@ public class GPIOTools
 		float clock = 19200000/(frequency * (float)getPWMRange());
 		float calculatedFreq = 19200000/(clock * (float)getPWMRange());
 
-		log.info("Clock:" +  clock + ", pwm-range:" + getPWMRange());
-		log.info("Freq:" + frequency +", calculated-freq:" + calculatedFreq);
+		log.getLogger().info("Clock:" +  clock + ", pwm-range:" + getPWMRange());
+		log.getLogger().info("Freq:" + frequency +", calculated-freq:" + calculatedFreq);
 
 
 		// setup the clock divider
@@ -192,7 +191,7 @@ public class GPIOTools
 
 	public synchronized GpioPinPwmOutput setPWM(Pin pin, float frequency, float dutyCycle, long duration)
 	{
-		log.info(SharedUtil.toCanonicalID(',', pin, frequency, dutyCycle, TimeInMillis.toString(duration)));
+		log.getLogger().info(SharedUtil.toCanonicalID(',', pin, frequency, dutyCycle, TimeInMillis.toString(duration)));
 
 		if(dutyCycle <0 || dutyCycle > 100)
 		{
@@ -205,8 +204,8 @@ public class GPIOTools
 		float clock = 19200000/(frequency * (float)getPWMRange());
 		float calculatedFreq = 19200000/(clock * (float)getPWMRange());
 		int pwm = dutyCycleToPWM(dutyCycle);
-		log.info("Clock:" +  clock + ", pwm-range:" + getPWMRange() + ", pwm:" + pwm);
-		log.info("Freq:" + frequency +", calculated-freq:" + calculatedFreq);
+		log.getLogger().info("Clock:" +  clock + ", pwm-range:" + getPWMRange() + ", pwm:" + pwm);
+		log.getLogger().info("Freq:" + frequency +", calculated-freq:" + calculatedFreq);
 
 
 		// setup the clock divider
@@ -219,11 +218,11 @@ public class GPIOTools
 				try{
 					pwmOutputPin.setPwm(0);
 					pwmOutputPin.removeAllListeners();
-					log.info("PWM:" + pwmOutputPin.getName() + " set to 0" );
+					log.getLogger().info("PWM:" + pwmOutputPin.getName() + " set to 0" );
 				}
 				catch (Exception e)
 				{
-					log.info("Error setting pwm pin " + pwmOutputPin.getName() + " to 0.");
+					log.getLogger().info("Error setting pwm pin " + pwmOutputPin.getName() + " to 0.");
 				}
 
 			});
@@ -244,7 +243,7 @@ public class GPIOTools
 
 		float pwm = (getPWMRange() *pwmConfig.getDutyCycle())/100;
 		float clock = 19200000/(pwmConfig.getFrequency() * getPWMRange());
-		log.info("Clock:" +  clock + ", pwm:" + pwm + ", duration:" + TimeInMillis.toString(pwmConfig.getDuration()));
+		log.getLogger().info("Clock:" +  clock + ", pwm:" + pwm + ", duration:" + TimeInMillis.toString(pwmConfig.getDuration()));
 
 
 		Gpio.pwmSetClock((int)clock);
@@ -262,24 +261,24 @@ public class GPIOTools
 		});
 
 
-		outputs.forEach((pwmPin)-> log.info(pwmPin.getName()+ " pwm set to :"+pwmPin.getPwm()));
+		outputs.forEach((pwmPin)-> log.getLogger().info(pwmPin.getName()+ " pwm set to :"+pwmPin.getPwm()));
 
 		 if(pwmConfig.getDuration() > 0) {
 			 TaskUtil.defaultTaskScheduler().queue(pwmConfig.getDuration(), () -> {
 					outputs.forEach((gppo)->{
 						try{
 							gppo.setPwm(0);
-							log.info("PWM:" + gppo.getName() + " set to 0" );
+							log.getLogger().info("PWM:" + gppo.getName() + " set to 0" );
 						}
 						catch (Exception e)
 						{
-							log.info("Error setting pwm pin " + gppo.getName() + " to 0.");
+							log.getLogger().info("Error setting pwm pin " + gppo.getName() + " to 0.");
 						}
 					});
 			 });
 		 }
 		 delta = System.currentTimeMillis() - delta;
-		 log.info("It took " + TimeInMillis.toString(delta));
+		 log.getLogger().info("It took " + TimeInMillis.toString(delta));
 
 
 		return pwmConfig.getDuration();
@@ -298,7 +297,7 @@ public class GPIOTools
 	{
 		try
 		{
-			LoggerUtil.enableDefaultLogger("io.xlogistx");
+
 			int index = 0;
 			long durationBeforeExit = -1;
 			long delta = System.currentTimeMillis();
@@ -355,7 +354,7 @@ public class GPIOTools
 
 
 						gpioPins = GPIOPin.lookup(pins);
-						log.info("to monitor:" + pins[0]);
+						log.getLogger().info("to monitor:" + pins[0]);
 						gpioPin = gpioPins[0];
 						ArrayList<GPIOPin> toSet = new ArrayList<GPIOPin>();
 
@@ -376,7 +375,7 @@ public class GPIOTools
 						//input.addListener(new PinStateListener(toSet.toArray(new GPIOPin[0])));
 						break;
 					case STATE_MONITOR:
-						log.info("State monitor");
+						log.getLogger().info("State monitor");
 
 						PinStateMachine pinStateMachine = new PinStateMachine(TaskUtil.defaultTaskScheduler());
 						pinStateMachine.start(true);
@@ -408,7 +407,7 @@ public class GPIOTools
 						}
 
 						long millis = waiting != null ? TimeInMillis.toMillis(waiting) : 0;
-						log.info(pin.getName() + " set to " + values + " for " + millis + " millis");
+						log.getLogger().info(pin.getName() + " set to " + values + " for " + millis + " millis");
 						SINGLETON.setOutputPinState(pin, state, persist, millis, delay);
 						break;
 					case PWM:
@@ -419,20 +418,20 @@ public class GPIOTools
 					case FLOW:
 						jsonCmd = args[index++];
 						String jsonConfig = IOUtil.inputStreamToString(jsonCmd);
-						log.info("Flow Config: " + jsonConfig);
+						log.getLogger().info("Flow Config: " + jsonConfig);
 						TaskSchedulerProcessor tsp = null;
 						if (args.length > index)
 						{
 							if (args[index++].equalsIgnoreCase("-m"))
 							{
 								tsp = TaskUtil.defaultTaskScheduler();
-								log.info("Parallel scheduler");
+								log.getLogger().info("Parallel scheduler");
 							}
 						}
 						if ( tsp == null )
 						{
 							tsp = TaskUtil.simpleTaskScheduler();
-							log.info("Single threaded scheduler");
+							log.getLogger().info("Single threaded scheduler");
 						}
 						PinStateMonitorConfig pinStateMonitorConfig = GSONUtil.fromJSONDefault(jsonConfig, PinStateMonitorConfig.class);
 						new GPIOFlowProcessor(pinStateMonitorConfig, tsp).init();
@@ -443,7 +442,7 @@ public class GPIOTools
 
 
 			delta = System.currentTimeMillis() - delta;
-			log.info("It took : " + TimeInMillis.toString(delta));
+			log.getLogger().info("It took : " + TimeInMillis.toString(delta));
 			if(durationBeforeExit >= 0) {
 				TaskUtil.sleep(durationBeforeExit);
 				TaskUtil.close();

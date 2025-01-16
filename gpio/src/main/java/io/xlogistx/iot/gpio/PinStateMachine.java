@@ -17,8 +17,10 @@ import org.zoxweb.shared.http.HTTPMethod;
 import org.zoxweb.shared.http.HTTPResponseData;
 import org.zoxweb.shared.util.NVGenericMap;
 import org.zoxweb.shared.util.ParamUtil;
+import org.zoxweb.shared.util.SharedStringUtil;
 import org.zoxweb.shared.util.SharedUtil;
 
+import java.util.List;
 import java.util.function.Function;
 
 public class PinStateMachine
@@ -241,6 +243,120 @@ public class PinStateMachine
 
 
     public static void main(String ...args)
+    {
+        try
+        {
+            ParamUtil.ParamMap params = ParamUtil.parse("=", args);
+
+            List<String> gpios = params.lookup("gpio");
+
+            String pullState = params.stringValue("pull", "PULL_DOWN");
+
+            for(String gpioConfig : gpios)
+            {
+                System.out.println(gpioConfig);
+                String[] parsedGPIO = SharedStringUtil.parseToken(gpioConfig, 2, false, ":");
+                String gpio = parsedGPIO[0];
+                String name = parsedGPIO[1];
+                String url = parsedGPIO[2];
+                GPIOPin.GPIONameMap gpioNameMap = GPIOPin.toGPIONameMap(gpio + ":" + name);
+
+
+
+                GPIOPin gpioPin = null;
+                if (gpioNameMap != null)
+                {
+                    gpioPin = gpioNameMap.gpioPin;
+                }
+                else
+                {
+                    gpioPin = GPIOPin.lookupGPIO(gpio);
+                }
+
+                if(gpioPin == null)
+                {
+                    throw  new IllegalArgumentException("Invalid pinID " + gpio);
+                }
+                PinStateMachine pinStateMachine = new PinStateMachine(TaskUtil.defaultTaskScheduler());
+
+
+                // very bad
+                if (url != null)
+                {
+                    HTTPMessageConfigInterface pinHMCI = HTTPMessageConfig.createAndInit(url, null, HTTPMethod.GET, false);;
+                    pinStateMachine.lookupState(PinState.HIGH)
+                            .lookupTriggerConsumer(PinState.HIGH).setFunction((p) -> {
+                                HTTPResponseData ret = null;
+                                try {
+                                    ret = OkHTTPCall.send(pinHMCI);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                                return ret;});
+                }
+                PinPullResistance ppr = SharedUtil.lookupEnum(pullState, PinPullResistance.values());
+                pinStateMachine.start(true);
+                pinStateMachine.monitorDigitalPin(ppr, gpioPin.getName(), gpioNameMap != null ? gpioNameMap.nameMap : "state-monitor");
+
+            }
+
+//            GPIOPin.GPIONameMap gpioNameMap = GPIOPin.toGPIONameMap(gpioID);
+//            String url = params.stringValue("url", true);
+//
+//            GPIOPin gpioPin = null;
+//            if (gpioNameMap != null)
+//            {
+//                gpioPin = gpioNameMap.gpioPin;
+//            }
+//            else
+//            {
+//                gpioPin = GPIOPin.lookupGPIO(gpioID);
+//            }
+//
+//            if(gpioPin == null)
+//            {
+//                throw  new IllegalArgumentException("Invalid pinID " + gpioID);
+//            }
+//
+//
+//
+//            PinStateMachine pinStateMachine = new PinStateMachine(TaskUtil.defaultTaskScheduler());
+//
+//
+//            // very bad
+//            if (url != null)
+//            {
+//                HTTPMessageConfigInterface pinHMCI = HTTPMessageConfig.createAndInit(url, null, HTTPMethod.GET, false);;
+//                pinStateMachine.lookupState(PinState.HIGH)
+//                        .lookupTriggerConsumer(PinState.HIGH).setFunction((p) -> {
+//                            HTTPResponseData ret = null;
+//                            try {
+//                                ret = OkHTTPCall.send(pinHMCI);
+//                            } catch (Exception e) {
+//                                e.printStackTrace();
+//                            }
+//                            return ret;});
+//            }
+//            PinPullResistance ppr = SharedUtil.lookupEnum(pullState, PinPullResistance.values());
+//            pinStateMachine.start(true);
+//            pinStateMachine.monitorDigitalPin(ppr, gpioPin.getName(), gpioNameMap != null ? gpioNameMap.nameMap : "state-monitor");
+
+
+
+
+
+
+
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            System.err.println("usage: [gpio=GPIO_02:Name2:url] [gpio=GPIO_03:Name3:url]  [pull=PULL_DOWN|PULL_UP ");
+            System.exit(-1);
+        }
+    }
+
+    public static void mainOld(String ...args)
     {
         try
         {

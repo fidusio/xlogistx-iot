@@ -10,23 +10,22 @@ import io.xlogistx.iot.gpio.PinStateMonitorConfig;
 import io.xlogistx.iot.gpio.i2c.I2CUtil;
 import io.xlogistx.iot.net.SunriseSunsetScheduler;
 import org.zoxweb.server.io.IOUtil;
-import org.zoxweb.server.logging.LoggerUtil;
+import org.zoxweb.server.logging.LogWrapper;
 import org.zoxweb.server.task.TaskUtil;
 import org.zoxweb.server.util.GSONUtil;
 import org.zoxweb.shared.http.HTTPServerConfig;
 import org.zoxweb.shared.util.ParamUtil;
 
 import java.io.File;
-import java.util.logging.Logger;
 
 public class Main
 {
-    private final static Logger log = Logger.getLogger(Main.class.getName());
+    private final static LogWrapper log = new LogWrapper(Main.class);
     public static void main(String ...args)
     {
         try
         {
-            LoggerUtil.enableDefaultLogger("io.xlogistx");
+
             ParamUtil.ParamMap params = ParamUtil.parse("-", args);
             String wsConfig = params.stringValue("-wsc", true);
             String flowConfig = params.stringValue("-fc", true);
@@ -39,8 +38,8 @@ public class Main
             {
                 File file = IOUtil.locateFile(wsConfig);
                 HTTPServerConfig hsc = GSONUtil.fromJSON(IOUtil.inputStreamToString(file), HTTPServerConfig.class);
-                log.info("HTTPServerConfig:" + hsc);
-                log.info("WebServer json:" + hsc.getConnectionConfigs());
+                log.getLogger().info("HTTPServerConfig:" + hsc);
+                log.getLogger().info("WebServer json:" + hsc.getConnectionConfigs());
                 NIOHTTPServerCreator httpServerCreator = new NIOHTTPServerCreator();
                 httpServerCreator.setAppConfig(hsc);
                 httpServerCreator.createApp();
@@ -49,7 +48,7 @@ public class Main
             {
                 File file = IOUtil.locateFile(flowConfig);
                 String jsonFC = IOUtil.inputStreamToString(file);
-                log.info("" + jsonFC);
+                log.getLogger().info("" + jsonFC);
                 PinStateMonitorConfig pinStateMonitorConfig = GSONUtil.fromJSONDefault(jsonFC, PinStateMonitorConfig.class);
                 new GPIOFlowProcessor(pinStateMonitorConfig, TaskUtil.defaultTaskScheduler()).init();
             }

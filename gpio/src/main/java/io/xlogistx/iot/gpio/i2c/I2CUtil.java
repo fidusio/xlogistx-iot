@@ -10,7 +10,6 @@ import io.xlogistx.iot.gpio.i2c.modules.I2CGeneric;
 import org.zoxweb.server.http.OkHTTPCall;
 import org.zoxweb.server.io.IOUtil;
 import org.zoxweb.server.logging.LogWrapper;
-import org.zoxweb.server.logging.LoggerUtil;
 import org.zoxweb.server.task.TaskUtil;
 import org.zoxweb.server.util.GSONUtil;
 import org.zoxweb.shared.data.SimpleMessage;
@@ -321,31 +320,20 @@ public class I2CUtil
     }
 
     public static void main(String[] args) {
-
-
-        LoggerUtil.enableDefaultLogger("io.xlogistx");
-
-        try {
-
+        try
+        {
             // print program title/header
             if  (log.isEnabled()) log.getLogger().info("I2CUtil:" + VERSION);
             ParamUtil.ParamMap params = ParamUtil.parse("=", args);
             if  (log.isEnabled()) log.getLogger().info("" + params);
 
            exec(params);
-
-
         }
         catch(Exception e)
         {
             e.printStackTrace();
             error(null);
-
         }
-
-
-
-
     }
 
 }
