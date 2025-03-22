@@ -4,19 +4,19 @@ import com.sun.jna.Platform;
 import org.pcap4j.core.BpfProgram.BpfCompileMode;
 import org.pcap4j.core.*;
 import org.zoxweb.server.io.IOUtil;
+import org.zoxweb.server.logging.LogWrapper;
 import org.zoxweb.shared.util.SUS;
 import org.zoxweb.shared.util.SharedUtil;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.concurrent.Executor;
-import java.util.logging.Logger;
 
 public abstract class PacketListenerHandler
 	implements Runnable, PacketListener, Closeable
 {
 
-	protected static Logger log = Logger.getLogger(PacketListenerHandler.class.getName());
+	protected static LogWrapper log = new LogWrapper(PacketListenerHandler.class).setEnabled(true);
 	
 	protected volatile PcapHandle handle;
 	protected volatile Executor executor;
@@ -46,27 +46,27 @@ public abstract class PacketListenerHandler
 	
 	public void run()
 	{
-		log.info(Thread.currentThread() + ":Start");
+		if(log.isEnabled()) log.getLogger().info(Thread.currentThread() + ":Start");
 		try 
 		{
 			if (SUS.isNotEmpty(filter))
 			{
 				handle.setFilter(filter, BpfCompileMode.OPTIMIZE);
-				log.info(Thread.currentThread() + ":Filer set" + filter);
+				if(log.isEnabled()) log.getLogger().info(Thread.currentThread() + ":Filer set" + filter);
 			}
 			if (executor != null)
 			{
 				// start the loop with executor
-				log.info(Thread.currentThread() + ":Before loop executor");
+				if(log.isEnabled()) log.getLogger().info(Thread.currentThread() + ":Before loop executor");
 				handle.loop(count, packetListener, executor);
-				log.info(Thread.currentThread() + ":After loop executor");
+				if(log.isEnabled()) log.getLogger().info(Thread.currentThread() + ":After loop executor");
 			}
 			else
 			{
 				// start the loop executor
-				log.info(Thread.currentThread() + ":Before loop NO executor");
+				if(log.isEnabled()) log.getLogger().info(Thread.currentThread() + ":Before loop NO executor");
 				handle.loop(count, packetListener);
-				log.info(Thread.currentThread() + ":After loop NO executor");
+				if(log.isEnabled()) log.getLogger().info(Thread.currentThread() + ":After loop NO executor");
 			}
 		} 
 		catch (InterruptedException | PcapNativeException | NotOpenException e)
@@ -77,9 +77,9 @@ public abstract class PacketListenerHandler
 		try 
 		{
 			PcapStat ps = handle.getStats();
-			log.info("ps_recv: " + ps.getNumPacketsReceived());
-			log.info("ps_drop: " + ps.getNumPacketsDropped());
-			log.info("ps_ifdrop: " + ps.getNumPacketsDroppedByIf());
+			if(log.isEnabled()) log.getLogger().info("ps_recv: " + ps.getNumPacketsReceived());
+			if(log.isEnabled()) log.getLogger().info("ps_drop: " + ps.getNumPacketsDropped());
+			if(log.isEnabled()) log.getLogger().info("ps_ifdrop: " + ps.getNumPacketsDroppedByIf());
 		    if (Platform.isWindows()) {
 		    	log.info("bs_capt: " + ps.getNumPacketsCaptured());
 		    }
