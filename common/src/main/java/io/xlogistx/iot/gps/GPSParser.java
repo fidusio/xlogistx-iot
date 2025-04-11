@@ -129,7 +129,7 @@ public class GPSParser
 	 */
 	public static GPSFixedData ParseGPGGA(String[] tokens, String checkSum) throws ParseException
 	{
-		SharedUtil.checkIfNulls("Tokens or message type are null.", tokens, checkSum);
+		SUS.checkIfNulls("Tokens or message type are null.", tokens, checkSum);
 		if(tokens.length != 15)
 		{
 			throw new IllegalArgumentException("Invalid: Cannot parse because the length of the token is not equal to 15.");
@@ -174,7 +174,7 @@ public class GPSParser
 	 */
 	public static GPSActiveSatellites parseGPGSA(String[] tokens, String checkSum) throws ParseException
 	{
-		SharedUtil.checkIfNulls("Tokens or message type are null.", tokens, checkSum);
+		SUS.checkIfNulls("Tokens or message type are null.", tokens, checkSum);
 		if(tokens.length != 18)
 		{
 			throw new IllegalArgumentException("Invalid: Cannot parse because the length of the token is not equal to 18.");
@@ -239,7 +239,7 @@ public class GPSParser
 	 */
 	public static GPSNavigation parseGPRMC(String[] tokens, String checkSum) throws ParseException
 	{
-		SharedUtil.checkIfNulls("Tokens or message type are null.", tokens, checkSum);
+		SUS.checkIfNulls("Tokens or message type are null.", tokens, checkSum);
 		if(tokens.length != 12 && tokens.length != 13)
 		{
 			throw new IllegalArgumentException("Invalid: Cannot parse because the length of the token is not equal to 12 or 13." + tokens.length);
@@ -325,7 +325,7 @@ public class GPSParser
 	 */
 	public static GPSCourseInfo parseGPVTG(String[] tokens, String checkSum)
 	{
-		SharedUtil.checkIfNulls("Tokens or message type are null.", tokens, checkSum);
+		SUS.checkIfNulls("Tokens or message type are null.", tokens, checkSum);
 		if(tokens.length != 9)
 		{
 			throw new IllegalArgumentException("Invalid: Cannot parse because the length of the token is not equal to 9.");
@@ -356,7 +356,7 @@ public class GPSParser
 	 */
 	public static GPSMessage parseGeneric(GPSMessage message, String[] tokens, String checkSum, boolean fullMatch)
 	{
-		SharedUtil.checkIfNulls("Tokens or message type are null.", message, tokens, checkSum);
+		SUS.checkIfNulls("Tokens or message type are null.", message, tokens, checkSum);
 		NVConfigEntity nvconfig = (NVConfigEntity) message.getNVConfig();
 		List<NVConfig> nvconfigList = nvconfig.getDisplayAttributes();
 		if(fullMatch && tokens.length != nvconfigList.size())
@@ -388,7 +388,7 @@ public class GPSParser
 	 */
 	public static GPSGeographicPosition parseGPGLL(String[] tokens, String checkSum) throws ParseException
 	{
-		SharedUtil.checkIfNulls("Tokens or message type are null.", tokens, checkSum);
+		SUS.checkIfNulls("Tokens or message type are null.", tokens, checkSum);
 		if(tokens.length != 7)
 		{
 			throw new IllegalArgumentException("Invalid: Cannot parse because the length of the token is not equal to 7.");
@@ -456,7 +456,7 @@ public class GPSParser
 	 */
 	public static GPSSatellitesInView parseGPGSV(String[] tokens, String checkSum)
 	{
-		SharedUtil.checkIfNulls("Tokens or message type are null.", tokens, checkSum);
+		SUS.checkIfNulls("Tokens or message type are null.", tokens, checkSum);
 		
 		GPSSatellitesInView satellite = new GPSSatellitesInView();
 		NVConfigEntity nvconfig = (NVConfigEntity) satellite.getNVConfig();

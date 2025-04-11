@@ -101,8 +101,7 @@ public class JTCPDump {
 
 	System.out.println(nif.getName() + "(" + nif.getDescription() + ")");
 
-	PcapHandle handle
-	  = nif.openLive(SNAPLEN, PromiscuousMode.PROMISCUOUS, READ_TIMEOUT);
+	PcapHandle handle = nif.openLive(SNAPLEN, PromiscuousMode.PROMISCUOUS, READ_TIMEOUT);
 
 
 	//    PacketListenerHandler plh = new  PacketListenerHandler(handle,
