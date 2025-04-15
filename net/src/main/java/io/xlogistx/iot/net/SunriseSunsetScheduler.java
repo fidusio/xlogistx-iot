@@ -7,6 +7,7 @@ import io.xlogistx.common.cron.CronTool.Type;
 import io.xlogistx.iot.net.apis.IPGeoLocation;
 import io.xlogistx.iot.net.apis.SunriseSunset;
 
+import org.jetbrains.annotations.NotNull;
 import org.zoxweb.server.http.HTTPCall;
 import org.zoxweb.server.util.GSONUtil;
 import org.zoxweb.shared.http.*;
@@ -20,6 +21,7 @@ import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 public class SunriseSunsetScheduler
@@ -35,9 +37,11 @@ public class SunriseSunsetScheduler
     private final float latitude;
     private long currentSunrise;
     private long currentSunset;
-    private long currentWait;
+    private volatile long currentWait;
     private final Executor executor;
     private Type currentType;
+    private volatile long lastUpdate = System.currentTimeMillis();
+
 
     public String getAPIService() {
         return apiService;
@@ -78,6 +82,11 @@ public class SunriseSunsetScheduler
         return currentWait;
     }
 
+
+
+
+
+
     @Override
     public SunriseSunsetScheduler getType() {
         return this;
@@ -102,9 +111,9 @@ public class SunriseSunsetScheduler
                 currentSunrise = resultSS.getValue(SunriseSunset.Params.SUNRISE.getName());
                 currentSunset = resultSS.getValue(SunriseSunset.Params.SUNSET.getName());
 
-                long current = System.currentTimeMillis();
-                deltaSunrise = currentSunrise - current;
-                deltaSunset = currentSunset - current;
+                lastUpdate = System.currentTimeMillis();
+                deltaSunrise = currentSunrise - lastUpdate;
+                deltaSunset = currentSunset - lastUpdate;
             }
             else
             {
@@ -155,6 +164,7 @@ public class SunriseSunsetScheduler
             e.printStackTrace();
             currentWait = Const.TimeInMillis.SECOND.MILLIS*30;
         }
+
     }
 
     private void executeRunnable(Runnable rp)
@@ -185,5 +195,18 @@ public class SunriseSunsetScheduler
                 return true;
         }
         return false;
+    }
+
+    /**
+     * Returns the remaining delay associated with this object, in the
+     * given time unit.
+     *
+     * @param unit the time unit
+     * @return the remaining delay; zero or negative values indicate
+     * that the delay has already elapsed
+     */
+    @Override
+    public long getDelay(@NotNull TimeUnit unit) {
+        return currentWait - (System.currentTimeMillis() - lastUpdate);
     }
 }
