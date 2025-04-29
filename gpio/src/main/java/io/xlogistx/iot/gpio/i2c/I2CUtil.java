@@ -20,8 +20,8 @@ import org.zoxweb.shared.http.HTTPResponseData;
 import org.zoxweb.shared.http.HTTPStatusCode;
 import org.zoxweb.shared.util.Const;
 import org.zoxweb.shared.util.ParamUtil;
+import org.zoxweb.shared.util.SUS;
 import org.zoxweb.shared.util.SharedStringUtil;
-import org.zoxweb.shared.util.SharedUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -73,7 +73,7 @@ public class I2CUtil
     }
 
     public SimpleMessage sendI2CCommand(int bus, int address, String command, String filterID, int repeat) throws IOException, I2CFactory.UnsupportedBusNumberException {
-        SharedUtil.checkIfNulls("null command.", command);
+        SUS.checkIfNulls("null command.", command);
         if (repeat < 1)
             repeat = 1;
         I2CBaseDevice i2cDevice = createI2CDevice("generic", bus, address);

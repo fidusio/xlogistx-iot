@@ -1,15 +1,14 @@
 package io.xlogistx.iot.net;
 
+import io.xlogistx.iot.net.data.NIRenameDAO;
+import io.xlogistx.iot.net.data.OSConfigDAO;
+import org.zoxweb.server.util.RuntimeUtil;
+import org.zoxweb.shared.util.SUS;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.NetworkInterface;
 import java.util.logging.Logger;
-
-import io.xlogistx.iot.net.data.NIRenameDAO;
-import org.zoxweb.server.util.RuntimeUtil;
-
-import org.zoxweb.shared.util.SharedUtil;
-import io.xlogistx.iot.net.data.OSConfigDAO;
 
 public class NIRename 
 {
@@ -19,14 +18,14 @@ public class NIRename
   
   public static NIRenameDAO renameNI(OSConfigDAO oscd, NIRenameDAO nird, long upDelay) throws IOException, InterruptedException
   {
-    SharedUtil.checkIfNulls("Null nird or parameters", oscd, nird, nird.getNIToName(), nird.getSysNetFolder());
+    SUS.checkIfNulls("Null nird or parameters", oscd, nird, nird.getNIToName(), nird.getSysNetFolder());
     return renameNI(oscd.getIfUpCommand(), nird, upDelay);
   }
   
   
   public static NIRenameDAO renameNI(String niUpCommand, NIRenameDAO nird, long upDelay) throws IOException, InterruptedException
   {
-    SharedUtil.checkIfNulls("Null nird or parameters", niUpCommand, nird, nird.getNIToName(), nird.getSysNetFolder());
+    SUS.checkIfNulls("Null nird or parameters", niUpCommand, nird, nird.getNIToName(), nird.getSysNetFolder());
     NetworkInterface niToLocate = NetworkInterface.getByName(nird.getNIToName());
     if (niToLocate == null)
     {

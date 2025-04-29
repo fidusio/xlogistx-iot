@@ -19,10 +19,7 @@ package io.xlogistx.iot.gpio;
 
 import com.pi4j.io.gpio.Pin;
 import com.pi4j.io.gpio.RaspiPin;
-import org.zoxweb.shared.util.GetName;
-import org.zoxweb.shared.util.GetValue;
-import org.zoxweb.shared.util.SharedStringUtil;
-import org.zoxweb.shared.util.SharedUtil;
+import org.zoxweb.shared.util.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -207,7 +204,7 @@ implements GetValue<Pin>, GetName
 	public static GPIOPin mapGPIOName(String gpioNameUserDefinedName)
 	{
 		gpioNameUserDefinedName = SharedStringUtil.trimOrNull(gpioNameUserDefinedName);
-		SharedUtil.checkIfNulls("GPIO_ID:UserDefinedName can't be null", gpioNameUserDefinedName);
+		SUS.checkIfNulls("GPIO_ID:UserDefinedName can't be null", gpioNameUserDefinedName);
 
 		String[] tokens = gpioNameUserDefinedName.split("_");
 		if(tokens.length != 2)
@@ -219,7 +216,7 @@ implements GetValue<Pin>, GetName
 	public static GPIONameMap toGPIONameMap(String gpioNameUserDefinedName)
 	{
 		gpioNameUserDefinedName = SharedStringUtil.trimOrNull(gpioNameUserDefinedName);
-		SharedUtil.checkIfNulls("GPIO_ID:UserDefinedName can't be null", gpioNameUserDefinedName);
+		SUS.checkIfNulls("GPIO_ID:UserDefinedName can't be null", gpioNameUserDefinedName);
 
 		String[] tokens = gpioNameUserDefinedName.split(":");
 //		System.out.println(Arrays.toString(tokens));
@@ -259,7 +256,7 @@ implements GetValue<Pin>, GetName
 	public static GPIOPin mapGPIOName(String userDefinedName, String gpioName)
 	{
 		userDefinedName = SharedStringUtil.trimOrNull(userDefinedName);
-		SharedUtil.checkIfNulls("GPIO name or GPIO can't be null", userDefinedName, gpioName);
+		SUS.checkIfNulls("GPIO name or GPIO can't be null", userDefinedName, gpioName);
 		GPIOPin gpio = lookupGPIO(gpioName);
 		if(gpio == null)
 			throw new IllegalArgumentException(gpioName + " not found");

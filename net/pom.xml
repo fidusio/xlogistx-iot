@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <name>xlogistx-iot-net</name>
+
     <artifactId>xlogistx-iot-net</artifactId>
 
 
@@ -45,11 +45,13 @@
             <artifactId>pcap4j-core</artifactId>
             <version>${pcap4j.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.pcap4j</groupId>
             <artifactId>pcap4j-packetfactory-static</artifactId>
             <version>${pcap4j.version}</version>
         </dependency>
+
         <dependency>
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna</artifactId>

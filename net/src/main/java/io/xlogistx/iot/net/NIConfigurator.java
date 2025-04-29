@@ -181,7 +181,7 @@ public class NIConfigurator
   
   public static void writeNIFile(File destination, NIConfigDAO nicd, String template) throws IOException
   {
-    SharedUtil.checkIfNulls("Destinatio or config null", destination, nicd, template);
+    SUS.checkIfNulls("Destinatio or config null", destination, nicd, template);
     if(destination.exists() && destination.isDirectory())
     {
       throw new IllegalArgumentException("Desctination is a directory");
@@ -223,7 +223,7 @@ public class NIConfigurator
     {
       try
       {
-        NIConfigDAO ret[] = readConfig(new FileReader(filename));
+        NIConfigDAO[] ret = readConfig(new FileReader(filename));
         for(NIConfigDAO nicd : ret)
         {
           System.out.println(GSONUtil.toJSON(nicd, false, false, false));

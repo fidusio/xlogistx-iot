@@ -11,10 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.zoxweb.server.http.HTTPCall;
 import org.zoxweb.server.util.GSONUtil;
 import org.zoxweb.shared.http.*;
-import org.zoxweb.shared.util.Const;
-import org.zoxweb.shared.util.NVGenericMap;
-import org.zoxweb.shared.util.SharedUtil;
-import org.zoxweb.shared.util.WaitTime;
+import org.zoxweb.shared.util.*;
 
 import java.io.IOException;
 import java.util.Date;
@@ -178,7 +175,7 @@ public class SunriseSunsetScheduler
     public synchronized boolean schedule(String cron, Runnable rp)
     {
         Type ct = Type.lookup(cron);
-        SharedUtil.checkIfNulls("Value not null", ct, rp);
+        SUS.checkIfNulls("Value not null", ct, rp);
         switch(ct)
         {
             case DAY:
