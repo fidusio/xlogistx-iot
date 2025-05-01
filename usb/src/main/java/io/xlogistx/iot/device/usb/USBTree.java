@@ -1,13 +1,8 @@
 package io.xlogistx.iot.device.usb;
 
 
+import javax.usb.*;
 import java.util.List;
-
-import javax.usb.UsbDevice;
-import javax.usb.UsbException;
-import javax.usb.UsbHostManager;
-import javax.usb.UsbHub;
-import javax.usb.UsbServices;
 
 public class USBTree {
     /**
@@ -43,6 +38,7 @@ public class USBTree {
      */
     public static void main(String[] args) throws UsbException
     {
+        UsbHostManager.getProperties();
 
         UsbServices services = UsbHostManager.getUsbServices();
         dump(services.getRootUsbHub(), 0);

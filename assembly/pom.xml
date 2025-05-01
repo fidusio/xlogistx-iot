@@ -88,7 +88,11 @@
             <groupId>io.xlogistx</groupId>
             <artifactId>xlogistx-iot-devices</artifactId>
             <version>${default-version}</version>
-
+        </dependency>
+        <dependency>
+            <groupId>io.xlogistx</groupId>
+            <artifactId>xlogistx-iot-usb</artifactId>
+            <version>${default-version}</version>
         </dependency>
         <dependency>
             <groupId>io.xlogistx</groupId>
