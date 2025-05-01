@@ -15,30 +15,12 @@
 
 
     <dependencies>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-params</artifactId>
-            <scope>test</scope>
-            <version>${junit.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.zoxweb</groupId>
-            <artifactId>zoxweb-core</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.xlogistx</groupId>
-            <artifactId>xlogistx-common</artifactId>
-            <version>${xlogistx.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>${gson.version}</version>
-        </dependency>
-
+<!--        <dependency>-->
+<!--            <groupId>org.junit.jupiter</groupId>-->
+<!--            <artifactId>junit-jupiter-params</artifactId>-->
+<!--            <scope>test</scope>-->
+<!--            <version>${junit.version}</version>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>org.pcap4j</groupId>
@@ -50,6 +32,7 @@
             <groupId>org.pcap4j</groupId>
             <artifactId>pcap4j-packetfactory-static</artifactId>
             <version>${pcap4j.version}</version>
+
         </dependency>
 
         <dependency>
@@ -58,13 +41,6 @@
             <version>${jna.version}</version>
         </dependency>
 
-        <!--
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
-        </dependency>
-        -->
     </dependencies>
 
 

@@ -1,6 +1,6 @@
 package io.xlogistx.iot.net.apis;
 
-import org.zoxweb.server.http.HTTPCall;
+import org.zoxweb.server.http.OkHTTPCall;
 import org.zoxweb.server.util.GSONUtil;
 import org.zoxweb.shared.http.*;
 import org.zoxweb.shared.util.GetNameValue;
@@ -69,8 +69,8 @@ public class IPGeoLocation {
         {
             hmci.getParameters().add(new NVPair(Params.IP, ip));
         }
-        HTTPCall hc = new HTTPCall(hmci);
-        HTTPResponseData hrd = hc.sendRequest();
+        //HTTPCall hc = new HTTPCall(hmci);
+        HTTPResponseData hrd = OkHTTPCall.send(hmci);
         return GSONUtil.fromJSONGenericMap(hrd.getData());
     }
 

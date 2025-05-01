@@ -1,6 +1,7 @@
 package io.xlogistx.iot.net.apis;
 
-import org.zoxweb.server.http.HTTPCall;
+
+import org.zoxweb.server.http.OkHTTPCall;
 import org.zoxweb.server.util.GSONUtil;
 import org.zoxweb.shared.http.*;
 import org.zoxweb.shared.util.Const;
@@ -79,8 +80,7 @@ public class SunriseSunset {
         if(date!=null)
             hmci.getParameters().add(new NVPair(Params.DATE, date));
         hmci.getParameters().add(new NVPair(Params.FORMATTED));
-        HTTPCall hc = new HTTPCall(hmci);
-        HTTPResponseData hrd = hc.sendRequest();
+        HTTPResponseData hrd = OkHTTPCall.send(hmci);
         NVGenericMap result = GSONUtil.fromJSONGenericMap(hrd.getData());
         return (NVGenericMap) result.get("results");
     }
