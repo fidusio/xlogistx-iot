@@ -34,6 +34,7 @@
         <usb-java.version>RELEASE</usb-java.version>
         <jna.version>RELEASE</jna.version>
         <pcap4j.version>1.8.2</pcap4j.version>
+        <jnr-ffi.version>RELEASE</jnr-ffi.version>
 
     </properties>
 

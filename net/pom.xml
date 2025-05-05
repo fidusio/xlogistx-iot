@@ -41,6 +41,13 @@
             <version>${jna.version}</version>
         </dependency>
 
+
+        <dependency>
+            <groupId>com.github.jnr</groupId>
+            <artifactId>jnr-ffi</artifactId>
+            <version>${jnr-ffi.version}</version>
+        </dependency>
+
     </dependencies>
 
 
