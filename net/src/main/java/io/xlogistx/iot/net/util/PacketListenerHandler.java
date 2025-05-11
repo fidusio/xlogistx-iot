@@ -5,15 +5,16 @@ import org.pcap4j.core.BpfProgram.BpfCompileMode;
 import org.pcap4j.core.*;
 import org.zoxweb.server.io.IOUtil;
 import org.zoxweb.server.logging.LogWrapper;
+import org.zoxweb.shared.util.CloseableType;
 import org.zoxweb.shared.util.SUS;
 import org.zoxweb.shared.util.SharedUtil;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class PacketListenerHandler
-	implements Runnable, PacketListener, Closeable
+	implements Runnable, PacketListener, CloseableType
 {
 
 	protected static LogWrapper log = new LogWrapper(PacketListenerHandler.class).setEnabled(true);
@@ -21,8 +22,9 @@ public abstract class PacketListenerHandler
 	protected volatile PcapHandle handle;
 	protected volatile Executor executor;
 	protected PacketListener packetListener;
-	private int count = -1;
-	private String filter;
+	//private int count = -1;
+	private final String filter;
+    private final AtomicBoolean isClosed = new AtomicBoolean(false);// = new AtomicBoolean();
 	
 	
 	public PacketListenerHandler(PcapHandle handle)
@@ -58,14 +60,14 @@ public abstract class PacketListenerHandler
 			{
 				// start the loop with executor
 				if(log.isEnabled()) log.getLogger().info(Thread.currentThread() + ":Before loop executor");
-				handle.loop(count, packetListener, executor);
+				handle.loop(-1, packetListener, executor);
 				if(log.isEnabled()) log.getLogger().info(Thread.currentThread() + ":After loop executor");
 			}
 			else
 			{
 				// start the loop executor
 				if(log.isEnabled()) log.getLogger().info(Thread.currentThread() + ":Before loop NO executor");
-				handle.loop(count, packetListener);
+				handle.loop(-1, packetListener);
 				if(log.isEnabled()) log.getLogger().info(Thread.currentThread() + ":After loop NO executor");
 			}
 		} 
@@ -93,15 +95,27 @@ public abstract class PacketListenerHandler
 		   
 		IOUtil.close(handle);
 	}
-	
+
+
+
+	public boolean isClosed()
+	{
+		return !handle.isOpen();
+	}
+
 	public void close() throws IOException
 	{
-		log.info("Closing");
-		try {
-			handle.breakLoop();
-		} catch (NotOpenException e) {
-			// TODO Auto-generated catch block
-			throw new IOException(e.getMessage());
+		if(!isClosed.getAndSet(true))
+		{
+			log.getLogger().info("Closing");
+			IOUtil.close(handle);
+			try
+			{
+				handle.breakLoop();
+			} catch (NotOpenException e) {
+				// TODO Auto-generated catch block
+				throw new IOException(e.getMessage());
+			}
 		}
 		
 	}

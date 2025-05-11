@@ -1,8 +1,8 @@
 package io.xlogistx.iot.device.controller.impl;
 
 import io.xlogistx.common.task.RunnableProperties;
-import org.zoxweb.server.http.HTTPCall;
 import org.zoxweb.server.http.HTTPUtil;
+import org.zoxweb.server.http.OkHTTPCall;
 import org.zoxweb.server.logging.LogWrapper;
 import org.zoxweb.server.util.GSONUtil;
 import org.zoxweb.shared.http.*;
@@ -59,7 +59,7 @@ public class UniFiController
         HTTPMessageConfigInterface hmci = HTTPMessageConfig.createAndInit(getProperties().getValue("url"), uri, "get", false);
         hmci.getHeaders().add(getSecurityCookie());
         //HTTPResponseData hrd = new HTTPCall(hmci).sendRequest();
-        HTTPAPIResult<NVGenericMap> hro = HTTPCall.send(hmci, NVGenericMap.class);
+        HTTPAPIResult<NVGenericMap> hro = OkHTTPCall.send(hmci, NVGenericMap.class);
 
         return hro.getData();
     }
@@ -89,7 +89,7 @@ public class UniFiController
         hmci.setContentType("application/json;charset=UTF-8");
         hmci.getHeaders().add(getSecurityCookie());
         hmci.setContent(GSONUtil.toJSONGenericMap(nvgm, false, false, false));
-        HTTPCall.send(hmci);
+        OkHTTPCall.send(hmci);
     }
 
     public void restartAll() throws IOException {
@@ -134,7 +134,7 @@ public class UniFiController
                     hmci.setSecureCheckEnabled(false);
                     hmci.setContentType("application/json;charset=UTF-8");
                     hmci.getHeaders().add(getSecurityCookie());
-                    HTTPAPIResult<NVGenericMap> hro = HTTPCall.send(hmci, NVGenericMap.class);
+                    HTTPAPIResult<NVGenericMap> hro = OkHTTPCall.send(hmci, NVGenericMap.class);
                     if (hro.getStatus() != HTTPStatusCode.OK.CODE) {
                         throw new IOException("" + hro);
                     }
@@ -175,7 +175,7 @@ public class UniFiController
         hmci.setContent(GSONUtil.toJSONGenericMap(nvgm, false, false, false));
         hmci.setContentType("application/json;charset=UTF-8");
         //HTTPCall hc = new HTTPCall(hmci);
-        HTTPResponseData hrd = HTTPCall.send(hmci);
+        HTTPResponseData hrd = OkHTTPCall.send(hmci);
         if (hrd.getStatus() != HTTPStatusCode.OK.CODE)
         {
             throw new IOException("" + hrd);
