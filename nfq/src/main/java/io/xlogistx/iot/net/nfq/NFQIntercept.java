@@ -1,5 +1,6 @@
-package io.xlogistx.iot.net.iptables;
+package io.xlogistx.iot.net.nfq;
 
+import io.xlogistx.iot.net.iptables.NetFilterByAddress;
 import jnr.ffi.LibraryLoader;
 import jnr.ffi.Pointer;
 import jnr.ffi.Struct;

@@ -23,6 +23,7 @@
       <module>assembly</module>
       <module>net</module>
       <module>usb</module>
+      <module>nfq</module>
   </modules>
 
 
