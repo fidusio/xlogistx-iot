@@ -3,10 +3,10 @@ package io.xlogistx.iot.device.shared;
 import org.zoxweb.shared.util.GetName;
 
 public final class IOTConst {
-    private IOTConst(){}
+    private IOTConst() {
+    }
 
-    public enum DeviceType
-    {
+    public enum DeviceType {
         CLOUD_BASED,
         CONTAINER,
         CONTROLLER,
@@ -23,8 +23,7 @@ public final class IOTConst {
         EMBEDDED
     }
 
-    public enum Protocol
-    {
+    public enum Protocol {
         I2C,
         I2S,
         SPI,
@@ -33,8 +32,7 @@ public final class IOTConst {
         USB
     }
 
-    public enum SensorType
-    {
+    public enum SensorType {
         TEMPERATURE,
         HAL,
         AMPERE,
@@ -42,8 +40,7 @@ public final class IOTConst {
         WATER_LEVEL
     }
 
-    public enum PinType
-    {
+    public enum PinType {
         DIGITAL,
         ANALOG,
         ADC,
@@ -55,19 +52,17 @@ public final class IOTConst {
     }
 
     public enum PinState
-        implements GetName
-    {
+            implements GetName {
         INPUT("I"),
         OUTPUT("O"),
-        IO("IO")
-        ;
+        IO("IO");
 
         private final String name;
 
-        PinState(String name)
-        {
+        PinState(String name) {
             this.name = name;
         }
+
         /**
          * @return the name of the object
          */
@@ -78,8 +73,7 @@ public final class IOTConst {
     }
 
     public enum FrequencyUnit
-    implements GetName
-    {
+            implements GetName {
         HZ("H"),
         KHZ("K"),
         MHZ("M"),
@@ -88,8 +82,7 @@ public final class IOTConst {
 
         private final String name;
 
-        FrequencyUnit(String name)
-        {
+        FrequencyUnit(String name) {
             this.name = name;
         }
 

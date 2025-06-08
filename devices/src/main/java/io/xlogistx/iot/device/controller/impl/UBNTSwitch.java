@@ -28,58 +28,57 @@ import org.zoxweb.shared.util.SetNameValue;
 
 import java.util.List;
 
-public class UBNTSwitch
-{
+public class UBNTSwitch {
 
-  public static void main(String[] args) {
-    try {
-      int i = 0;
-      String url = args[i++];
-      String uri = args[i++];
-      String user = args[i++];
-      String passwd = args[i++];
-      IPAddress proxy = new IPAddress("10.0.0.114", 8080);
+    public static void main(String[] args) {
+        try {
+            int i = 0;
+            String url = args[i++];
+            String uri = args[i++];
+            String user = args[i++];
+            String passwd = args[i++];
+            IPAddress proxy = new IPAddress("10.0.0.114", 8080);
 
-      HTTPMessageConfigInterface hcc = new HTTPMessageConfig();
-      hcc.setURL(url);
-      hcc.setURI(uri);
-      hcc.setProxyAddress(proxy);
-      hcc.setMethod(HTTPMethod.GET);
-      HTTPCall hc = new HTTPCall(hcc, SSLCheckDisabler.SINGLETON);
-      HTTPResponseData rd = hc.sendRequest();
-      System.out.println( ""+ rd);
-      List<HTTPMessageConfigInterface> forms = HTTPUtil.extractFormsContent(rd, 0);
-      System.out.println( ""+ forms);
-      hcc = forms.get(0);
-      hcc.setURL(url);
-      hcc.setURI("login.cgi?uri=//");
-      hcc.setRedirectEnabled(false);
-      hcc.setProxyAddress(proxy);
-      SetNameValue<String> username = (SetNameValue<String>) hcc.getParameters().get("username");//.setValue( user);
-      username.setValue(user);
-      SetNameValue<String> password = (SetNameValue<String>) hcc.getParameters().get("password");
-      password.setValue( passwd);
+            HTTPMessageConfigInterface hcc = new HTTPMessageConfig();
+            hcc.setURL(url);
+            hcc.setURI(uri);
+            hcc.setProxyAddress(proxy);
+            hcc.setMethod(HTTPMethod.GET);
+            HTTPCall hc = new HTTPCall(hcc, SSLCheckDisabler.SINGLETON);
+            HTTPResponseData rd = hc.sendRequest();
+            System.out.println("" + rd);
+            List<HTTPMessageConfigInterface> forms = HTTPUtil.extractFormsContent(rd, 0);
+            System.out.println("" + forms);
+            hcc = forms.get(0);
+            hcc.setURL(url);
+            hcc.setURI("login.cgi?uri=//");
+            hcc.setRedirectEnabled(false);
+            hcc.setProxyAddress(proxy);
+            SetNameValue<String> username = (SetNameValue<String>) hcc.getParameters().get("username");//.setValue( user);
+            username.setValue(user);
+            SetNameValue<String> password = (SetNameValue<String>) hcc.getParameters().get("password");
+            password.setValue(passwd);
 
-      //NVPair cookie = SharedUtil.lookup(hcc.getHeaderParameters(), "Cookie");
-      String cookie = HTTPUtil.extractRequestCookie(rd);
+            //NVPair cookie = SharedUtil.lookup(hcc.getHeaderParameters(), "Cookie");
+            String cookie = HTTPUtil.extractRequestCookie(rd);
 
-      hc = new HTTPCall(hcc, SSLCheckDisabler.SINGLETON);
-      System.out.println( ""+ hcc);
-      rd = hc.sendRequest();
-      //System.out.println( ""+ rd);
-      System.out.println( "cookie"+ cookie);
-      HTTPMessageConfigInterface setSensor = HTTPMessageConfig.createAndInit(url, "sensors/1/", HTTPMethod.PUT);
-      setSensor.setCookie( cookie);
-      setSensor.getHeaders().add( new NVPair("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"));
-      //setSensor.getHeaderParameters().add( new NVPair("X-Requested-With", "XMLHttpRequest"));
-      //setSensor.getHeaderParameters().add( new NVPair("Referer", "http://10.0.1.51/power"));
-      setSensor.getParameters().add( new NVPair("output", "1"));
-      System.out.println( ""+setSensor);
-      hc = new HTTPCall(setSensor, SSLCheckDisabler.SINGLETON);
+            hc = new HTTPCall(hcc, SSLCheckDisabler.SINGLETON);
+            System.out.println("" + hcc);
+            rd = hc.sendRequest();
+            //System.out.println( ""+ rd);
+            System.out.println("cookie" + cookie);
+            HTTPMessageConfigInterface setSensor = HTTPMessageConfig.createAndInit(url, "sensors/1/", HTTPMethod.PUT);
+            setSensor.setCookie(cookie);
+            setSensor.getHeaders().add(new NVPair("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"));
+            //setSensor.getHeaderParameters().add( new NVPair("X-Requested-With", "XMLHttpRequest"));
+            //setSensor.getHeaderParameters().add( new NVPair("Referer", "http://10.0.1.51/power"));
+            setSensor.getParameters().add(new NVPair("output", "1"));
+            System.out.println("" + setSensor);
+            hc = new HTTPCall(setSensor, SSLCheckDisabler.SINGLETON);
 
-      System.out.println( hc.sendRequest().getStatus());
-    } catch( Exception e) {
-      e.printStackTrace();
+            System.out.println(hc.sendRequest().getStatus());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-  }
 }

@@ -20,12 +20,10 @@ import java.util.function.Function;
 import java.util.logging.Logger;
 
 
-
 public final class FSMWebCaller {
 
     public enum SMWebCaller
-        implements GetName
-    {
+            implements GetName {
         APP_START("app-start"),
         // Wait state
         WAIT("wait"),
@@ -47,10 +45,11 @@ public final class FSMWebCaller {
         ;
 
         private String name;
-        SMWebCaller(String name)
-        {
+
+        SMWebCaller(String name) {
             this.name = name;
         }
+
         @Override
         public String getName() {
             return name;
@@ -59,9 +58,10 @@ public final class FSMWebCaller {
 
     private static Logger log = Logger.getLogger(FSMWebCaller.class.getName());
 
-    private FSMWebCaller(){}
-    public static StateMachineInt<TaskConfig> create(String fsmName, TaskSchedulerProcessor tsp, TaskConfig config)
-    {
+    private FSMWebCaller() {
+    }
+
+    public static StateMachineInt<TaskConfig> create(String fsmName, TaskSchedulerProcessor tsp, TaskConfig config) {
         StateMachineInt<TaskConfig> fsm = new StateMachine<TaskConfig>(fsmName, tsp);
         TriggerConsumer<Void> init = new TriggerConsumer<Void>(StateInt.States.INIT) {
             @Override
@@ -75,44 +75,44 @@ public final class FSMWebCaller {
             private long delta;
             private Runnable run = new Runnable() {
                 private TriggerConsumer<Long> outer;
-                Runnable init(TriggerConsumer<Long> outer)
-                {
+
+                Runnable init(TriggerConsumer<Long> outer) {
                     this.outer = outer;
                     return this;
                 }
+
                 @Override
                 public void run() {
                     delta = System.currentTimeMillis() - delta;
                     TaskConfig tc = (TaskConfig) getState().getStateMachine().getConfig();
                     getState().getStateMachine().publish(new Trigger<Void>(getState(), SMWebCaller.WEB_EXEC, null));
                     log.info(outer + " waited for " + Const.TimeInMillis.toString(delta));
-                };
+                }
+
+                ;
             }.init(this);
 
             @Override
             public void accept(Long aLong) {
-                    delta = System.currentTimeMillis();
-                    getState().getStateMachine().getScheduler().queue(aLong, run);
-                    log.info(this + " created for " + Const.TimeInMillis.toString(aLong));
+                delta = System.currentTimeMillis();
+                getState().getStateMachine().getScheduler().queue(aLong, run);
+                log.info(this + " created for " + Const.TimeInMillis.toString(aLong));
             }
         };
 
         Function<HTTPMessageConfigInterface[], Boolean> functionExec = new Function<HTTPMessageConfigInterface[], Boolean>() {
             @Override
-            public Boolean apply(HTTPMessageConfigInterface[] hmcis){
+            public Boolean apply(HTTPMessageConfigInterface[] hmcis) {
                 try {
-                    for (HTTPMessageConfigInterface hmci : hmcis)
-                    {
-                        if(hmci != null) {
+                    for (HTTPMessageConfigInterface hmci : hmcis) {
+                        if (hmci != null) {
                             log.info("URL:" + hmci.getURL());
                             HTTPCall hc = new HTTPCall(hmci);
                             log.info(this + ":" + hc.sendRequest());
                         }
                     }
                     return true;
-                }
-                catch (Exception e)
-                {
+                } catch (Exception e) {
                     e.printStackTrace();
                     return false;
                 }
@@ -124,14 +124,14 @@ public final class FSMWebCaller {
             @Override
             public void accept(HTTPMessageConfigInterface[] hmcis) {
                 // send http request
-                if(hmcis == null)
+                if (hmcis == null)
                     hmcis = ((TaskConfig) getState().getStateMachine().getConfig()).getHTTPConfigs();
 
                 SMWebCaller triggerID = SMWebCaller.FAIL_RETRY;
-                if((boolean)getFunction().apply(hmcis))
+                if ((boolean) getFunction().apply(hmcis))
                     triggerID = SMWebCaller.SUCCESS;
 
-                getState().getStateMachine().publish(new Trigger<Void>(getState(), triggerID,null));
+                getState().getStateMachine().publish(new Trigger<Void>(getState(), triggerID, null));
             }
         }.setFunction(functionExec);
 
@@ -139,17 +139,14 @@ public final class FSMWebCaller {
             @Override
             public void accept(Void aVoid) {
 
-                NVLong retryCounter = (NVLong) getState().getProperties().get((GetName)SMWebCaller.RETRY_COUNTER);
+                NVLong retryCounter = (NVLong) getState().getProperties().get((GetName) SMWebCaller.RETRY_COUNTER);
                 long retries = retryCounter.getValue();
                 retryCounter.setValue(++retries);
                 TaskConfig tc = (TaskConfig) getState().getStateMachine().getConfig();
-                if (tc.getRetries() > 0 && retryCounter.getValue() == tc.getRetries())
-                {
+                if (tc.getRetries() > 0 && retryCounter.getValue() == tc.getRetries()) {
                     retryCounter.setValue(0L);
                     getState().getStateMachine().publish(new Trigger<Void>(getState(), SMWebCaller.SUCCESS, null));
-                }
-                else
-                {
+                } else {
                     // wait state
                     getState().getStateMachine().publish(new Trigger<Long>(getState(), SMWebCaller.WAIT, tc.getRetryDelay()));
                 }
@@ -159,7 +156,7 @@ public final class FSMWebCaller {
         TriggerConsumer<Void> resetRetry = new TriggerConsumer<Void>(SMWebCaller.SUCCESS) {
             @Override
             public void accept(Void aVoid) {
-                NVLong retryCounter = (NVLong) getState().getProperties().get((GetName)SMWebCaller.RETRY_COUNTER);
+                NVLong retryCounter = (NVLong) getState().getProperties().get((GetName) SMWebCaller.RETRY_COUNTER);
                 retryCounter.setValue(0L);
             }
         };
@@ -167,19 +164,16 @@ public final class FSMWebCaller {
         TriggerConsumer<Void> repeat = new TriggerConsumer<Void>(SMWebCaller.SUCCESS) {
             @Override
             public void accept(Void aVoid) {
-                NVLong repeatCounter = (NVLong) getState().getProperties().get((GetName)SMWebCaller.REPEAT_COUNTER);
+                NVLong repeatCounter = (NVLong) getState().getProperties().get((GetName) SMWebCaller.REPEAT_COUNTER);
                 long repeats = repeatCounter.getValue();
                 repeatCounter.setValue(++repeats);
                 log.info("repeat counter " + repeatCounter.getValue());
 
                 TaskConfig tc = (TaskConfig) getState().getStateMachine().getConfig();
-                if (tc.getRepeats() >= 0 && repeatCounter.getValue() >= tc.getRepeats())
-                {
+                if (tc.getRepeats() >= 0 && repeatCounter.getValue() >= tc.getRepeats()) {
                     // go to repeat
                     getState().getStateMachine().publish(new Trigger<Void>(getState(), StateInt.States.FINAL, null));
-                }
-                else
-                {
+                } else {
                     // wait state
                     getState().getStateMachine().publish(new Trigger<Long>(getState(), SMWebCaller.WAIT, tc.getRepeatDelay()));
                 }
@@ -191,8 +185,7 @@ public final class FSMWebCaller {
             @Override
             public void accept(Void aVoid) {
                 Boolean shutdown = getState().getProperties().getValue(SMWebCaller.SHUTDOWN);
-                if(shutdown != null && shutdown)
-                {
+                if (shutdown != null && shutdown) {
                     // we will shutdown
                     TaskUtil.close();
                 }
@@ -202,9 +195,9 @@ public final class FSMWebCaller {
 
         Function<Void, Void> functionAppStart = new Function<Void, Void>() {
             @Override
-            public Void apply(Void v){
-               log.info("######################## APP START NOOP. *********************************");
-               return null;
+            public Void apply(Void v) {
+                log.info("######################## APP START NOOP. *********************************");
+                return null;
             }
         };
 
@@ -214,11 +207,10 @@ public final class FSMWebCaller {
 
                 NVBoolean appStart = (NVBoolean) getState().getProperties().get(SMWebCaller.APP_START);
 
-                if (!appStart.getValue())
-                {
+                if (!appStart.getValue()) {
                     appStart.setValue(true);
                     log.info("######################## APP START will called only once. *********************************");
-                    if(getFunction() != null)
+                    if (getFunction() != null)
                         getFunction().apply(aVoid);
                 }
 
@@ -253,6 +245,7 @@ public final class FSMWebCaller {
             fsm.lookupState(SMWebCaller.WEB_EXEC).lookupTriggerConsumer((GetName) SMWebCaller.WEB_EXEC).setFunction(new Function<HTTPMessageConfigInterface[], Boolean>() {
 
                 int count = 0;
+
                 @Override
                 public Boolean apply(HTTPMessageConfigInterface[] o) {
                     count++;
@@ -266,7 +259,7 @@ public final class FSMWebCaller {
             fsm.start(false);
 
         } catch (Exception e) {
-         e.printStackTrace();
+            e.printStackTrace();
         }
     }
 }

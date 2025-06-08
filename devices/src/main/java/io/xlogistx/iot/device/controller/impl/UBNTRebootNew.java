@@ -16,14 +16,15 @@ import java.util.logging.Logger;
 
 
 public class UBNTRebootNew
-  extends RunnableProperties
-{
+        extends RunnableProperties {
     private static final Logger log = Logger.getLogger(UBNTRebootNew.class.getName());
 
-    public UBNTRebootNew(){}
-    public UBNTRebootNew(String host, String username, String password)
-    {   host = host.toLowerCase();
-        if(!host.startsWith("https://"))
+    public UBNTRebootNew() {
+    }
+
+    public UBNTRebootNew(String host, String username, String password) {
+        host = host.toLowerCase();
+        if (!host.startsWith("https://"))
             host = "https://" + host;
 
         setProperties(new NVGenericMap());
@@ -33,10 +34,8 @@ public class UBNTRebootNew
 
     }
 
-    public void run()
-    {
-        try
-        {
+    public void run() {
+        try {
             HTTPMessageConfigInterface hmci = HTTPMessageConfig.createAndInit(getProperties().getValue("host"), "/api/v1.0/user/login", HTTPMethod.POST, false);
             hmci.setContentType("application/json");
             NVGenericMap nvgm = new NVGenericMap();
@@ -56,28 +55,21 @@ public class UBNTRebootNew
             //hc = new HTTPCall(hmci);
             rd = HTTPCall.send(hmci);
             log.info("Device: " + getProperties().getValue("host") + ", " + SharedStringUtil.toString(rd.getData()));
-        }
-        catch(Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void main(String ...args)
-    {
-        try
-        {
+    public static void main(String... args) {
+        try {
             int index = 0;
             String username = args[index++];
             String password = args[index++];
-            for (;index < args.length;)
-            {
+            for (; index < args.length; ) {
                 UBNTRebootNew ubntSwitch = new UBNTRebootNew(args[index++], username, password);
                 ubntSwitch.run();
             }
-        }
-        catch(Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
             System.err.println("usage: username password [hosts...]");
         }

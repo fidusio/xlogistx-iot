@@ -14,17 +14,15 @@ public class IPGeoLocation {
 
 
     public enum Params
-        implements GetNameValue<String>
-    {
+            implements GetNameValue<String> {
         URL("url", "http://ip-api.com/json"),
         LATITUDE("lat", null),
         LONGITUDE("lon", null),
-        IP("query", null);
-        ;
+        IP("query", null);;
         private final String name;
         private final String value;
-        Params(String name, String value)
-        {
+
+        Params(String name, String value) {
             this.name = name;
             this.value = value;
         }
@@ -42,31 +40,27 @@ public class IPGeoLocation {
 
 
     private String endpoint;
-    public IPGeoLocation()
-    {
+
+    public IPGeoLocation() {
         this(Params.URL.getValue());
     }
-    public IPGeoLocation(String endpoint)
-    {
+
+    public IPGeoLocation(String endpoint) {
         this.endpoint = endpoint;
     }
 
 
-
     public NVGenericMap lookup()
-            throws IOException
-    {
+            throws IOException {
         return lookup(null);
     }
 
     public NVGenericMap lookup(String ip)
-            throws IOException
-    {
+            throws IOException {
         ip = SharedStringUtil.trimOrNull(ip);
         HTTPMessageConfigInterface hmci = HTTPMessageConfig.createAndInit(endpoint, null, HTTPMethod.GET);
         hmci.setHTTPParameterFormatter(HTTPEncoder.URI_REST_ENCODED);
-        if(ip != null)
-        {
+        if (ip != null) {
             hmci.getParameters().add(new NVPair(Params.IP, ip));
         }
         //HTTPCall hc = new HTTPCall(hmci);

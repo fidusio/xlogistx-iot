@@ -16,36 +16,34 @@ import java.io.IOException;
 @SecurityProp(authentications = {CryptoConst.AuthenticationType.ALL}, protocols = {URIScheme.HTTPS})
 public class UBNTEndPoints {
 
-    @EndPointProp(methods = {HTTPMethod.GET}, name="ubnt-power", uris="/ubnt/power/{ip}/{user}/{password}/{port}/{state}")
+    @EndPointProp(methods = {HTTPMethod.GET}, name = "ubnt-power", uris = "/ubnt/power/{ip}/{user}/{password}/{port}/{state}")
 
-    public SimpleMessage ubntPortController(@ParamProp(name="ip") String ip,
-                                            @ParamProp(name="user") String user,
-                                            @ParamProp(name="password") String password,
-                                            @ParamProp(name="port") int port,
-                                            @ParamProp(name="state") String state) throws IOException
-    {
+    public SimpleMessage ubntPortController(@ParamProp(name = "ip") String ip,
+                                            @ParamProp(name = "user") String user,
+                                            @ParamProp(name = "password") String password,
+                                            @ParamProp(name = "port") int port,
+                                            @ParamProp(name = "state") String state) throws IOException {
 
 
-        String url = "https://"+ip;
+        String url = "https://" + ip;
         NVPair sessionCookie = UBNTEqpt.loginCookie(url, user, password, null);
         UBNTEqpt.controlPort(url, sessionCookie, port, Const.Bool.lookupValue(state), null);
         UBNTEqpt.getSensorsStatus(url, sessionCookie, null);
-        SimpleMessage ret = new SimpleMessage("port: " + port  + "@" + ip + " set successfully to: " + state, HTTPStatusCode.OK.CODE);
+        SimpleMessage ret = new SimpleMessage("port: " + port + "@" + ip + " set successfully to: " + state, HTTPStatusCode.OK.CODE);
         return ret;
     }
 
 
-    @EndPointProp(methods = {HTTPMethod.GET}, name="ubnt-reboot", uris="/ubnt/reboot/{ip}/{user}/{password}")
-    public SimpleMessage ubntSwitchReboot(@ParamProp(name="ip") String ip,
-                                          @ParamProp(name="user") String user,
-                                          @ParamProp(name="password") String password) throws IOException
-    {
+    @EndPointProp(methods = {HTTPMethod.GET}, name = "ubnt-reboot", uris = "/ubnt/reboot/{ip}/{user}/{password}")
+    public SimpleMessage ubntSwitchReboot(@ParamProp(name = "ip") String ip,
+                                          @ParamProp(name = "user") String user,
+                                          @ParamProp(name = "password") String password) throws IOException {
 
 
-        String url = "https://"+ip;
+        String url = "https://" + ip;
 
         UBNTEqpt.reboot(url, user, password, null);
-        SimpleMessage ret = new SimpleMessage("device: " + ip  + " successfully rebooted.", HTTPStatusCode.OK.CODE);
+        SimpleMessage ret = new SimpleMessage("device: " + ip + " successfully rebooted.", HTTPStatusCode.OK.CODE);
         return ret;
     }
 

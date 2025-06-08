@@ -16,98 +16,91 @@ import java.util.Set;
  * Manages ipsets via the ipset CLI. No native bindings required.
  */
 public final class IPSetManager
-    implements GetName
-{
+        implements GetName {
 
     public static final String IP_SET = "ipset";
 
     private final String name;
     private final String type;
+
     public IPSetManager(String setName, String setType)
-            throws IOException
-    {
+            throws IOException {
         this.name = setName;
         this.type = setType;
         createSet(name, type);
     }
 
-    public boolean add(String deviceID) throws IOException
-    {
+    public boolean add(String deviceID) throws IOException {
         if (!setContains(name, deviceID))
             return addToSet(name, deviceID);
         return false;
     }
 
-    public boolean remove(String deviceID) throws IOException
-    {
+    public boolean remove(String deviceID) throws IOException {
         return removeFromSet(name, deviceID);
 
     }
 
     public Set<String> listDeviceIDS()
-            throws IOException
-    {
+            throws IOException {
         return listSet(name);
     }
+
     public void flush()
-            throws IOException
-    {
+            throws IOException {
         flushSet(name);
     }
 
     public boolean contains(String deviceID)
-            throws IOException
-    {
+            throws IOException {
         return setContains(name, deviceID);
     }
 
     public void destroy()
-            throws IOException
-    {
+            throws IOException {
         destroySet(name);
     }
 
     @Override
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
-    public String getType()
-    {
+    public String getType() {
         return type;
     }
 
 
-
-    /** Create a new set. Example type: "hash:mac", "hash:ip", etc. */
-    public  static boolean createSet(String setName, String setType)
-            throws IOException
-    {
+    /**
+     * Create a new set. Example type: "hash:mac", "hash:ip", etc.
+     */
+    public static boolean createSet(String setName, String setType)
+            throws IOException {
         if (!doSetExist(setName))
             return RuntimeUtil.exec(IP_SET, "create", setName, setType);
 
         return true;
     }
 
-    /** Destroy an existing set. */
-    public  static boolean  destroySet(String setName)
-            throws IOException
-    {
+    /**
+     * Destroy an existing set.
+     */
+    public static boolean destroySet(String setName)
+            throws IOException {
         return RuntimeUtil.exec(IP_SET, "destroy", setName);
     }
 
 
-    public  static boolean   flushSet(String setName)
-            throws IOException
-    {
+    public static boolean flushSet(String setName)
+            throws IOException {
         return RuntimeUtil.exec(IP_SET, "flush", setName);
     }
 
-    /** Return true if the set exists (ipset list <setName> exit code 0). */
+    /**
+     * Return true if the set exists (ipset list <setName> exit code 0).
+     */
     public static boolean doSetExist(String setName)
-            throws IOException
-    {
+            throws IOException {
         ProcessBuilder pb = new ProcessBuilder("ipset", "list", setName);
         pb.redirectErrorStream(true);
         try {
@@ -119,10 +112,11 @@ public final class IPSetManager
         }
     }
 
-    /** Add an element (e.g. MAC or IP) to the set. */
+    /**
+     * Add an element (e.g. MAC or IP) to the set.
+     */
     public static boolean addToSet(String setName, String element)
-            throws IOException
-    {
+            throws IOException {
         return RuntimeUtil.exec(IP_SET, "add", setName, element);
     }
 
@@ -159,10 +153,11 @@ public final class IPSetManager
 //        }
 //    }
 
-    /** Remove an element from the set. */
-    public  static boolean removeFromSet(String setName, String element)
-            throws IOException
-    {
+    /**
+     * Remove an element from the set.
+     */
+    public static boolean removeFromSet(String setName, String element)
+            throws IOException {
         return RuntimeUtil.exec(IP_SET, "del", setName, element);
     }
 
@@ -170,16 +165,15 @@ public final class IPSetManager
      * Return true if element is in set (ipset test <set> <element>).
      * Exit code 0 = present, 1 = absent, >1 = error.
      */
-    public  static boolean setContains(String setName, String element)
-            throws IOException
-    {
+    public static boolean setContains(String setName, String element)
+            throws IOException {
         ProcessBuilder pb = new ProcessBuilder("ipset", "test", setName, element);
         pb.redirectErrorStream(true);
         try {
             Process p = pb.start();
             int rc = p.waitFor();
-            if (rc == 0)     return true;    // element present
-            if (rc == 1)     return false;   // element absent
+            if (rc == 0) return true;    // element present
+            if (rc == 1) return false;   // element absent
             throw new IOException("ipset test error, rc=" + rc);
         } catch (InterruptedException e) {
             throw new IOException("Failed to test membership", e);
@@ -190,9 +184,8 @@ public final class IPSetManager
      * List all members of the set by parsing `ipset list <setName>` output.
      * Returns an empty set if the set does not exist or has no members.
      */
-    public  static Set<String> listSet(String setName)
-            throws IOException
-    {
+    public static Set<String> listSet(String setName)
+            throws IOException {
         Set<String> members = new HashSet<>();
         if (!doSetExist(setName)) {
             return members;
@@ -255,12 +248,12 @@ public final class IPSetManager
 //    }
 
 
-
-    /** Demo. */
+    /**
+     * Demo.
+     */
     public static void main(String[] args) {
 
-        try
-        {
+        try {
             RateCounter rc = new RateCounter("xec");
             rc.start();
 
@@ -272,15 +265,15 @@ public final class IPSetManager
             // add a MAC
             String mac = "18:65:90:D2:CA:65";
             //String ip = "10.0.1.75";
-            if(!mgr.contains(mac))
+            if (!mgr.contains(mac))
                 mgr.add(mac);
             //SINGLETON.add(SET, ip);
 
 
             // check membership
             System.out.println(mac + " in set? " + mgr.contains(mac));
-            mgr.add( "28:65:90:D2:CA:65");
-            mgr.add( "38:65:90:D2:CA:65");
+            mgr.add("28:65:90:D2:CA:65");
+            mgr.add("38:65:90:D2:CA:65");
             mgr.add("48:65:90:D2:CA:65");
 
             // list members
@@ -300,9 +293,7 @@ public final class IPSetManager
             System.out.println("Destroyed set " + mgr.getName());
 
             System.out.println(Const.TimeInMillis.toString(rc.getDeltas()));
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

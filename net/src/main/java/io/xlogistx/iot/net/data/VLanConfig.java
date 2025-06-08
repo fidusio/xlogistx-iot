@@ -7,11 +7,9 @@ import org.zoxweb.shared.util.NVInt;
 import org.zoxweb.shared.util.SharedUtil;
 
 public class VLanConfig
-    extends PropertyHolder
-{
+        extends PropertyHolder {
     enum Params
-        implements GetName
-    {
+            implements GetName {
         ETHER("ether"),
         VLAN_ID("vlan_id"),
         IP_MASK("ip_mask"),
@@ -19,78 +17,69 @@ public class VLanConfig
         ;
 
         private final String name;
-        Params(String name)
-        {
+
+        Params(String name) {
             this.name = name;
         }
+
         @Override
         public String getName() {
             return name;
         }
     }
-    public VLanConfig(NVGenericMap ngvm)
-    {
+
+    public VLanConfig(NVGenericMap ngvm) {
         SharedUtil.checkIfNulls("NVGenericMap can't be null", ngvm);
         setProperties(ngvm);
     }
 
 
-    public String getEtherName()
-    {
+    public String getEtherName() {
         return getProperties().getValue(Params.ETHER);
     }
 
-    public VLanConfig setEtherName(String name)
-    {
+    public VLanConfig setEtherName(String name) {
         getProperties().add(Params.ETHER, name);
         return this;
     }
 
-    public int getVlanID()
-    {
+    public int getVlanID() {
         return getProperties().getValue(Params.VLAN_ID);
     }
 
-    public VLanConfig setVlanID(int vlanID)
-    {
+    public VLanConfig setVlanID(int vlanID) {
         getProperties().add(new NVInt(Params.VLAN_ID, vlanID));
         return this;
     }
 
-    public String getVlanName()
-    {
+    public String getVlanName() {
         return getEtherName() + "." + getVlanID();
     }
 
-    public String getIPNetmask()
-    {
+    public String getIPNetmask() {
         return getProperties().getValue(Params.IP_MASK);
     }
 
-    public VLanConfig setIPNetmask(String ipNetMask)
-    {
+    public VLanConfig setIPNetmask(String ipNetMask) {
         getProperties().add(Params.IP_MASK, ipNetMask);
         return this;
     }
-    public String getIP()
-    {
+
+    public String getIP() {
         String ipNetMask = getIPNetmask();
         return ipNetMask != null ? ipNetMask.split("/")[0] : null;
     }
 
-    public String getNetmask()
-    {
+    public String getNetmask() {
         String ipNetMask = getIPNetmask();
-        if(ipNetMask != null)
-        {
+        if (ipNetMask != null) {
             String[] parsed = ipNetMask.split("/");
-            if(parsed.length == 2)
+            if (parsed.length == 2)
                 return parsed[1];
 
         }
         return null;
     }
-
 
 
     @Override

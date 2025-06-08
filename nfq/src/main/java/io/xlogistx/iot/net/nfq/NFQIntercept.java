@@ -20,10 +20,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-/** Java ↔ NFQUEUE demo — IPv4 + TCP, two queues (100/101). */
+/**
+ * Java ↔ NFQUEUE demo — IPv4 + TCP, two queues (100/101).
+ */
 public final class NFQIntercept
-    implements Runnable, CloseableType
-{
+        implements Runnable, CloseableType {
 
     public static final String VERSION = "{\"name\":\"NFQIntercept\",\"major\":1,\"minor\":0,\"nano\":0}";
 
@@ -32,47 +33,66 @@ public final class NFQIntercept
 
     /*===============================================================================================*/
 
-    /** libnetfilter_queue symbols */
+    /**
+     * libnetfilter_queue symbols
+     */
     public interface LibNFQ {
         LibNFQ I = LibraryLoader.create(LibNFQ.class).load("netfilter_queue");
 
         Pointer nfq_open();
-        int     nfq_unbind_pf(Pointer h, int proto);
-        int     nfq_bind_pf  (Pointer h, int proto);
+
+        int nfq_unbind_pf(Pointer h, int proto);
+
+        int nfq_bind_pf(Pointer h, int proto);
 
         Pointer nfq_create_queue(Pointer h, int num,
                                  PacketHandler cb, Pointer userData);
-        int     nfq_destroy_queue(Pointer qh);
+
+        int nfq_destroy_queue(Pointer qh);
 
         int nfq_set_mode(Pointer qh, int mode, int range);
+
         int nfq_fd(Pointer h);
 
-        int     nfq_handle_packet(Pointer h, Pointer buf, int len);
-        int     nfq_set_verdict(Pointer qh, int id, int verdict,
-                                int dataLen, Pointer buf);
+        int nfq_handle_packet(Pointer h, Pointer buf, int len);
+
+        int nfq_set_verdict(Pointer qh, int id, int verdict,
+                            int dataLen, Pointer buf);
 
         Pointer nfq_get_msg_packet_hdr(Pointer nfad);
-        int     nfq_get_payload(Pointer nfad, PointerByReference dataPtr);
-        int     nfq_close(Pointer h);
+
+        int nfq_get_payload(Pointer nfad, PointerByReference dataPtr);
+
+        int nfq_close(Pointer h);
     }
 
-    /** Callback interface: jnr-ffi stub via @Delegate */
+    /**
+     * Callback interface: jnr-ffi stub via @Delegate
+     */
     public interface PacketHandler {
         @Delegate
         int invoke(Pointer qh, Pointer nfmsg,
                    Pointer nfadata, Pointer userData);
     }
 
-    /** libc read(2) + poll(2) */
+    /**
+     * libc read(2) + poll(2)
+     */
     public interface LibC {
         LibC I = LibraryLoader.create(LibC.class).load("c");
+
         int read(int fd, byte[] buf, int len);
+
         final class PollFD extends Struct {
-            public Signed32   fd      = new Signed32();
-            public Unsigned16 events  = new Unsigned16();
+            public Signed32 fd = new Signed32();
+            public Unsigned16 events = new Unsigned16();
             public Unsigned16 revents = new Unsigned16();
-            public PollFD(jnr.ffi.Runtime r) { super(r); }
+
+            public PollFD(jnr.ffi.Runtime r) {
+                super(r);
+            }
         }
+
         int poll(LibC.PollFD fds, int nfds, int timeoutMs);
     }
 
@@ -90,22 +110,25 @@ public final class NFQIntercept
     // constants & one‐off allocations
 
 
-
-    private static final int AF_INET   = 2;
+    private static final int AF_INET = 2;
     private static final int NF_ACCEPT = 1;
-    private static final int NF_DROP   = 0;
-    private static final int NFCOPY    = 2;
+    private static final int NF_DROP = 0;
+    private static final int NFCOPY = 2;
     private static final jnr.ffi.Runtime RUNTIME = jnr.ffi.Runtime.getSystemRuntime();
-    private static final Pointer EMPTY   = Pointer.wrap(RUNTIME, ByteBuffer.allocate(0));
+    private static final Pointer EMPTY = Pointer.wrap(RUNTIME, ByteBuffer.allocate(0));
 
-    /** Extract packet ID (network-order → host-order) */
+    /**
+     * Extract packet ID (network-order → host-order)
+     */
     private static int packetId(Pointer nfad, LibNFQ nfq) {
         Pointer hdr = nfq.nfq_get_msg_packet_hdr(nfad);
         int be = (hdr == null ? 0 : hdr.getInt(0));
         return Integer.reverseBytes(be);  // ntohl() :contentReference[oaicite:0]{index=0}
     }
 
-    /** Pull pointer to L3+ payload */
+    /**
+     * Pull pointer to L3+ payload
+     */
     private static Pointer payloadPtr(Pointer nfad, LibNFQ nfq) {
         PointerByReference ref = new PointerByReference();
         return (nfq.nfq_get_payload(nfad, ref) <= 0)
@@ -113,19 +136,17 @@ public final class NFQIntercept
     }
 
 
-    private static byte[] srcAddrAsBytes(Pointer nfad, LibNFQ nfq)
-    {
+    private static byte[] srcAddrAsBytes(Pointer nfad, LibNFQ nfq) {
         Pointer p = payloadPtr(nfad, nfq);
-        if (p == null) return  InetAddress.getLoopbackAddress().getAddress();
+        if (p == null) return InetAddress.getLoopbackAddress().getAddress();
 
         p.get(12, srcHost, 0, srcHost.length);
         return srcHost;
     }
 
-    private static byte[] dstAddrAsBytes(Pointer nfad, LibNFQ nfq)
-    {
+    private static byte[] dstAddrAsBytes(Pointer nfad, LibNFQ nfq) {
         Pointer p = payloadPtr(nfad, nfq);
-        if (p == null) return  InetAddress.getLoopbackAddress().getAddress();
+        if (p == null) return InetAddress.getLoopbackAddress().getAddress();
 
         p.get(16, dstHost, 0, dstHost.length);
         return dstHost;
@@ -139,7 +160,6 @@ public final class NFQIntercept
     }
 
 
-
     /*=========================Class Variables ======================================================*/
     public static final LogWrapper log = new LogWrapper(NFQIntercept.class).setEnabled(true);
     private final int incomingQueueNum;
@@ -151,18 +171,13 @@ public final class NFQIntercept
     private static final AtomicReference<NFQIntercept> instance = new AtomicReference<>();
 
 
-
-    public static NFQIntercept create(NetFilterByAddress netFilter, int incomingQueueNum, int outgoingQueueNum)
-    {
-        try
-        {
+    public static NFQIntercept create(NetFilterByAddress netFilter, int incomingQueueNum, int outgoingQueueNum) {
+        try {
             lock.lock();
             NFQIntercept found = instance.get();
             if (found == null || found.isClosed())
                 instance.set(new NFQIntercept(netFilter, incomingQueueNum, outgoingQueueNum));
-        }
-        finally
-        {
+        } finally {
             lock.unlock();
         }
 
@@ -170,11 +185,9 @@ public final class NFQIntercept
     }
 
 
-
-    private NFQIntercept(NetFilterByAddress netFilter, int incomingQueueNum, int outgoingQueueNum)
-    {
+    private NFQIntercept(NetFilterByAddress netFilter, int incomingQueueNum, int outgoingQueueNum) {
         SUS.checkIfNull("Null NetFiler", netFilter);
-        if(incomingQueueNum < 0 || outgoingQueueNum < 0 || incomingQueueNum == outgoingQueueNum)
+        if (incomingQueueNum < 0 || outgoingQueueNum < 0 || incomingQueueNum == outgoingQueueNum)
             throw new IllegalArgumentException("incomingQueueNum: " + incomingQueueNum + " outgoingQueueNum: " + outgoingQueueNum);
 
 
@@ -182,9 +195,6 @@ public final class NFQIntercept
         this.outgoingQueueNum = outgoingQueueNum;
         this.netFilter = netFilter;
     }
-
-
-
 
 
     /**
@@ -201,8 +211,7 @@ public final class NFQIntercept
      * @throws IOException if an I/O error occurs
      */
     @Override
-    public void close()
-    {
+    public void close() {
         alive = false;
     }
 
@@ -216,10 +225,9 @@ public final class NFQIntercept
         return !alive;
     }
 
-    public void run()
-    {
+    public void run() {
         try {
-            LibNFQ nfq =LibNFQ.I;
+            LibNFQ nfq = LibNFQ.I;
             Pointer h = nfq.nfq_open();
             if (h == null) throw new IllegalStateException("nfq_open failed");
 
@@ -287,10 +295,9 @@ public final class NFQIntercept
             }
 
 
-            try
-            {
+            try {
                 System.err.println("Shutting down NFQUEUE...");
-                if (qIn != null)  nfq.nfq_destroy_queue(qIn);
+                if (qIn != null) nfq.nfq_destroy_queue(qIn);
                 if (qOut != null) nfq.nfq_destroy_queue(qOut);
                 // optional: unbind
                 nfq.nfq_unbind_pf(h, AF_INET);
@@ -299,22 +306,15 @@ public final class NFQIntercept
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
             close();
         }
     }
 
 
-
-
-
-    public static void main(String[] args)
-    {
-        try
-        {
+    public static void main(String[] args) {
+        try {
             ParamUtil.ParamMap params = ParamUtil.parse("=", args);
             System.out.println(VERSION + "\n" + params);
             int incomingQueueId = params.intValue("in-queue");
@@ -334,36 +334,28 @@ public final class NFQIntercept
             filter.addOutgoingHost(outHost);
 
 
-
             NFQIntercept intercept = create(filter, incomingQueueId, outgoingQueueId);
             new Thread(intercept).start();
             long ttl = 0;
-            if (timeToLive != null)
-            {
-                try
-                {
+            if (timeToLive != null) {
+                try {
                     ttl = Const.TimeInMillis.toMillisNullZero(timeToLive);
-                }
-                catch (Exception e)
-                {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
-            if(ttl > 0 )
-            {
+            if (ttl > 0) {
 
                 System.out.println("We will work for  " + Const.TimeInMillis.toString(ttl));
                 long ts = System.currentTimeMillis();
 
-                TaskUtil.defaultTaskScheduler().queue(ttl,()->{
+                TaskUtil.defaultTaskScheduler().queue(ttl, () -> {
                     System.err.println("*Closing* after working for " + Const.TimeInMillis.toString(System.currentTimeMillis() - ts));
                     intercept.close();
                 });
                 TaskUtil.waitIfBusyThenClose(Const.TimeInMillis.SECOND.MILLIS);
             }
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
             System.err.println("Usage NetfilterIntercept: in-queue=netfilter-queue-number out-queue=netfilter-queue-number in-host=host out-host=host in-rule=[false or true] out-rule=[false or true] [dbg=true] [ttl=1:00:00 (run for one hour)]");
         }

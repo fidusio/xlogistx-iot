@@ -14,8 +14,7 @@ import org.zoxweb.shared.util.RateCounter;
 import java.io.IOException;
 
 public class UniFiController
-    extends RunnableProperties
-{
+        extends RunnableProperties {
     public static final LogWrapper log = new LogWrapper(UniFiController.class);
 
     private GetNameValue<String> securityCookie;
@@ -28,12 +27,12 @@ public class UniFiController
     }
 
 
-    public void run(){
+    public void run() {
         failed.reset();
         success.reset();
         try {
             if (getProperties().getValue("mac") != null) {
-                log.info("Restart device: " + getProperties().getValue("site") + "-" + getProperties().getValue("mac") );
+                log.info("Restart device: " + getProperties().getValue("site") + "-" + getProperties().getValue("mac"));
                 restart(getProperties().getValue("site"), getProperties().getValue("mac"), "hard");
             } else if (getProperties().getValue("site") != null) {
                 log.info("Restart site: " + getProperties().getValue("site"));
@@ -42,9 +41,7 @@ public class UniFiController
                 log.info("Restart all sites");
                 restartAll();
             }
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
             System.err.println("usage UniFiController url username password [site] [device mac address]");
         }
@@ -64,19 +61,17 @@ public class UniFiController
         return hro.getData();
     }
 
-    public void restart(String site, String mac, String rebootType) throws IOException{
+    public void restart(String site, String mac, String rebootType) throws IOException {
         long delta = System.currentTimeMillis();
-        try
-        {
+        try {
             internalRestart(site, mac, rebootType);
             success.register(System.currentTimeMillis() - delta);
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             failed.register(System.currentTimeMillis() - delta);
             throw e;
         }
     }
+
     private void internalRestart(String site, String mac, String rebootType) throws IOException {
         log.getLogger().info("Site: " + site);
         NVGenericMap localSite = (NVGenericMap) getAllSites().get(site);
@@ -94,13 +89,11 @@ public class UniFiController
 
     public void restartAll() throws IOException {
         NVGenericMap localSites = getAllSites();
-        for(GetNameValue<?> nvgm :  localSites.values()){
+        for (GetNameValue<?> nvgm : localSites.values()) {
             try {
 
                 restart(nvgm.getName());
-            }
-            catch(Exception e)
-            {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -109,15 +102,12 @@ public class UniFiController
 
     public void restart(String site) throws IOException {
         NVGenericMap devices = getSiteDevices(site);
-        for(GetNameValue<?> gnv: devices.values())
-        {
-            if(gnv instanceof NVGenericMapList)
-            {
+        for (GetNameValue<?> gnv : devices.values()) {
+            if (gnv instanceof NVGenericMapList) {
                 for (NVGenericMap device : ((NVGenericMapList) gnv).getValue()) {
                     try {
                         restart(site, device.getValue("mac"), "hard");
-                    }
-                    catch(Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
 
@@ -126,10 +116,10 @@ public class UniFiController
         }
     }
 
-    public  NVGenericMap getAllSites() throws IOException {
-        if(sites == null) {
+    public NVGenericMap getAllSites() throws IOException {
+        if (sites == null) {
             synchronized (this) {
-                if(sites == null) {
+                if (sites == null) {
                     HTTPMessageConfigInterface hmci = HTTPMessageConfig.createAndInit(getProperties().getValue("url"), "api/self/sites", "get");
                     hmci.setSecureCheckEnabled(false);
                     hmci.setContentType("application/json;charset=UTF-8");
@@ -146,14 +136,12 @@ public class UniFiController
         return sites;
     }
 
-    private synchronized void setSites(NVGenericMap nvgm){
+    private synchronized void setSites(NVGenericMap nvgm) {
         sites = new NVGenericMap();
-        for(GetNameValue<?> gnv: nvgm.values())
-        {
-            if(gnv instanceof NVGenericMapList)
-            {
+        for (GetNameValue<?> gnv : nvgm.values()) {
+            if (gnv instanceof NVGenericMapList) {
                 //log.info("Site List: " + gnv);
-                for(NVGenericMap site : ((NVGenericMapList)gnv).getValue()){
+                for (NVGenericMap site : ((NVGenericMapList) gnv).getValue()) {
                     String desc = site.getValue("desc");
                     site.setName(desc);
                     sites.add(site);
@@ -163,9 +151,8 @@ public class UniFiController
     }
 
 
-    public  GetNameValue<String> login()
-            throws IOException
-    {
+    public GetNameValue<String> login()
+            throws IOException {
         NVGenericMap nvgm = new NVGenericMap();
         nvgm.add(getProperties().get("username"));
         nvgm.add(getProperties().get("password"));
@@ -176,17 +163,16 @@ public class UniFiController
         hmci.setContentType("application/json;charset=UTF-8");
         //HTTPCall hc = new HTTPCall(hmci);
         HTTPResponseData hrd = OkHTTPCall.send(hmci);
-        if (hrd.getStatus() != HTTPStatusCode.OK.CODE)
-        {
+        if (hrd.getStatus() != HTTPStatusCode.OK.CODE) {
             throw new IOException("" + hrd);
         }
         return HTTPUtil.extractHeaderCookie(hrd);
     }
 
     public GetNameValue<String> getSecurityCookie() throws IOException {
-        if(securityCookie == null){
+        if (securityCookie == null) {
             synchronized (this) {
-                if(securityCookie == null){
+                if (securityCookie == null) {
                     securityCookie = login();
                 }
             }
@@ -194,8 +180,8 @@ public class UniFiController
         return securityCookie;
     }
 
-    public static void main(String ...args) {
-        try{
+    public static void main(String... args) {
+        try {
             UniFiController unifi = new UniFiController();
             int index = 0;
             String host = args[index++];
@@ -212,8 +198,7 @@ public class UniFiController
             unifi.getProperties().add("mac", macAddress);
 
             unifi.run();
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             System.err.println("usage UniFiController url username password [site] [device mac address]");
             e.printStackTrace();
         }

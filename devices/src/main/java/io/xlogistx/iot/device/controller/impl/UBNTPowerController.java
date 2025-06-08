@@ -8,13 +8,12 @@ import java.io.IOException;
 import java.util.logging.Logger;
 
 public class UBNTPowerController
-    extends RunnableProperties
-{
+        extends RunnableProperties {
 
     private static final transient Logger log = Logger.getLogger(UBNTPowerController.class.getName());
+
     public enum Param
-        implements GetName
-    {
+            implements GetName {
         URL("url"),
         USER("user"),
         PASSWORD("password"),
@@ -22,8 +21,8 @@ public class UBNTPowerController
         STATE("state"),
         ;
         private final String name;
-        Param(String name)
-        {
+
+        Param(String name) {
             this.name = name;
         }
 
@@ -35,40 +34,31 @@ public class UBNTPowerController
     }
 
 
-    public UBNTPowerController()
-    {
+    public UBNTPowerController() {
 
     }
 
-    public UBNTPowerController(NVGenericMap nvgm)
-    {
+    public UBNTPowerController(NVGenericMap nvgm) {
         setProperties(nvgm);
     }
 
     @Override
     public void run() {
 
-        try
-        {
-           exec();
-        }
-        catch (Exception e)
-        {
-            try
-            {
+        try {
+            exec();
+        } catch (Exception e) {
+            try {
                 exec();
-            }
-            catch (Exception ee)
-            {
+            } catch (Exception ee) {
                 ee.printStackTrace();
-                log.info("FAILED: " +Thread.currentThread() +  ", " + getProperties().getValue(Param.URL) + ", " + getProperties().getValue(Param.STATE));
+                log.info("FAILED: " + Thread.currentThread() + ", " + getProperties().getValue(Param.URL) + ", " + getProperties().getValue(Param.STATE));
             }
         }
 
     }
 
-    private void exec() throws IOException
-    {
+    private void exec() throws IOException {
         String url = getProperties().getValue(Param.URL);
 
         UBNTEqpt.controlPort(
@@ -78,6 +68,6 @@ public class UBNTPowerController
                 getProperties().getValue(Param.PORT),
                 getProperties().getValue(Param.STATE),
                 null);
-        log.info(Thread.currentThread() +  ", " + url + ", " + getProperties().getValue(Param.STATE));
+        log.info(Thread.currentThread() + ", " + url + ", " + getProperties().getValue(Param.STATE));
     }
 }

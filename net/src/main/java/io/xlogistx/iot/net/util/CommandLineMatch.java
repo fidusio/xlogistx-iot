@@ -12,12 +12,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.StringReader;
 
-public class CommandLineMatch
-{
-    public static void main(String ...args)
-    {
-        try
-        {
+public class CommandLineMatch {
+    public static void main(String... args) {
+        try {
             ParamUtil.ParamMap params = ParamUtil.parse("=", args);
             String command = params.stringValue("command", false);
             String lineMatch = params.stringValue("match", false);
@@ -29,18 +26,13 @@ public class CommandLineMatch
 
             String line;
             NVStringList matches = new NVStringList();
-            while((line = br.readLine()) != null)
-            {
-                if (line.contains(lineMatch))
-                {
+            while ((line = br.readLine()) != null) {
+                if (line.contains(lineMatch)) {
                     String[] parsedLine = line.split(" ");
-                    for(int i = 0; i < parsedLine.length; i++)
-                    {
-                        if(parsedLine[i].equalsIgnoreCase(valueName))
-                        {
-                            if (i+1 < parsedLine.length)
-                            {
-                                matches.add(parsedLine[i+1]);
+                    for (int i = 0; i < parsedLine.length; i++) {
+                        if (parsedLine[i].equalsIgnoreCase(valueName)) {
+                            if (i + 1 < parsedLine.length) {
+                                matches.add(parsedLine[i + 1]);
                                 break;
                             }
                         }
@@ -54,10 +46,8 @@ public class CommandLineMatch
             System.out.println(json);
             System.out.println("we have " + matches.getValue().size() + " matches");
 
-            if(output != null)
-            {
-                if(!output.endsWith(".json"))
-                {
+            if (output != null) {
+                if (!output.endsWith(".json")) {
                     output += ".json";
                 }
 

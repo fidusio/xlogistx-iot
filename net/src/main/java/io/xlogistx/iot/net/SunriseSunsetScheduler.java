@@ -22,8 +22,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 public class SunriseSunsetScheduler
-    implements WaitTime<SunriseSunsetScheduler>, Runnable, CronScheduler
-{
+        implements WaitTime<SunriseSunsetScheduler>, Runnable, CronScheduler {
 
     private static final Logger log = Logger.getLogger(SunriseSunsetScheduler.class.getName());
     private final String ip;
@@ -51,20 +50,18 @@ public class SunriseSunsetScheduler
     private String apiService;
 
     public SunriseSunsetScheduler(Executor executor, String ip)
-            throws IOException
-    {
+            throws IOException {
         this.ip = ip;
         this.executor = executor;
 
         IPGeoLocation ipGeoLocation = new IPGeoLocation();
         NVGenericMap resultGeoLoc = ipGeoLocation.lookup(ip);
-        latitude = (float)resultGeoLoc.getValue(IPGeoLocation.Params.LATITUDE);
-        longitude = (float)resultGeoLoc.getValue(IPGeoLocation.Params.LONGITUDE);
+        latitude = (float) resultGeoLoc.getValue(IPGeoLocation.Params.LATITUDE);
+        longitude = (float) resultGeoLoc.getValue(IPGeoLocation.Params.LONGITUDE);
     }
 
     public SunriseSunsetScheduler(Executor executor, String ip, float latitude, float longitude)
-            throws IOException
-    {
+            throws IOException {
         this.ip = ip;
         this.executor = executor;
         this.latitude = latitude;
@@ -74,14 +71,9 @@ public class SunriseSunsetScheduler
 
 
     @Override
-    public long nextWait()
-    {
+    public long nextWait() {
         return currentWait;
     }
-
-
-
-
 
 
     @Override
@@ -89,10 +81,8 @@ public class SunriseSunsetScheduler
         return this;
     }
 
-    public void run()
-    {
-        try
-        {
+    public void run() {
+        try {
             long deltaSunrise;
             long deltaSunset;
             if (getAPIService() == null) {
@@ -111,42 +101,36 @@ public class SunriseSunsetScheduler
                 lastUpdate = System.currentTimeMillis();
                 deltaSunrise = currentSunrise - lastUpdate;
                 deltaSunset = currentSunset - lastUpdate;
-            }
-            else
-            {
+            } else {
                 HTTPResponseData hrd = HTTPCall.send(HTTPMessageConfig.createAndInit(apiService, null, HTTPMethod.GET));
                 NVGenericMap resp = GSONUtil.fromJSONGenericMap(hrd.getData());
-                deltaSunrise = (int)resp.getValue("sunrise-millis");
-                deltaSunset = (int)resp.getValue("sunset-millis");
+                deltaSunrise = (int) resp.getValue("sunrise-millis");
+                deltaSunset = (int) resp.getValue("sunset-millis");
             }
 
-            log.info("To sunrise: " + deltaSunrise +  " " + Const.TimeInMillis.toString(deltaSunrise));
-            log.info("To sunset: " + deltaSunset +  " " + Const.TimeInMillis.toString(deltaSunset));
+            log.info("To sunrise: " + deltaSunrise + " " + Const.TimeInMillis.toString(deltaSunrise));
+            log.info("To sunset: " + deltaSunset + " " + Const.TimeInMillis.toString(deltaSunset));
             // day sunset is always > sunrise
             // if deltaSunrise and deltaSunset negative, we are past sunset must look for next day
             // if deltaSunrise and deltaSunset positive, wait till sunrise
             // if deltaSunrise - and deltaSunset +, wait till sunset
 
-            if (deltaSunrise > 0 && deltaSunset > 0)
-            {
+            if (deltaSunrise > 0 && deltaSunset > 0) {
                 // if deltaSunrise and deltaSunset positive, wait till sunrise
                 // NIGHT time
 
                 currentType = Type.NIGHT;
                 currentWait = deltaSunrise;
-                synchronized (this)
-                {
+                synchronized (this) {
                     for (Runnable night : duringNight)
                         executeRunnable(night);
                 }
             }
-            if (deltaSunrise < 0 && deltaSunset > 0)
-            {
+            if (deltaSunrise < 0 && deltaSunset > 0) {
                 // DAY time
                 currentType = Type.DAY;
                 currentWait = deltaSunset;
-                synchronized (this)
-                {
+                synchronized (this) {
                     for (Runnable day : duringDay)
                         executeRunnable(day);
                 }
@@ -155,38 +139,33 @@ public class SunriseSunsetScheduler
             }
 
             log.info("Now: " + currentType + ", will wait till: " + Const.TimeInMillis.toString(currentWait));
-        }
-        catch(Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
-            currentWait = Const.TimeInMillis.SECOND.MILLIS*30;
+            currentWait = Const.TimeInMillis.SECOND.MILLIS * 30;
         }
 
     }
 
-    private void executeRunnable(Runnable rp)
-    {
+    private void executeRunnable(Runnable rp) {
         if (executor != null)
             executor.execute(rp);
         else
             rp.run();
     }
 
-    public synchronized boolean schedule(String cron, Runnable rp)
-    {
+    public synchronized boolean schedule(String cron, Runnable rp) {
         Type ct = Type.lookup(cron);
         SUS.checkIfNulls("Value not null", ct, rp);
-        switch(ct)
-        {
+        switch (ct) {
             case DAY:
                 duringDay.add(rp);
-                if(currentType == Type.DAY)
+                if (currentType == Type.DAY)
                     executeRunnable(rp);
                 log.info("scheduled: " + ct);
                 return true;
             case NIGHT:
                 duringNight.add(rp);
-                if(currentType == Type.NIGHT)
+                if (currentType == Type.NIGHT)
                     executeRunnable(rp);
                 log.info("scheduled: " + ct);
                 return true;

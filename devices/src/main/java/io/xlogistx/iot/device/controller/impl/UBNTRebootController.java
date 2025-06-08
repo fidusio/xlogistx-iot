@@ -8,20 +8,19 @@ import org.zoxweb.shared.util.NVGenericMapList;
 import java.util.logging.Logger;
 
 public class UBNTRebootController
-    extends RunnableProperties
-{
+        extends RunnableProperties {
     private static final transient Logger log = Logger.getLogger(UBNTPowerController.class.getName());
+
     public enum Param
-            implements GetName
-    {
+            implements GetName {
         DEVICES("devices"),
         URL("url"),
         USER("user"),
         PASSWORD("password"),
         ;
         private final String name;
-        Param(String name)
-        {
+
+        Param(String name) {
             this.name = name;
         }
 
@@ -33,34 +32,27 @@ public class UBNTRebootController
     }
 
 
-    public UBNTRebootController()
-    {
+    public UBNTRebootController() {
 
     }
 
-    public UBNTRebootController(NVGenericMap nvgm)
-    {
+    public UBNTRebootController(NVGenericMap nvgm) {
         setProperties(nvgm);
     }
 
     @Override
-    public void run()
-    {
+    public void run() {
         // get the devices
-        NVGenericMapList nvgml = (NVGenericMapList)getProperties().get(Param.DEVICES);
-        for(NVGenericMap nvgm : nvgml.getValue())
-        {
+        NVGenericMapList nvgml = (NVGenericMapList) getProperties().get(Param.DEVICES);
+        for (NVGenericMap nvgm : nvgml.getValue()) {
             String url = nvgm.getValue(Param.URL);
             String user = nvgm.getValue(Param.USER);
             String password = nvgm.getValue(Param.PASSWORD);
-            try
-            {
+            try {
 
                 UBNTEqpt.reboot(url, user, password, null);
                 log.info("rebooted: " + url);
-            }
-            catch(Exception e)
-            {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

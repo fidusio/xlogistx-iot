@@ -14,8 +14,7 @@ import java.util.Date;
 
 public class SunriseSunset {
     public enum Params
-            implements GetNameValue<String>
-    {
+            implements GetNameValue<String> {
         URL("url", "http://api.sunrise-sunset.org/json"),
         LATITUDE("lat", null),
         LONGITUDE("lng", null),
@@ -27,8 +26,8 @@ public class SunriseSunset {
         ;
         private final String name;
         private final String value;
-        Params(String name, String value)
-        {
+
+        Params(String name, String value) {
             this.name = name;
             this.value = value;
         }
@@ -46,38 +45,34 @@ public class SunriseSunset {
 
 
     private String endpoint;
-    public SunriseSunset()
-    {
+
+    public SunriseSunset() {
         this(Params.URL.getValue());
     }
 
-    public SunriseSunset(String endpoint)
-    {
+    public SunriseSunset(String endpoint) {
         this.endpoint = endpoint;
     }
 
 
     public NVGenericMap lookup(float latitude, float longitude, String date)
-            throws IOException
-    {
-        return lookup(""+latitude, "" + longitude, date);
+            throws IOException {
+        return lookup("" + latitude, "" + longitude, date);
     }
 
     public NVGenericMap lookup(double latitude, double longitude, String date)
-            throws IOException
-    {
-        return lookup(""+latitude, "" + longitude, date);
+            throws IOException {
+        return lookup("" + latitude, "" + longitude, date);
     }
 
     public NVGenericMap lookup(String latitude, String longitude, String date)
-            throws IOException
-    {
+            throws IOException {
         HTTPMessageConfigInterface hmci = HTTPMessageConfig.createAndInit(endpoint, null, HTTPMethod.GET, true);
         hmci.setRedirectEnabled(true);
         hmci.setHTTPParameterFormatter(HTTPEncoder.URL_ENCODED);
         hmci.getParameters().add(new NVPair(Params.LATITUDE, latitude));
         hmci.getParameters().add(new NVPair(Params.LONGITUDE, longitude));
-        if(date!=null)
+        if (date != null)
             hmci.getParameters().add(new NVPair(Params.DATE, date));
         hmci.getParameters().add(new NVPair(Params.FORMATTED));
         HTTPResponseData hrd = OkHTTPCall.send(hmci);
@@ -85,20 +80,18 @@ public class SunriseSunset {
         return (NVGenericMap) result.get("results");
     }
 
-    public static void main(String... args)
-    {
-        try
-        {
+    public static void main(String... args) {
+        try {
             int index = 0;
             String ip = args.length > index ? args[index++] : null;
             IPGeoLocation ipGeoLocation = new IPGeoLocation();
             NVGenericMap resultGeoLoc = ipGeoLocation.lookup(ip);//"iot.xlogistx.io");
             SunriseSunset sunsetSunrise = new SunriseSunset();
-            NVGenericMap resultSS = sunsetSunrise.lookup( (float)resultGeoLoc.getValue(IPGeoLocation.Params.LATITUDE), resultGeoLoc.getValue(IPGeoLocation.Params.LONGITUDE), null);
+            NVGenericMap resultSS = sunsetSunrise.lookup((float) resultGeoLoc.getValue(IPGeoLocation.Params.LATITUDE), resultGeoLoc.getValue(IPGeoLocation.Params.LONGITUDE), null);
 
 
-            System.out.println("sunrise: "+ new Date((long)resultSS.getValue(SunriseSunset.Params.SUNRISE.getName())) +" sunset: " +
-                    new Date((long)resultSS.getValue(SunriseSunset.Params.SUNSET.getName())));
+            System.out.println("sunrise: " + new Date((long) resultSS.getValue(SunriseSunset.Params.SUNRISE.getName())) + " sunset: " +
+                    new Date((long) resultSS.getValue(SunriseSunset.Params.SUNSET.getName())));
 
 
             long sunrise = resultSS.getValue(SunriseSunset.Params.SUNRISE.getName());
@@ -108,11 +101,9 @@ public class SunriseSunset {
             long deltaSunrise = sunrise - current;
             long deltaSunset = sunset - current;
 
-            System.out.println("To sunrise: " + deltaSunrise +  " " + Const.TimeInMillis.toString(deltaSunrise));
-            System.out.println("To sunset: " + deltaSunrise +  " " + Const.TimeInMillis.toString(deltaSunset));
-        }
-        catch (Exception e)
-        {
+            System.out.println("To sunrise: " + deltaSunrise + " " + Const.TimeInMillis.toString(deltaSunrise));
+            System.out.println("To sunset: " + deltaSunrise + " " + Const.TimeInMillis.toString(deltaSunset));
+        } catch (Exception e) {
             e.printStackTrace();
 
         }
