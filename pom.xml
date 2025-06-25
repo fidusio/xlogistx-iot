@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>io.xlogistx</groupId>
-    <artifactId>xlogistx</artifactId>
+    <parent>
+        <groupId>io.xlogistx</groupId>
+        <artifactId>xlogistx</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <name>xlogistx-iot</name>
+    <artifactId>xlogistx-iot</artifactId>
     <version>1.0.0</version>
-  </parent>
-
-  <name>xlogistx-iot</name>
-  <artifactId>xlogistx-iot</artifactId>
-  <version>1.0.0</version>
-  <packaging>pom</packaging>
+    <packaging>pom</packaging>
 
 
-  <modules>
-      <module>common</module>
-      <module>gpio</module>
-      <module>devices</module>
-      <module>assembly</module>
-      <module>net</module>
-      <module>usb</module>
-      <module>nfq</module>
-  </modules>
+    <modules>
+        <module>common</module>
+        <module>gpio</module>
+        <module>devices</module>
+        <module>assembly</module>
+        <module>net</module>
+        <module>usb</module>
+        <module>nfq</module>
+    </modules>
 
 
     <properties>
@@ -36,6 +36,7 @@
         <jna.version>RELEASE</jna.version>
         <pcap4j.version>1.8.2</pcap4j.version>
         <jnr-ffi.version>RELEASE</jnr-ffi.version>
+        <okhttp.version>4.12.0</okhttp.version>
 
     </properties>
 
@@ -111,24 +112,29 @@
         </plugins>
     </build>
 
-   <dependencies>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-params</artifactId>
-      <version>${junit.version}</version>
-    </dependency>
+    <dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>${junit.version}</version>
+        </dependency>
 
-     <dependency>
-       <groupId>org.zoxweb</groupId>
-       <artifactId>zoxweb-core</artifactId>
-       <version>${zoxweb-core.version}</version>
-     </dependency>
+        <dependency>
+            <groupId>org.zoxweb</groupId>
+            <artifactId>zoxweb-core</artifactId>
+            <version>${zoxweb-core.version}</version>
+        </dependency>
 
-     <dependency>
-       <groupId>io.xlogistx</groupId>
-       <artifactId>xlogistx-common</artifactId>
-       <version>${xlogistx.version}</version>
-     </dependency>
-  </dependencies>
+        <dependency>
+            <groupId>io.xlogistx</groupId>
+            <artifactId>xlogistx-common</artifactId>
+            <version>${xlogistx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>${okhttp.version}</version>
+        </dependency>
+    </dependencies>
 
 </project>
