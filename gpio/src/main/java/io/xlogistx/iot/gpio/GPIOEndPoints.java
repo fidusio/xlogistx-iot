@@ -2,7 +2,7 @@ package io.xlogistx.iot.gpio;
 
 import com.pi4j.io.gpio.Pin;
 import com.pi4j.io.gpio.PinState;
-import io.xlogistx.common.data.PropertyHolder;
+import io.xlogistx.common.data.PropertyContainer;
 import org.zoxweb.shared.annotation.EndPointProp;
 import org.zoxweb.shared.annotation.ParamProp;
 import org.zoxweb.shared.annotation.SecurityProp;
@@ -23,7 +23,7 @@ import java.util.logging.Logger;
         permissions = "gpio:access",
         protocols = {URIScheme.HTTPS})
 public class GPIOEndPoints
-extends PropertyHolder
+extends PropertyContainer<NVGenericMap>
 {
 
     private static final Logger log = Logger.getLogger(GPIOEndPoints.class.getName());

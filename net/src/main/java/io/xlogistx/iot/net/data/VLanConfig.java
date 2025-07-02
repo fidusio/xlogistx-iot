@@ -1,13 +1,13 @@
 package io.xlogistx.iot.net.data;
 
-import io.xlogistx.common.data.PropertyHolder;
+import io.xlogistx.common.data.PropertyContainer;
 import org.zoxweb.shared.util.GetName;
 import org.zoxweb.shared.util.NVGenericMap;
 import org.zoxweb.shared.util.NVInt;
 import org.zoxweb.shared.util.SharedUtil;
 
 public class VLanConfig
-        extends PropertyHolder {
+        extends PropertyContainer<NVGenericMap> {
     enum Params
             implements GetName {
         ETHER("ether"),

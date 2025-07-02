@@ -3,10 +3,10 @@ package io.xlogistx.iot.gpio.i2c;
 import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
 import io.xlogistx.common.data.MessageCodec;
-import io.xlogistx.common.data.PropertyHolder;
-import io.xlogistx.iot.gpio.i2c.modules.ADS1115;
+import io.xlogistx.common.data.PropertyContainer;
 import io.xlogistx.iot.gpio.DataFilterManager;
 import io.xlogistx.iot.gpio.MultiplierDataFilter;
+import io.xlogistx.iot.gpio.i2c.modules.ADS1115;
 import org.zoxweb.shared.annotation.EndPointProp;
 import org.zoxweb.shared.annotation.ParamProp;
 import org.zoxweb.shared.annotation.SecurityProp;
@@ -26,7 +26,7 @@ import java.util.logging.Logger;
         CryptoConst.AuthenticationType.JWT},
         permissions = "i2c:access")
 public class I2CEndPoints
-    extends PropertyHolder
+    extends PropertyContainer<NVGenericMap>
 {
     private static final Logger log = Logger.getLogger(I2CEndPoints.class.getName());
 
