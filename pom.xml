@@ -20,7 +20,7 @@
         <module>common</module>
         <module>gpio</module>
         <module>devices</module>
-        <module>assembly</module>
+        <!--        <module>assembly</module>-->
         <module>net</module>
         <module>usb</module>
         <module>nfq</module>
