@@ -34,7 +34,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class I2CUtil
 {
 
-    public static final String VERSION = "I2C-UTIL-1.04.13";
+    public static final String VERSION = "I2C-UTIL-1.04.14";
     public static final LogWrapper log = new LogWrapper(I2CUtil.class);
 
     //private Map<String, I2CBaseDevice> i2cDevices = new HashMap<>();
