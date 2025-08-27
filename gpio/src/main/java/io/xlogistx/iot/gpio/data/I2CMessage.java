@@ -8,26 +8,23 @@ import org.zoxweb.shared.util.*;
 
 public class I2CMessage extends SimpleMessage {
     public enum Param
-            implements GetNVConfig
-    {
+            implements GetNVConfig {
         I2C_BUS(NVConfigManager.createNVConfig("i2c-bus", "I2C Bus", "I2CBus", false, true, int.class)),
         I2C_ADDRESS(NVConfigManager.createNVConfig("i2c-address", "I2C device address", "I2CAddress", false, true, int.class)),
         ;
 
         private final NVConfig nvc;
 
-        Param(NVConfig nvc)
-        {
+        Param(NVConfig nvc) {
             this.nvc = nvc;
         }
 
-        public NVConfig getNVConfig()
-        {
+        public NVConfig getNVConfig() {
             return nvc;
         }
     }
 
-    public static final NVConfigEntity NVC_I2C_MESSAGE = new NVConfigEntityLocal(
+    public static final NVConfigEntity NVC_I2C_MESSAGE = new NVConfigEntityPortable(
             "i2c_message",
             "I2C message",
             "I2CMessage",
@@ -43,8 +40,7 @@ public class I2CMessage extends SimpleMessage {
     );
 
 
-    public I2CMessage()
-    {
+    public I2CMessage() {
         super(NVC_I2C_MESSAGE);
     }
 
@@ -52,8 +48,7 @@ public class I2CMessage extends SimpleMessage {
      * Returns i2c bus id.
      * @return
      */
-    public int getBus()
-    {
+    public int getBus() {
         return lookupValue(Param.I2C_BUS);
     }
 
@@ -61,15 +56,16 @@ public class I2CMessage extends SimpleMessage {
      * Sets bus id
      * @param bus
      */
-    public void setBus(int bus) { setValue(Param.I2C_BUS, bus); }
+    public void setBus(int bus) {
+        setValue(Param.I2C_BUS, bus);
+    }
 
 
     /**
      * Returns i2c address.
      * @return
      */
-    public int getAddress()
-    {
+    public int getAddress() {
         return lookupValue(Param.I2C_ADDRESS);
     }
 
@@ -77,5 +73,7 @@ public class I2CMessage extends SimpleMessage {
      * Sets i2c address
      * @param bus
      */
-    public void setAddress(int bus) { setValue(Param.I2C_ADDRESS, bus); }
+    public void setAddress(int bus) {
+        setValue(Param.I2C_ADDRESS, bus);
+    }
 }

@@ -24,7 +24,7 @@ public class COMM
         }
     }
 
-    public static final NVConfigEntity NVC_COMM = new NVConfigEntityLocal("comm",
+    public static final NVConfigEntity NVC_COMM = new NVConfigEntityPortable("comm",
             null,
             "COMM",
             true,

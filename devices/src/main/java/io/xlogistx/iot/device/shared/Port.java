@@ -23,7 +23,7 @@ public class Port extends PropertyDAO {
         }
     }
 
-    public static final NVConfigEntity NVC_PORT = new NVConfigEntityLocal("port",
+    public static final NVConfigEntity NVC_PORT = new NVConfigEntityPortable("port",
             null,
             "Port",
             true,

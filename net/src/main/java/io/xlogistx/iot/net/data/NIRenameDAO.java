@@ -32,7 +32,7 @@ public class NIRenameDAO
     }
 
 
-    public static final NVConfigEntity NVC_NI_RENAME_DAO = new NVConfigEntityLocal("ni_rename_dao",
+    public static final NVConfigEntity NVC_NI_RENAME_DAO = new NVConfigEntityPortable("ni_rename_dao",
             null,
             "NIRenameDAO",
             true,

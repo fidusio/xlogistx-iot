@@ -34,7 +34,7 @@ public class TaskConfig
         }
     }
 
-    public static final NVConfigEntity NVC_TASK_CONFIG = new NVConfigEntityLocal("TASK_CONFIG",
+    public static final NVConfigEntity NVC_TASK_CONFIG = new NVConfigEntityPortable("task_config",
             null,
             "TaskConfig",
             true,

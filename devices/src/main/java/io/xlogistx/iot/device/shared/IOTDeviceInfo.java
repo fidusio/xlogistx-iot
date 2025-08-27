@@ -32,7 +32,7 @@ public class IOTDeviceInfo
     /**
      * This NVConfigEntity type constant is set to an instantiation of a NVConfigEntityLocal object based on DataContentDAO.
      */
-    public static final NVConfigEntity NVC_IOT_DEVICE_INFO = new NVConfigEntityLocal("iot_device_info",
+    public static final NVConfigEntity NVC_IOT_DEVICE_INFO = new NVConfigEntityPortable("iot_device_info",
             null,
             "IOTDeviceInfo",
             true,

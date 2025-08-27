@@ -2,11 +2,9 @@ package io.xlogistx.iot.net.data;
 
 
 import org.zoxweb.shared.data.PropertyDAO;
-
-
 import org.zoxweb.shared.util.GetName;
 import org.zoxweb.shared.util.NVConfigEntity;
-import org.zoxweb.shared.util.NVConfigEntityLocal;
+import org.zoxweb.shared.util.NVConfigEntityPortable;
 import org.zoxweb.shared.util.SharedUtil;
 
 
@@ -38,7 +36,7 @@ public class OSConfigDAO
     /**
      * This NVConfigEntity type constant is set to an instantiation of a NVConfigEntityLocal object based on DataContentDAO.
      */
-    public static final NVConfigEntity NVC_OS_CONFIG_PROPERTIES_DAO = new NVConfigEntityLocal("os_config_dao",
+    public static final NVConfigEntity NVC_OS_CONFIG_PROPERTIES_DAO = new NVConfigEntityPortable("os_config_dao",
             null,
             "OSConfigDAO",
             true,
