@@ -13,14 +13,7 @@
     <artifactId>xlogistx-iot-net</artifactId>
 
 
-
     <dependencies>
-<!--        <dependency>-->
-<!--            <groupId>org.junit.jupiter</groupId>-->
-<!--            <artifactId>junit-jupiter-params</artifactId>-->
-<!--            <scope>test</scope>-->
-<!--            <version>${junit.version}</version>-->
-<!--        </dependency>-->
 
         <dependency>
             <groupId>org.pcap4j</groupId>

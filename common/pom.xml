@@ -1,52 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>io.xlogistx</groupId>
-    <artifactId>xlogistx-iot</artifactId>
-    <version>1.0.0</version>
-  </parent>
-
-
-  <artifactId>xlogistx-iot-common</artifactId>
+    <parent>
+        <groupId>io.xlogistx</groupId>
+        <artifactId>xlogistx-iot</artifactId>
+        <version>1.0.0</version>
+    </parent>
 
 
-
-  <properties>
-    <artemismq.version>2.32.0</artemismq.version>
-  </properties>
-
-  <dependencies>
-    <dependency>
-      <groupId>org.eclipse.paho</groupId>
-      <artifactId>org.eclipse.paho.mqttv5.client</artifactId>
-      <version>${mqtt-paho.version}</version>
-    </dependency>
+    <artifactId>xlogistx-iot-common</artifactId>
 
 
-    <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>apache-artemis</artifactId>
-      <version>${artemismq.version}</version>
-      <type>pom</type>
-    </dependency>
+    <properties>
+        <artemismq.version>2.32.0</artemismq.version>
+    </properties>
 
-    <!--
-    <dependency>
-      <groupId>com.hivemq</groupId>
-      <artifactId>hivemq-mqtt-client</artifactId>
-      <version>${hive.version}</version>
-    </dependency>
+    <dependencies>
+        <dependency>
+            <groupId>org.eclipse.paho</groupId>
+            <artifactId>org.eclipse.paho.mqttv5.client</artifactId>
+            <version>${mqtt-paho.version}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>org.zoxweb</groupId>
-      <artifactId>zoxweb-core</artifactId>
-    </dependency>
-    -->
 
-  </dependencies>
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>apache-artemis</artifactId>
+            <version>${artemismq.version}</version>
+            <type>pom</type>
+        </dependency>
+
+
+    </dependencies>
 
 </project>
