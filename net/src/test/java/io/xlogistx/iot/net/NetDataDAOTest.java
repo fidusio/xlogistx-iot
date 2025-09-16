@@ -3,8 +3,8 @@ package io.xlogistx.iot.net;
 
 import java.io.IOException;
 
-import io.xlogistx.iot.net.data.NIRenameDAO;
-import io.xlogistx.iot.net.data.OSConfigDAO;
+import io.xlogistx.iot.net.data.NIRenameConfig;
+import io.xlogistx.iot.net.data.OSConfig;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.zoxweb.server.util.GSONUtil;
@@ -16,7 +16,7 @@ public class NetDataDAOTest {
 
   @Test
   public void niRenameDAO() throws IOException {
-   NIRenameDAO nir = new NIRenameDAO();
+   NIRenameConfig nir = new NIRenameConfig();
    nir.setName("NIRename");
    nir.setDescription("NI rename dao config");
    nir.setNIToName("eth1");
@@ -27,7 +27,7 @@ public class NetDataDAOTest {
    String json = GSONUtil.toJSON(nir, true, false, false);
    System.out.println(json);
    
-   nir = GSONUtil.fromJSON(json, NIRenameDAO.class);
+   nir = GSONUtil.fromJSON(json, NIRenameConfig.class);
    json = GSONUtil.toJSON(nir, true, true, true);
    System.out.println(json);
    
@@ -41,7 +41,7 @@ public class NetDataDAOTest {
   
   @Test
   public void osConfigDAO() throws IOException {
-   OSConfigDAO oscd = new OSConfigDAO();
+   OSConfig oscd = new OSConfig();
    oscd.setName("ArmBian");
    oscd.setDescription("ArmBian linux os for arm SBCs");
    oscd.setIfDownCommand("ifdown");
@@ -52,7 +52,7 @@ public class NetDataDAOTest {
    String json = GSONUtil.toJSON(oscd, true, false, false);
    System.out.println(json);
    
-   oscd = GSONUtil.fromJSON(json, OSConfigDAO.class);
+   oscd = GSONUtil.fromJSON(json, OSConfig.class);
    json = GSONUtil.toJSON(oscd, true, true, true);
    System.out.println(json);
    

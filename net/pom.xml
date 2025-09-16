@@ -19,12 +19,14 @@
             <groupId>org.pcap4j</groupId>
             <artifactId>pcap4j-core</artifactId>
             <version>${pcap4j.version}</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>org.pcap4j</groupId>
             <artifactId>pcap4j-packetfactory-static</artifactId>
             <version>${pcap4j.version}</version>
+            <scope>compile</scope>
 
         </dependency>
 

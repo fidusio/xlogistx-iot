@@ -6,7 +6,7 @@ import org.zoxweb.shared.util.*;
 import java.util.List;
 
 @SuppressWarnings("serial")
-public class NIRenameDAO
+public class NIRenameConfig
         extends PropertyDAO {
 
     public enum Param
@@ -32,7 +32,7 @@ public class NIRenameDAO
     }
 
 
-    public static final NVConfigEntity NVC_NI_RENAME_DAO = new NVConfigEntityPortable("ni_rename_dao",
+    public static final NVConfigEntity NVC_NI_RENAME_DAO = new NVConfigEntityPortable("ni_rename",
             null,
             "NIRenameDAO",
             true,
@@ -45,7 +45,7 @@ public class NIRenameDAO
             false,
             PropertyDAO.NVC_PROPERTY_DAO);
 
-    public NIRenameDAO() {
+    public NIRenameConfig() {
         super(NVC_NI_RENAME_DAO);
         setFilteredNIs();
     }

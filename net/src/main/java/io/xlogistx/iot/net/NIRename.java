@@ -1,7 +1,7 @@
 package io.xlogistx.iot.net;
 
-import io.xlogistx.iot.net.data.NIRenameDAO;
-import io.xlogistx.iot.net.data.OSConfigDAO;
+import io.xlogistx.iot.net.data.NIRenameConfig;
+import io.xlogistx.iot.net.data.OSConfig;
 import org.zoxweb.server.util.RuntimeUtil;
 import org.zoxweb.shared.util.SUS;
 
@@ -12,37 +12,37 @@ import java.util.logging.Logger;
 
 public class NIRename {
 
-    private static final transient Logger log = Logger.getLogger(NIRename.class.getName());
+    private static final  Logger log = Logger.getLogger(NIRename.class.getName());
 
     private NIRename() {
     }
 
-    public static NIRenameDAO renameNI(OSConfigDAO oscd, NIRenameDAO nird, long upDelay) throws IOException, InterruptedException {
-        SUS.checkIfNulls("Null nird or parameters", oscd, nird, nird.getNIToName(), nird.getSysNetFolder());
-        return renameNI(oscd.getIfUpCommand(), nird, upDelay);
+    public static NIRenameConfig renameNI(OSConfig oscd, NIRenameConfig nirc, long upDelay) throws IOException, InterruptedException {
+        SUS.checkIfNulls("Null nird or parameters", oscd, nirc, nirc.getNIToName(), nirc.getSysNetFolder());
+        return renameNI(oscd.getIfUpCommand(), nirc, upDelay);
     }
 
 
-    public static NIRenameDAO renameNI(String niUpCommand, NIRenameDAO nird, long upDelay) throws IOException, InterruptedException {
-        SUS.checkIfNulls("Null nird or parameters", niUpCommand, nird, nird.getNIToName(), nird.getSysNetFolder());
-        NetworkInterface niToLocate = NetworkInterface.getByName(nird.getNIToName());
+    public static NIRenameConfig renameNI(String niUpCommand, NIRenameConfig nirc, long upDelay) throws IOException, InterruptedException {
+        SUS.checkIfNulls("Null nird or parameters", niUpCommand, nirc, nirc.getNIToName(), nirc.getSysNetFolder());
+        NetworkInterface niToLocate = NetworkInterface.getByName(nirc.getNIToName());
         if (niToLocate == null) {
-            File folder = new File(nird.getSysNetFolder());
+            File folder = new File(nirc.getSysNetFolder());
             if (!folder.isDirectory())
-                throw new IllegalArgumentException(nird.getSysNetFolder() + " is not a folder.");
+                throw new IllegalArgumentException(nirc.getSysNetFolder() + " is not a folder.");
             for (File f : folder.listFiles()) {
                 //log.info("file:" + f.getName() + " isFile " + f.isFile() + " isDirectory " + f.isDirectory());
                 if (f.isDirectory()) {
-                    if (!nird.getFilteredNIs().contains(f.getName())) {
-                        nird.setNIToRename(f.getName());
+                    if (!nirc.getFilteredNIs().contains(f.getName())) {
+                        nirc.setNIToRename(f.getName());
                         log.info("to rename:" + f);
                         break;
                     }
                 }
             }
 
-            if (nird.getNIToRename() != null) {
-                log.info("" + RuntimeUtil.runAndFinish(nird.getScript(), nird.getNIToRename(), nird.getNIToName()));
+            if (nirc.getNIToRename() != null) {
+                log.info("" + RuntimeUtil.runAndFinish(nirc.getScript(), nirc.getNIToRename(), nirc.getNIToName()));
                 if (upDelay > 0) {
                     try {
                         Thread.sleep(upDelay);
@@ -50,7 +50,7 @@ public class NIRename {
                         e.printStackTrace();
                     }
                 }
-                log.info("" + RuntimeUtil.runAndFinish(niUpCommand, nird.getNIToName()));
+                log.info("" + RuntimeUtil.runAndFinish(niUpCommand, nirc.getNIToName()));
                 if (upDelay > 0) {
                     try {
                         Thread.sleep(upDelay);
@@ -61,6 +61,6 @@ public class NIRename {
             }
         }
 
-        return nird;
+        return nirc;
     }
 }

@@ -9,7 +9,7 @@ import org.zoxweb.shared.util.SharedUtil;
 
 
 @SuppressWarnings("serial")
-public class OSConfigDAO
+public class OSConfig
         extends PropertyDAO {
 
     public enum Param
@@ -36,21 +36,21 @@ public class OSConfigDAO
     /**
      * This NVConfigEntity type constant is set to an instantiation of a NVConfigEntityLocal object based on DataContentDAO.
      */
-    public static final NVConfigEntity NVC_OS_CONFIG_PROPERTIES_DAO = new NVConfigEntityPortable("os_config_dao",
+    public static final NVConfigEntity NVC_OS_CONFIG_PROPERTIES_DAO = new NVConfigEntityPortable("os_config",
             null,
             "OSConfigDAO",
             true,
             false,
             false,
             false,
-            OSConfigDAO.class,
+            OSConfig.class,
             SharedUtil.extractNVConfigs(),
             null,
             false,
             PropertyDAO.NVC_PROPERTY_DAO);
 
 
-    public OSConfigDAO() {
+    public OSConfig() {
         super(NVC_OS_CONFIG_PROPERTIES_DAO);
     }
 
