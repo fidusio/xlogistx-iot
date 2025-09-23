@@ -27,90 +27,6 @@
     </modules>
 
 
-    <properties>
-
-        <mqtt-paho.version>RELEASE</mqtt-paho.version>
-        <pi4j.version>1.2</pi4j.version>
-        <hive.version>RELEASE</hive.version>
-        <usb-java.version>RELEASE</usb-java.version>
-        <jna.version>RELEASE</jna.version>
-        <pcap4j.version>1.8.2</pcap4j.version>
-        <jnr-ffi.version>RELEASE</jnr-ffi.version>
-
-    </properties>
-
-
-    <build>
-        <directory>target</directory>
-        <resources>
-            <resource>
-                <directory>src/main/java/</directory>
-            </resource>
-        </resources>
-
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven-compiler-plugin.version}</version>
-                <configuration>
-                    <source>${jdk.version}</source>
-                    <target>${jdk.version}</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>${maven-plugin-source.version}</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <!--
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>${maven-javadoc.version}</version>
-                <configuration>
-                    <failOnError>false</failOnError>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-dependencies</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>
-                                ${project.build.directory}/libs
-                            </outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            -->
-        </plugins>
-    </build>
-
     <dependencies>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -129,11 +45,6 @@
             <artifactId>xlogistx-common</artifactId>
             <version>${xlogistx.version}</version>
         </dependency>
-        <!--        <dependency>-->
-        <!--            <groupId>com.squareup.okhttp3</groupId>-->
-        <!--            <artifactId>okhttp</artifactId>-->
-        <!--            <version>${okhttp.version}</version>-->
-        <!--        </dependency>-->
     </dependencies>
 
 </project>
