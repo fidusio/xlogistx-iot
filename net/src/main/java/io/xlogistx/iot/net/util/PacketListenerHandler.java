@@ -70,7 +70,7 @@ public abstract class PacketListenerHandler
             if (log.isEnabled()) log.getLogger().info("ps_drop: " + ps.getNumPacketsDropped());
             if (log.isEnabled()) log.getLogger().info("ps_ifdrop: " + ps.getNumPacketsDroppedByIf());
             if (Platform.isWindows()) {
-                log.info("bs_capt: " + ps.getNumPacketsCaptured());
+                log.getLogger().info("bs_capt: " + ps.getNumPacketsCaptured());
             }
 
         } catch (PcapNativeException | NotOpenException e) {
@@ -78,7 +78,7 @@ public abstract class PacketListenerHandler
             e.printStackTrace();
         }
 
-        log.info("***************************** PacketListener handler end of run method ******************************");
+        log.getLogger().info("***************************** PacketListener handler end of run method ******************************");
 
         IOUtil.close(handle);
     }

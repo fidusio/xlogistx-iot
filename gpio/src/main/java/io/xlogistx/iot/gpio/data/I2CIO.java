@@ -1,7 +1,7 @@
 package io.xlogistx.iot.gpio.data;
 
-import io.xlogistx.iot.gpio.DataFilterManager;
 import io.xlogistx.iot.gpio.MultiplierDataFilter;
+import io.xlogistx.iot.gpio.i2c.I2CUtil;
 import org.zoxweb.shared.data.SimpleMessage;
 import org.zoxweb.shared.filters.TokenFilter;
 import org.zoxweb.shared.util.*;
@@ -70,7 +70,7 @@ public class I2CIO
 
             case ANALOG:
                 result = BytesValue.INT.toValue(input.data, index);
-                MultiplierDataFilter df = DataFilterManager.SINGLETON.lookup(input.command);
+                MultiplierDataFilter df = I2CUtil.DATA_FILTER.lookup(input.command);
                 if(df != null)
                     ret.getProperties().add(df.decode(result));
                 else

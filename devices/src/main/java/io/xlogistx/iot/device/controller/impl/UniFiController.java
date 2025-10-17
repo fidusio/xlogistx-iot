@@ -32,13 +32,13 @@ public class UniFiController
         success.reset();
         try {
             if (getProperties().getValue("mac") != null) {
-                log.info("Restart device: " + getProperties().getValue("site") + "-" + getProperties().getValue("mac"));
+                log.getLogger().info("Restart device: " + getProperties().getValue("site") + "-" + getProperties().getValue("mac"));
                 restart(getProperties().getValue("site"), getProperties().getValue("mac"), "hard");
             } else if (getProperties().getValue("site") != null) {
-                log.info("Restart site: " + getProperties().getValue("site"));
+                log.getLogger().info("Restart site: " + getProperties().getValue("site"));
                 restart(getProperties().getValue("site"));
             } else {
-                log.info("Restart all sites");
+                log.getLogger().info("Restart all sites");
                 restartAll();
             }
         } catch (Exception e) {

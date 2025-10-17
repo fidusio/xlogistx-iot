@@ -2,14 +2,14 @@ package io.xlogistx.iot.gpio.data;
 
 import org.zoxweb.shared.data.SimpleMessage;
 import org.zoxweb.shared.filters.TokenFilter;
-import org.zoxweb.shared.util.*;
-
-import java.util.Arrays;
+import org.zoxweb.shared.util.BytesValue;
+import org.zoxweb.shared.util.NVEnum;
+import org.zoxweb.shared.util.SharedStringUtil;
+import org.zoxweb.shared.util.SharedUtil;
 
 public class I2CAref
         extends I2CCodec {
-    public enum ArefType
-    {
+    public enum ArefType {
         DEFAULT,
         EXTERNAL,
         INTERNAL
@@ -20,18 +20,15 @@ public class I2CAref
     }
 
 
-
-
     @Override
-    public synchronized SimpleMessage decode(I2CResp input)
-    {
+    public synchronized SimpleMessage decode(I2CResp input) {
         SimpleMessage ret = createDecoderResponse(input.bus, input.address);
         ret.setStatus(BytesValue.SHORT.toValue(input.data, 0));
         int index = 2;
 
 
         index = input.data[index] == ':' ? ++index : index;
-        int arefVal= BytesValue.INT.toValue(input.data, index);
+        int arefVal = BytesValue.INT.toValue(input.data, index);
         ret.getProperties().add(new NVEnum("aref", SharedUtil.lookupEnum(arefVal, ArefType.values())));
         index++;
 
@@ -39,13 +36,12 @@ public class I2CAref
     }
 
 
-    public synchronized  CommandToBytes encode(String input) {
+    public synchronized CommandToBytes encode(String input) {
         // input is ignored
         String[] tokens = SharedStringUtil.parseString(input, ":", true);
         int index = 0;
         CommandToBytes ret = new CommandToBytes(16, ':').command(TokenFilter.UPPER_COLON.validate(tokens[index++]));
-        for (; index < tokens.length; index++)
-        {
+        for (; index < tokens.length; index++) {
             ret.toBytes(TokenFilter.UPPER_COLON.validate(tokens[index]));
         }
 

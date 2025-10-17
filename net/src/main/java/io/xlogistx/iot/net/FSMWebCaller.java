@@ -86,7 +86,7 @@ public final class FSMWebCaller {
                     delta = System.currentTimeMillis() - delta;
                     TaskConfig tc = (TaskConfig) getState().getStateMachine().getConfig();
                     getState().getStateMachine().publish(new Trigger<Void>(getState(), SMWebCaller.WEB_EXEC, null));
-                    log.info(outer + " waited for " + Const.TimeInMillis.toString(delta));
+                    log.getLogger().info(outer + " waited for " + Const.TimeInMillis.toString(delta));
                 }
 
                 ;
@@ -96,7 +96,7 @@ public final class FSMWebCaller {
             public void accept(Long aLong) {
                 delta = System.currentTimeMillis();
                 getState().getStateMachine().getScheduler().queue(aLong, run);
-                log.info(this + " created for " + Const.TimeInMillis.toString(aLong));
+                log.getLogger().info(this + " created for " + Const.TimeInMillis.toString(aLong));
             }
         };
 
@@ -167,7 +167,7 @@ public final class FSMWebCaller {
                 NVLong repeatCounter = (NVLong) getState().getProperties().get((GetName) SMWebCaller.REPEAT_COUNTER);
                 long repeats = repeatCounter.getValue();
                 repeatCounter.setValue(++repeats);
-                log.info("repeat counter " + repeatCounter.getValue());
+                log.getLogger().info("repeat counter " + repeatCounter.getValue());
 
                 TaskConfig tc = (TaskConfig) getState().getStateMachine().getConfig();
                 if (tc.getRepeats() >= 0 && repeatCounter.getValue() >= tc.getRepeats()) {
@@ -189,7 +189,7 @@ public final class FSMWebCaller {
                     // we will shutdown
                     TaskUtil.close();
                 }
-                log.info("Final end state");
+                log.getLogger().info("Final end state");
             }
         };
 
@@ -209,7 +209,7 @@ public final class FSMWebCaller {
 
                 if (!appStart.getValue()) {
                     appStart.setValue(true);
-                    log.info("######################## APP START will called only once. *********************************");
+                    log.getLogger().info("######################## APP START will called only once. *********************************");
                     if (getFunction() != null)
                         getFunction().apply(aVoid);
                 }

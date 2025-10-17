@@ -1,15 +1,13 @@
 package io.xlogistx.iot.gpio.data;
 
-import io.xlogistx.common.data.MessageCodec;
 import org.zoxweb.shared.data.SimpleMessage;
 import org.zoxweb.shared.filters.TokenFilter;
-
-import org.zoxweb.shared.util.Const;
-import org.zoxweb.shared.util.GetName;
+import org.zoxweb.shared.util.*;
 
 
-
-public abstract  class I2CCodecBase extends MessageCodec<String, CommandToBytes, I2CResp, SimpleMessage>
+public abstract  class I2CCodecBase extends NamedDescription
+        //MessageCodec<String, CommandToBytes, I2CResp, SimpleMessage>
+    implements DataEncoder<String, CommandToBytes>, DataDecoder<I2CResp, SimpleMessage>
 {
 
     private long timeStamp = System.nanoTime();

@@ -13,14 +13,12 @@ import java.io.IOException;
 import java.util.logging.Logger;
 
 public class GPIOFlowProcessor
-    extends DefaultFlowProcessor<GpioPinDigitalStateChangeEvent>
-{
+        extends DefaultFlowProcessor<GpioPinDigitalStateChangeEvent> {
 
     private static final transient Logger log = Logger.getLogger(GPIOFlowProcessor.class.getName());
     private PinStateMonitorConfig pinStateMonitorConfig;
 
-    public GPIOFlowProcessor(PinStateMonitorConfig pinStateMonitorConfig, TaskSchedulerProcessor tsp)
-    {
+    public GPIOFlowProcessor(PinStateMonitorConfig pinStateMonitorConfig, TaskSchedulerProcessor tsp) {
         super(tsp);
         this.pinStateMonitorConfig = pinStateMonitorConfig;
     }
@@ -30,18 +28,14 @@ public class GPIOFlowProcessor
     public synchronized void accept(FlowEvent<GpioPinDigitalStateChangeEvent> event) {
         PinStateMonitor source = (PinStateMonitor) event.getSource();
         log.info(Thread.currentThread() + " Event:" + event.getSource() + " " + event.getFlowType());
-        if (source == pinStateMonitorConfig.getMaster())
-        {
+        if (source == pinStateMonitorConfig.getMaster()) {
             log.info("Master pin: " + event.getFlowType());
             // disable or enable all the slaves
             PinState state = event.getFlowType().getState();
-            for (PinStateMonitor psm : pinStateMonitorConfig.getSlaves())
-            {
+            for (PinStateMonitor psm : pinStateMonitorConfig.getSlaves()) {
                 psm.setEnabled(state == PinState.LOW);
             }
-        }
-        else
-        {
+        } else {
             if (source.isEnabled()) {
                 PinState state = event.getFlowType().getState();
                 GPIOConfig gpiom = source.getMonitorConfig();
@@ -54,9 +48,7 @@ public class GPIOFlowProcessor
                         log.info("It took: " + Const.TimeInMillis.toString(gpiom.timestamp.get()) + " " + gpiom.getName());
                     }
                 });
-            }
-            else
-            {
+            } else {
                 log.info("Source not enabled " + source);
             }
         }
@@ -67,11 +59,9 @@ public class GPIOFlowProcessor
         IOUtil.close(tsp);
     }
 
-    public synchronized void init()
-    {
+    public synchronized void init() {
         PinState masterState = GPIOTools.SINGLETON.getPinState(pinStateMonitorConfig.getMaster().getMonitorConfig().getToMonitor());
-        for (PinStateMonitor psm : pinStateMonitorConfig.getSlaves())
-        {
+        for (PinStateMonitor psm : pinStateMonitorConfig.getSlaves()) {
             psm.flowProcessorSetter(this);
             psm.setEnabled(masterState == PinState.LOW);
             GpioPinDigitalInput input = GPIOTools.SINGLETON.getGpioController()
@@ -81,7 +71,7 @@ public class GPIOFlowProcessor
 
         pinStateMonitorConfig.getMaster().flowProcessorSetter(this);
         GpioPinDigitalInput input = GPIOTools.SINGLETON.getGpioController()
-                .provisionDigitalInputPin( pinStateMonitorConfig.getMaster().getMonitorConfig().getToMonitor().getValue());
+                .provisionDigitalInputPin(pinStateMonitorConfig.getMaster().getMonitorConfig().getToMonitor().getValue());
         input.addListener(pinStateMonitorConfig.getMaster());
         log.info("Init done");
     }

@@ -5,34 +5,32 @@ import org.zoxweb.shared.util.GetName;
 import org.zoxweb.shared.util.SharedUtil;
 
 public final class GPIOUtil {
-    private GPIOUtil(){}
+    private GPIOUtil() {
+    }
 
     public enum PortType
-        implements GetName
-    {
+            implements GetName {
         ANALOG("A"),
         DIGITAL("D"),
-        PROVISIONING("P")
-        ;
+        PROVISIONING("P");
 
         private final String name;
-        PortType(String name)
-        {
+
+        PortType(String name) {
             this.name = name;
         }
+
         @Override
         public String getName() {
             return name;
         }
 
-        public static PortType lookup(String str)
-        {
+        public static PortType lookup(String str) {
             return SharedUtil.lookupEnum(str, PortType.values());
         }
     }
 
-    public static boolean state(PinState state)
-    {
+    public static boolean state(PinState state) {
         return state == PinState.HIGH;
     }
 

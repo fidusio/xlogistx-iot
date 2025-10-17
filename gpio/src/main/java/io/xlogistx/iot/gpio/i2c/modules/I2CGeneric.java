@@ -7,8 +7,7 @@ import java.io.Closeable;
 import java.io.IOException;
 
 public class I2CGeneric
-extends I2CBaseDevice
-{
+        extends I2CBaseDevice {
     public I2CGeneric(String name, int bus, int address) throws IOException, I2CFactory.UnsupportedBusNumberException {
         super(name, bus, address);
     }

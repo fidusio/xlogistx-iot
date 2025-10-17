@@ -3,8 +3,6 @@ package io.xlogistx.iot.gpio.i2c;
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
-import io.xlogistx.common.data.CodecManager;
-import io.xlogistx.common.data.MessageCodec;
 import io.xlogistx.iot.gpio.data.*;
 import io.xlogistx.iot.gpio.i2c.modules.I2CGeneric;
 import org.zoxweb.server.http.OkHTTPCall;
@@ -13,62 +11,56 @@ import org.zoxweb.server.logging.LogWrapper;
 import org.zoxweb.server.task.TaskUtil;
 import org.zoxweb.server.util.GSONUtil;
 import org.zoxweb.shared.data.SimpleMessage;
+import org.zoxweb.shared.filters.DataFilter;
 import org.zoxweb.shared.filters.TokenFilter;
 import org.zoxweb.shared.http.HTTPMessageConfig;
 import org.zoxweb.shared.http.HTTPMessageConfigInterface;
 import org.zoxweb.shared.http.HTTPResponseData;
 import org.zoxweb.shared.http.HTTPStatusCode;
-import org.zoxweb.shared.util.Const;
-import org.zoxweb.shared.util.ParamUtil;
-import org.zoxweb.shared.util.SUS;
-import org.zoxweb.shared.util.SharedStringUtil;
+import org.zoxweb.shared.util.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 
-public class I2CUtil
-{
+public class I2CUtil {
 
     public static final String VERSION = "I2C-UTIL-1.04.14";
     public static final LogWrapper log = new LogWrapper(I2CUtil.class);
+    public static final RegistrarMapDefault<String, DataFilter> DATA_FILTER = new RegistrarMapDefault<>(null, DataFilter::getID);
 
-    //private Map<String, I2CBaseDevice> i2cDevices = new HashMap<>();
-    private static final CodecManager<I2CCodecBase> I2C_CODEC_MANAGER = new CodecManager<I2CCodecBase>("I2CCodecManager", TokenFilter.UPPER_COLON, "I2CProtocol")
-            .add(new I2CCodec("ping", "Ping the device return the ping value as java int, usage: PING"))
-            .add(new I2CCodec("messages", "The number i2c messages processed by the device return the count value as java int, usage: MESSAGES"))
-            .add(new I2CCodec("cpu-speed", "Get the device cpu frequency in hz, value as java int, usage: CPU-SPEED"))
-            .add(new I2CAref())
-            .add(new I2CCodec("reset", "Reboot the device, no return value bus will throw exception, usage: RESET"))
-            .add(I2CUptime.SINGLETON)
-            .add(I2CVersion.SINGLETON)
-            .add(I2CEcho.SINGLETON)
-            .add(I2CAddress.SINGLETON)
-            .add(new I2CIO());
+    private static final RegistrarMapDefault<String, I2CCodecBase> I2C_CODEC_MANAGER = new RegistrarMapDefault<>(TokenFilter.UPPER_COLON, I2CCodecBase::getName).setNamedDescription(new NamedDescription("I2CCodecManager", "I2CProtocol"))
+            .registerValue(new I2CCodec("ping", "Ping the device return the ping value as java int, usage: PING"))
+            .registerValue(new I2CCodec("messages", "The number i2c messages processed by the device return the count value as java int, usage: MESSAGES"))
+            .registerValue(new I2CCodec("cpu-speed", "Get the device cpu frequency in hz, value as java int, usage: CPU-SPEED"))
+            .registerValue(new I2CAref())
+            .registerValue(new I2CCodec("reset", "Reboot the device, no return value bus will throw exception, usage: RESET"))
+            .registerValue(I2CUptime.SINGLETON)
+            .registerValue(I2CVersion.SINGLETON)
+            .registerValue(I2CEcho.SINGLETON)
+            .registerValue(I2CAddress.SINGLETON)
+            .registerValue(new I2CIO());
 
     public static final I2CUtil SINGLETON = new I2CUtil();
 
     private final Lock lock = new ReentrantLock();
 
 
+    private I2CUtil() {
+    }
 
-    //private final Map<String, I2CBaseDevice> i2cDevices = new LinkedHashMap<String, I2CBaseDevice>();
-
-    private I2CUtil(){}
-
-    public void acquireLock(boolean lockStat)
-    {
-        if(lockStat)
+    public void acquireLock(boolean lockStat) {
+        if (lockStat)
             lock.lock();
     }
 
-    public void releaseLock(boolean lockStat)
-    {
-        if(lockStat)
+    public void releaseLock(boolean lockStat) {
+        if (lockStat)
             lock.unlock();
     }
 
@@ -80,34 +72,29 @@ public class I2CUtil
         String rawCommand = command.toUpperCase();
 
         I2CCodecBase mc = I2C_CODEC_MANAGER.lookup(rawCommand);
-        if(mc == null)
-        {
+        if (mc == null) {
             throw new IllegalArgumentException("Command not supported: " + command);
         }
-
 
 
         I2CDevice i2cDev = i2cDevice.getI2CDevice();
 
         CommandToBytes i2cCommand = mc.encode(rawCommand);
-        if  (log.isEnabled()) log.getLogger().info("sending: " + rawCommand + " " + i2cCommand);
+        if (log.isEnabled()) log.getLogger().info("sending: " + rawCommand + " " + i2cCommand);
         byte[] respData = new byte[mc.responseLength()];
         // we can only send and read one message at time
         // from the bus in the i2c implementation there is a lock
         // the current lock is just precautionary is case of implementation changes
 
         acquireLock(true);
-        try
-        {
+        try {
             mc.resetTimeStamp();
-            for(int i = 0; i < repeat; i++)
+            for (int i = 0; i < repeat; i++)
                 i2cDev.read(i2cCommand.data(), 0, i2cCommand.size(), respData, 0, respData.length);
 
-        // close the bus it is a must
-        // to avoid bus read issues specially with io set commands
-        }
-        finally
-        {
+            // close the bus it is a must
+            // to avoid bus read issues specially with io set commands
+        } finally {
             IOUtil.close(i2cDevice);
             releaseLock(true);
         }
@@ -119,17 +106,13 @@ public class I2CUtil
 
 
     public void writeToI2C(boolean lockStat, int bus, int address, byte[] data)
-            throws IOException, I2CFactory.UnsupportedBusNumberException
-    {
+            throws IOException, I2CFactory.UnsupportedBusNumberException {
         I2CBaseDevice i2cDevice = createI2CDevice("generic", bus, address);
         acquireLock(lockStat);
-        try
-        {
+        try {
             I2CDevice i2cDev = i2cDevice.getI2CDevice();
             i2cDev.write(data);
-        }
-        finally
-        {
+        } finally {
             IOUtil.close(i2cDevice);
             releaseLock(lockStat);
         }
@@ -158,63 +141,53 @@ public class I2CUtil
 //        return ret;
     }
 
-    public CodecManager<I2CCodecBase> getI2cCodecManager()
-    {
-        return I2C_CODEC_MANAGER;
+    public I2CCodecBase[] getI2cCodecs() {
+        List<I2CCodecBase> ret = new ArrayList<>();
+
+        Iterator<I2CCodecBase> iter = I2C_CODEC_MANAGER.values();
+        while (iter.hasNext()) {
+            ret.add(iter.next());
+        }
+        return ret.toArray(new I2CCodecBase[0]);
     }
 
-    public synchronized I2CDevice[]  scanI2CDevices(int bus, int startAddress, int endAddress) throws IOException,
-            I2CFactory.UnsupportedBusNumberException
-    {
+    public synchronized I2CDevice[] scanI2CDevices(int bus, int startAddress, int endAddress) throws IOException,
+            I2CFactory.UnsupportedBusNumberException {
         I2CBus i2CBus = I2CFactory.getInstance(bus);
         List<I2CDevice> ret = new ArrayList<I2CDevice>();
-        for(int i = startAddress; i <= endAddress; i++)
-        {
+        for (int i = startAddress; i <= endAddress; i++) {
             I2CDevice i2CDevice = i2CBus.getDevice(i);
-            if(i2CDevice != null)
-            {
-                try
-                {
+            if (i2CDevice != null) {
+                try {
                     i2CDevice.read();
                     ret.add(i2CDevice);
-                }
-                catch (IOException e)
-                {
+                } catch (IOException e) {
                 }
             }
         }
-        try
-        {
+        try {
             if (i2CBus != null)
                 i2CBus.close();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
 
         }
 
         return ret.toArray(new I2CDevice[ret.size()]);
     }
 
-    public static void write(I2CBaseDevice dev, CommandToBytes command) throws IOException
-    {
+    public static void write(I2CBaseDevice dev, CommandToBytes command) throws IOException {
         write(dev.getI2CDevice(), command);
     }
 
-    public static void write(I2CDevice dev, CommandToBytes command) throws IOException
-    {
+    public static void write(I2CDevice dev, CommandToBytes command) throws IOException {
         dev.write(command.data(), 0, command.size());
     }
 
 
-
-
-    public static void error(String token)
-    {
-        if (token != null){
+    public static void error(String token) {
+        if (token != null) {
             token = " " + token + " ";
-        }
-        else{
+        } else {
             token = "";
         }
         System.err.println();
@@ -223,17 +196,15 @@ public class I2CUtil
 
         System.err.println(VERSION + " usage :" + token + " [i2c=cmd] bus=bus-id address=i2c-address [uri=i2cCommand1 uri=2icCommand2]... \n\n");
 
-        MessageCodec[] all = I2C_CODEC_MANAGER.all();
-        for(MessageCodec mc : all)
-        {
-            System.err.println(VERSION + ":I2C command: " + mc);
+        Iterator<I2CCodecBase> all = I2C_CODEC_MANAGER.values();
+        while (all.hasNext()) {
+            System.err.println(VERSION + ":I2C command: " + all.next());
         }
         System.exit(-1);
     }
 
 
-    public static int exec(ParamUtil.ParamMap params) throws Exception
-    {
+    public static int exec(ParamUtil.ParamMap params) throws Exception {
         String i2cCommand = params.stringValue("i2c", "cmd");
         String user = params.stringValue("user", null);
         String password = params.stringValue("password", null);
@@ -245,15 +216,13 @@ public class I2CUtil
         int repeat = params.intValue("repeat", 1);
         long delay = Const.TimeInMillis.toMillisNullZero(params.stringValue("delay", null));
 
-        if  (log.isEnabled()) log.getLogger().info(""+params);
+        if (log.isEnabled()) log.getLogger().info("" + params);
         int commandCount = 0;
         long ts = System.currentTimeMillis();
-        switch(i2cCommand)
-        {
+        switch (i2cCommand) {
             case "cmd":
 
-                if (url != null)
-                {
+                if (url != null) {
                     do {
                         for (String uri : uris) {
                             commandCount++;
@@ -280,9 +249,7 @@ public class I2CUtil
                         }
                         repeat--;
                     } while (repeat > 0);
-                }
-                else
-                {
+                } else {
                     for (String uri : uris) {
                         SimpleMessage resp = I2CUtil.SINGLETON.sendI2CCommand(busID, address, uri, null, repeat);
 
@@ -297,40 +264,38 @@ public class I2CUtil
                 }
                 break;
             case "scan":
-                try
-                {
+                try {
                     int[] ids = I2CFactory.getBusIds();
-                    if  (log.isEnabled()) log.getLogger().info("Found follow I2C busses: " + Arrays.toString(ids));
+                    if (log.isEnabled()) log.getLogger().info("Found follow I2C busses: " + Arrays.toString(ids));
                 } catch (IOException exception) {
-                    if  (log.isEnabled()) log.getLogger().info("I/O error during fetch of I2C busses occurred");
+                    if (log.isEnabled()) log.getLogger().info("I/O error during fetch of I2C busses occurred");
                 }
                 I2CDevice[] devs = I2CUtil.SINGLETON.scanI2CDevices(busID, 4, 127);
 
                 for (I2CDevice dev : devs) {
-                    if  (log.isEnabled()) log.getLogger().info("I2C Device Address: " + String.format("%x", dev.getAddress()));
+                    if (log.isEnabled())
+                        log.getLogger().info("I2C Device Address: " + String.format("%x", dev.getAddress()));
                 }
                 break;
             default:
                 error(null);
         }
         ts = System.currentTimeMillis() - ts;
-        if  (log.isEnabled()) log.getLogger().info("It took: " + Const.TimeInMillis.toString(ts) + " to process " + commandCount + " commands.");
+        if (log.isEnabled())
+            log.getLogger().info("It took: " + Const.TimeInMillis.toString(ts) + " to process " + commandCount + " commands.");
         return commandCount;
 
     }
 
     public static void main(String[] args) {
-        try
-        {
+        try {
             // print program title/header
-            if  (log.isEnabled()) log.getLogger().info("I2CUtil:" + VERSION);
+            if (log.isEnabled()) log.getLogger().info("I2CUtil:" + VERSION);
             ParamUtil.ParamMap params = ParamUtil.parse("=", args);
-            if  (log.isEnabled()) log.getLogger().info("" + params);
+            if (log.isEnabled()) log.getLogger().info("" + params);
 
-           exec(params);
-        }
-        catch(Exception e)
-        {
+            exec(params);
+        } catch (Exception e) {
             e.printStackTrace();
             error(null);
         }

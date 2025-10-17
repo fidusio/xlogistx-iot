@@ -1,8 +1,6 @@
 package io.xlogistx.iot.gpio;
 
-public class DigitalGPIOStats extends GPIOStats<Boolean>
-{
-
+public class DigitalGPIOStats extends GPIOStats<Boolean> {
 
 
     protected volatile long lowCounter;
@@ -15,18 +13,13 @@ public class DigitalGPIOStats extends GPIOStats<Boolean>
     }
 
     @Override
-    public synchronized void updateStats(Boolean stat)
-    {
-        if(stat)
-        {
+    public synchronized void updateStats(Boolean stat) {
+        if (stat) {
             highCounter++;
-        }
-        else
-        {
+        } else {
             lowCounter++;
         }
-        if(lastState != stat)
-        {
+        if (lastState != stat) {
             statusChangeCounter++;
         }
 

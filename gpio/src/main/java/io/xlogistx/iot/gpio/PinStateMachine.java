@@ -31,7 +31,7 @@ public class PinStateMachine
     private final TriggerConsumerInt<Void> init = new TriggerConsumer<Void>(StateInt.States.INIT) {
         @Override
         public void accept(Void o) {
-            log.info(getState().getStateMachine().getName() + " CREATED");
+            log.getLogger().info(getState().getStateMachine().getName() + " CREATED");
             //SSLSessionConfig config = (SSLSessionConfig) getStateMachine().getConfig();
             publish(new Trigger(getState(), PinStatus.WAITING, null));
         }

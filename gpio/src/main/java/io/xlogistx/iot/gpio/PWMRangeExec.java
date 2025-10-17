@@ -8,23 +8,23 @@ import org.zoxweb.shared.util.Const;
 import java.util.logging.Logger;
 
 public class PWMRangeExec
-    implements Runnable
-{
+        implements Runnable {
 
     private static final Logger log = Logger.getLogger(PWMRangeExec.class.getName());
     private Range<Integer> range;
     private long delay;
     private int count;
     private GpioPinPwmOutput pwmPin;
-//    private int currentPWM;
-    public PWMRangeExec(GpioPinPwmOutput pwmPin, Range<Integer> range, long delay, int count)
-    {
+
+    //    private int currentPWM;
+    public PWMRangeExec(GpioPinPwmOutput pwmPin, Range<Integer> range, long delay, int count) {
         this.range = range;
         this.delay = delay;
         this.count = count;
         this.pwmPin = pwmPin;
 //        currentPWM = range.getStart();
     }
+
     @Override
     public void run() {
 //        currentPWM++;
@@ -35,17 +35,14 @@ public class PWMRangeExec
 //        }
         log.info("count:" + count + " range:" + range + " delay:" + Const.TimeInMillis.toString(delay));
 
-        for(int i = range.getStart(); i < range.getEnd(); i++) {
+        for (int i = range.getStart(); i < range.getEnd(); i++) {
             pwmPin.setPwm(i);
             TaskUtil.sleep(delay);
         }
         count--;
-        if(count > 0)
-        {
+        if (count > 0) {
             TaskUtil.defaultTaskScheduler().queue(delay, this);
-        }
-        else
-        {
+        } else {
             pwmPin.setPwm(0);
         }
 

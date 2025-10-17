@@ -23,42 +23,38 @@ import java.util.logging.Logger;
         permissions = "gpio:access",
         protocols = {URIScheme.HTTPS})
 public class GPIOEndPoints
-extends PropertyContainer<NVGenericMap>
-{
+        extends PropertyContainer<NVGenericMap> {
 
     private static final Logger log = Logger.getLogger(GPIOEndPoints.class.getName());
 
 
-    @EndPointProp(methods = {HTTPMethod.GET, HTTPMethod.POST}, name="output-pin", uris="/output/pin/{gpio}/{state}/{duration}")
-    public SimpleMessage outputPin(@ParamProp(name="gpio") String gpio,
-                                   @ParamProp(name="state") boolean state,
-                                   @ParamProp(name="duration", optional = true) String durationParam)
-    {
+    @EndPointProp(methods = {HTTPMethod.GET, HTTPMethod.POST}, name = "output-pin", uris = "/output/pin/{gpio}/{state}/{duration}")
+    public SimpleMessage outputPin(@ParamProp(name = "gpio") String gpio,
+                                   @ParamProp(name = "state") boolean state,
+                                   @ParamProp(name = "duration", optional = true) String durationParam) {
         Pin pin = GPIOPin.lookupPin(gpio);
-        long duration = 0 ;
-        if (durationParam != null)
-        {
+        long duration = 0;
+        if (durationParam != null) {
             duration = Const.TimeInMillis.toMillis(durationParam);
         }
 
         GPIOTools.SINGLETON.setOutputPin(pin, PinState.getState(state), duration);
         SimpleMessage response = new SimpleMessage("Operation successfully", HTTPStatusCode.OK.CODE);
         response.getProperties().add(gpio, pin.getName());
-        response.getProperties().add(pin.getName(), (state ? Const.Bool.ON : Const.Bool.OFF) +"");
-        if (durationParam != null)
-        {
+        response.getProperties().add(pin.getName(), (state ? Const.Bool.ON : Const.Bool.OFF) + "");
+        if (durationParam != null) {
             response.getProperties().add("timeout", Const.TimeInMillis.toString(duration));
         }
 
         return response;
     }
 
-    @EndPointProp(methods = {HTTPMethod.GET, HTTPMethod.POST}, name="output-pwm", uris="/output/pwm/{gpio}/{frequency}/{duty-cycle}/{duration}")
-    public SimpleMessage outputPWM(@ParamProp(name="gpio") String gpio,
-                                   @ParamProp(name="frequency") float freq,
-                                   @ParamProp(name="duty-cycle") float dutyCycle,
-                                   @ParamProp(name="duration", optional = true) String duration)
-                                   //@ParamProp(name="monitor", optional = true) boolean monitor)
+    @EndPointProp(methods = {HTTPMethod.GET, HTTPMethod.POST}, name = "output-pwm", uris = "/output/pwm/{gpio}/{frequency}/{duty-cycle}/{duration}")
+    public SimpleMessage outputPWM(@ParamProp(name = "gpio") String gpio,
+                                   @ParamProp(name = "frequency") float freq,
+                                   @ParamProp(name = "duty-cycle") float dutyCycle,
+                                   @ParamProp(name = "duration", optional = true) String duration)
+    //@ParamProp(name="monitor", optional = true) boolean monitor)
     {
 
         GPIOPin pin = GPIOPin.lookupGPIO(gpio);
@@ -78,14 +74,13 @@ extends PropertyContainer<NVGenericMap>
     }
 
 
-    @EndPointProp(methods = {HTTPMethod.GET, HTTPMethod.POST}, name="output-pwm-scan", uris="/output/pwm/scan/{gpio}/{frequency}/{lower-level}/{upper-level}/{delay}/{count}")
-    public SimpleMessage outputPWM(@ParamProp(name="gpio") String gpio,
-                                   @ParamProp(name="frequency") float freq,
-                                   @ParamProp(name="lower-level") float lower,
-                                   @ParamProp(name="upper-level") float upper,
-                                   @ParamProp(name="delay") String delayParam,
-                                   @ParamProp(name="count") int count)
-    {
+    @EndPointProp(methods = {HTTPMethod.GET, HTTPMethod.POST}, name = "output-pwm-scan", uris = "/output/pwm/scan/{gpio}/{frequency}/{lower-level}/{upper-level}/{delay}/{count}")
+    public SimpleMessage outputPWM(@ParamProp(name = "gpio") String gpio,
+                                   @ParamProp(name = "frequency") float freq,
+                                   @ParamProp(name = "lower-level") float lower,
+                                   @ParamProp(name = "upper-level") float upper,
+                                   @ParamProp(name = "delay") String delayParam,
+                                   @ParamProp(name = "count") int count) {
 
         GPIOPin pin = GPIOPin.lookupGPIO(gpio);
         Range<Float> dutyCycle = new Range<Float>(lower, upper);
@@ -100,16 +95,14 @@ extends PropertyContainer<NVGenericMap>
     }
 
 
-    @EndPointProp(methods = {HTTPMethod.GET, HTTPMethod.POST}, name="config-pwm", uris="/config/pwm/{range}")
-    public void configPWM(@ParamProp(name="range") int range)
-    {
+    @EndPointProp(methods = {HTTPMethod.GET, HTTPMethod.POST}, name = "config-pwm", uris = "/config/pwm/{range}")
+    public void configPWM(@ParamProp(name = "range") int range) {
         GPIOTools.SINGLETON.setPWMRangeMod(range, -1);
     }
 
 
-    @EndPointProp(methods = {HTTPMethod.GET, HTTPMethod.POST}, name="read-pwm-config", uris="/lookup/pwm")
-    public NVGenericMap pwmConfig()
-    {
+    @EndPointProp(methods = {HTTPMethod.GET, HTTPMethod.POST}, name = "read-pwm-config", uris = "/lookup/pwm")
+    public NVGenericMap pwmConfig() {
         NVGenericMap ret = new NVGenericMap();
         ret.add(new NVInt("pwm_max_steps", GPIOTools.SINGLETON.getPWMRange()));
         ret.add(new NVPair("pwm_range", GPIOTools.PWM_RANGE.toString()));
@@ -117,10 +110,9 @@ extends PropertyContainer<NVGenericMap>
         return ret;
     }
 
-    @EndPointProp(methods = {HTTPMethod.GET, HTTPMethod.POST}, name="map-gpio", uris="/gpio/map/{gpio}/{name}")
-    public SimpleMessage mapGPIO(@ParamProp(name="gpio") String gpio,
-                                  @ParamProp(name="name") String name)
-    {
+    @EndPointProp(methods = {HTTPMethod.GET, HTTPMethod.POST}, name = "map-gpio", uris = "/gpio/map/{gpio}/{name}")
+    public SimpleMessage mapGPIO(@ParamProp(name = "gpio") String gpio,
+                                 @ParamProp(name = "name") String name) {
         GPIOPin gpioPin = GPIOPin.lookupGPIO(gpio);
         GPIOPin.mapGPIOName(name, gpioPin);
 
@@ -129,12 +121,11 @@ extends PropertyContainer<NVGenericMap>
         return response;
     }
 
-    @EndPointProp(methods = {HTTPMethod.GET, HTTPMethod.DELETE}, name="map-gpio", uris="/gpio/unmap/{name}")
-    public SimpleMessage unmapGPIO(@ParamProp(name="name") String name)
-    {
+    @EndPointProp(methods = {HTTPMethod.GET, HTTPMethod.DELETE}, name = "map-gpio", uris = "/gpio/unmap/{name}")
+    public SimpleMessage unmapGPIO(@ParamProp(name = "name") String name) {
         GPIOPin gpioPin = GPIOPin.unmapGIOName(name);
-        if(gpioPin == null)
-            throw  new IllegalArgumentException("gpio was never mapped to " + name);
+        if (gpioPin == null)
+            throw new IllegalArgumentException("gpio was never mapped to " + name);
 
         SimpleMessage response = new SimpleMessage(gpioPin.getName() + " name mapping removed from " + name,
                 HTTPStatusCode.OK.CODE);
@@ -258,43 +249,33 @@ extends PropertyContainer<NVGenericMap>
 //        return response;
 //    }
 
-    protected void refreshProperties()
-    {
+    protected void refreshProperties() {
         log.info("WE MUST UPDATE");
-        if(getProperties() != null)
-        {
+        if (getProperties() != null) {
             NVGenericMap gpiosMap = (NVGenericMap) getProperties().get("gpios-map");
             if (gpiosMap != null) {
                 for (GetNameValue<?> pinInfo : gpiosMap.values()) {
-                    try
-                    {
-                        GPIOPin gpio = GPIOPin.mapGPIOName(pinInfo.getName(), ""+pinInfo.getValue());
-                        log.info(gpio.getName() +" --> " + pinInfo.getName());
-                    }
-                    catch (Exception e)
-                    {
+                    try {
+                        GPIOPin gpio = GPIOPin.mapGPIOName(pinInfo.getName(), "" + pinInfo.getValue());
+                        log.info(gpio.getName() + " --> " + pinInfo.getName());
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
-            }
-            else
-            {
+            } else {
                 log.info("GPIO-MAPS NOT FOUND");
             }
 
             NVGenericMap gpiosInit = (NVGenericMap) getProperties().get("gpios-init");
-            if(gpiosInit != null)
-            {
+            if (gpiosInit != null) {
                 for (GetNameValue<?> gnv : gpiosInit.values()) {
-                    try
-                    {
+                    try {
                         NVGenericMap pinConfig = (NVGenericMap) gnv;
 
                         GPIOPin pin = GPIOPin.lookupGPIO(pinConfig.getName());
-                        log.info(getID()+" *********************************************Pin lookup:" + pinConfig + " pin:" +pin);
+                        log.info(getID() + " *********************************************Pin lookup:" + pinConfig + " pin:" + pin);
 
-                        if(pin != null)
-                        {
+                        if (pin != null) {
 
                             boolean state = Const.Bool.lookupValue("" + pinConfig.getValue("state"));
                             long duration = pinConfig.get("duration") != null ? Const.TimeInMillis.toMillis("" + pinConfig.getValue("duration")) : 0;
@@ -302,22 +283,16 @@ extends PropertyContainer<NVGenericMap>
                             GPIOTools.SINGLETON.setOutputPin(pin.getValue(), PinState.getState(state), duration);
                             log.info(pin + " set " + state + " duration " + duration);
 
-                        }
-                        else
-                        {
+                        } else {
                             log.info("Pin not found:" + pinConfig.getName());
                         }
 
-                    }
-                    catch (Exception e)
-                    {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
             }
-        }
-        else
-        {
+        } else {
             log.info("Properties is null");
         }
     }

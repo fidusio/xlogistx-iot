@@ -6,17 +6,15 @@ import org.zoxweb.shared.filters.TokenFilter;
 import org.zoxweb.shared.util.*;
 
 
-
 public class I2CAddress extends I2CCodec {
     public static final I2CAddress SINGLETON = new I2CAddress();
-    private I2CAddress()
-    {
+
+    private I2CAddress() {
         super("I2C-ADDRESS", "Set the device I2C address, usage: I2C-ADDRESS:S:[7-127], return: [status]:old-address:set-address");
     }
 
     @Override
-    public SimpleMessage decode(I2CResp i2cResp)
-    {
+    public SimpleMessage decode(I2CResp i2cResp) {
         // OK:I,L:VALUE
         SimpleMessage ret = createDecoderResponse(i2cResp.bus, i2cResp.address);
         int offset = 0;
@@ -42,7 +40,7 @@ public class I2CAddress extends I2CCodec {
 
         CommandToBytes ret = new CommandToBytes(16, ':').command(TokenFilter.UPPER_COLON.validate(tokens[index++])).toBytes(TokenFilter.UPPER_COLON.validate(tokens[index++]));
         int address = SharedUtil.parseInt(tokens[index++]);
-        ret.toBytes((byte)address);
+        ret.toBytes((byte) address);
 
         return ret;
     }

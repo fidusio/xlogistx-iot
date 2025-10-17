@@ -1,10 +1,7 @@
 package io.xlogistx.iot.gpio;
 
 
-
-
-public class PinStateMonitorConfig
-{
+public class PinStateMonitorConfig {
     private PinStateMonitor master;
     private PinStateMonitor[] slaves;
 //    private StateMachineInt stateMachine;

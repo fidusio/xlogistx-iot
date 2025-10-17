@@ -3,7 +3,6 @@ package io.xlogistx.iot.gpio;
 public abstract class GPIOStats<T> {
 
 
-
     protected volatile long statusChangeCounter;
     protected volatile long startTime;
     protected volatile long lastTime;
@@ -12,11 +11,9 @@ public abstract class GPIOStats<T> {
     protected volatile T lastState;
     protected GPIOPin pin;
 
-    public GPIOStats(GPIOPin pin)
-    {
+    public GPIOStats(GPIOPin pin) {
         this.pin = pin;
     }
-
 
 
     public long getStatusChangeCounter() {
@@ -43,8 +40,7 @@ public abstract class GPIOStats<T> {
         this.lastTime = lastTime;
     }
 
-    public GPIOPin getPin()
-    {
+    public GPIOPin getPin() {
         return pin;
     }
 

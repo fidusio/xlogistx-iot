@@ -7,17 +7,14 @@ public class I2CResp {
     public final String command;
 
 
-    private I2CResp(int bus, int address, byte[] data, String command)
-
-    {
+    private I2CResp(int bus, int address, byte[] data, String command) {
         this.bus = bus;
         this.address = address;
         this.data = data;
         this.command = command;
     }
 
-    public static I2CResp build(int bus, int address, byte[] data, String command)
-    {
+    public static I2CResp build(int bus, int address, byte[] data, String command) {
         return new I2CResp(bus, address, data, command);
     }
 

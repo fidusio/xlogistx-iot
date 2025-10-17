@@ -5,7 +5,6 @@ import org.zoxweb.shared.data.SimpleMessage;
 import org.zoxweb.shared.util.*;
 
 
-
 public class I2CUptime extends I2CCodec {
     public static final I2CUptime SINGLETON = new I2CUptime();
 
