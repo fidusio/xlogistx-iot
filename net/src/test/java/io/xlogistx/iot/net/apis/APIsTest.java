@@ -5,6 +5,7 @@ import org.zoxweb.shared.util.Const;
 import org.zoxweb.shared.util.NVGenericMap;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Date;
 
 public class APIsTest {
@@ -18,7 +19,7 @@ public class APIsTest {
 
 
     @Test
-    public void sunsetSunriseTest() throws IOException {
+    public void sunsetSunriseTest() throws IOException, ParseException {
         IPGeoLocation ipGeoLocation = new IPGeoLocation();
         NVGenericMap resultGeoLoc = ipGeoLocation.lookup();//"iot.xlogistx.io");
         System.out.println(resultGeoLoc);
