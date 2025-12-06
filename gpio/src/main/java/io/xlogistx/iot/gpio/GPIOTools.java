@@ -20,8 +20,6 @@ import org.zoxweb.shared.util.SharedUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
 
 
@@ -31,7 +29,7 @@ public class GPIOTools {
 
     // This statement must be the last static code
     public static final GPIOTools SINGLETON = new GPIOTools();
-    private Lock lock = new ReentrantLock();
+//    private final Lock lock = new ReentrantLock();
     private volatile GpioController gpioController = null;
     private int pwmRangeValue;
 

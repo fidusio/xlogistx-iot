@@ -1,9 +1,7 @@
 package io.xlogistx.iot.net.iptables;
 
 import org.zoxweb.server.util.RuntimeUtil;
-import org.zoxweb.shared.util.Const;
 import org.zoxweb.shared.util.GetName;
-import org.zoxweb.shared.util.RateCounter;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -121,38 +119,6 @@ public final class IPSetManager
     }
 
 
-    /** Add an element (e.g. MAC or IP) to the set. */
-    /**
-     * @param setName
-     * @param elements
-     * @throws IOException
-     * @throws InterruptedException
-     */
-//    public void add(String setName, String ...elements) throws IOException, InterruptedException
-//    {
-//        ProcessBuilder pb = new ProcessBuilder("ipset", "batch");
-//        Process p = pb.start();
-//        try (BufferedWriter w = new BufferedWriter(
-//                new OutputStreamWriter(p.getOutputStream()))) {
-//
-//            // only create if it doesn't already exist
-//            //if (setExists(setName))
-//            {
-//
-//
-//                for (String mac : elements) {
-//                    w.write("add " + setName + " " + mac + "\n");
-//                }
-//            }
-//
-//            w.flush();
-//            w.close();               // signal EOF to ipset batch
-//            if (p.waitFor() != 0) {
-//                throw new RuntimeException("ipset batch failed");
-//            }
-//        }
-//    }
-
     /**
      * Remove an element from the set.
      */
@@ -248,53 +214,50 @@ public final class IPSetManager
 //    }
 
 
-    /**
-     * Demo.
-     */
-    public static void main(String[] args) {
-
-        try {
-            RateCounter rc = new RateCounter("xec");
-            rc.start();
-
-            IPSetManager mgr = new IPSetManager("test_auth_macs", "hash:mac");
-
-            System.out.println("Created set " + mgr.getName());
-
-
-            // add a MAC
-            String mac = "18:65:90:D2:CA:65";
-            //String ip = "10.0.1.75";
-            if (!mgr.contains(mac))
-                mgr.add(mac);
-            //SINGLETON.add(SET, ip);
-
-
-            // check membership
-            System.out.println(mac + " in set? " + mgr.contains(mac));
-            mgr.add("28:65:90:D2:CA:65");
-            mgr.add("38:65:90:D2:CA:65");
-            mgr.add("48:65:90:D2:CA:65");
-
-            // list members
-            System.out.println("Members: " + mgr.listDeviceIDS());
-
-            // remove it
-            mgr.flush();
-            //SINGLETON.remove(SET, ip);
-            //System.out.println("Removed: " + mac);
-
-            // final list
-            System.out.println("Members now after flush: " + mgr.listDeviceIDS());
-
-            // destroy the set
-            mgr.destroy();
-            rc.stop();
-            System.out.println("Destroyed set " + mgr.getName());
-
-            System.out.println(Const.TimeInMillis.toString(rc.getDeltas()));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+//    public static void main(String[] args) {
+//
+//        try {
+//            RateCounter rc = new RateCounter("xec");
+//            rc.start();
+//
+//            IPSetManager mgr = new IPSetManager("test_auth_macs", "hash:mac");
+//
+//            System.out.println("Created set " + mgr.getName());
+//
+//
+//            // add a MAC
+//            String mac = "18:65:90:D2:CA:65";
+//            //String ip = "10.0.1.75";
+//            if (!mgr.contains(mac))
+//                mgr.add(mac);
+//            //SINGLETON.add(SET, ip);
+//
+//
+//            // check membership
+//            System.out.println(mac + " in set? " + mgr.contains(mac));
+//            mgr.add("28:65:90:D2:CA:65");
+//            mgr.add("38:65:90:D2:CA:65");
+//            mgr.add("48:65:90:D2:CA:65");
+//
+//            // list members
+//            System.out.println("Members: " + mgr.listDeviceIDS());
+//
+//            // remove it
+//            mgr.flush();
+//            //SINGLETON.remove(SET, ip);
+//            //System.out.println("Removed: " + mac);
+//
+//            // final list
+//            System.out.println("Members now after flush: " + mgr.listDeviceIDS());
+//
+//            // destroy the set
+//            mgr.destroy();
+//            rc.stop();
+//            System.out.println("Destroyed set " + mgr.getName());
+//
+//            System.out.println(Const.TimeInMillis.toString(rc.getDeltas()));
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 }

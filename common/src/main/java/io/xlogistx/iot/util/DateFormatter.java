@@ -20,47 +20,33 @@ import org.zoxweb.shared.data.DataDAO;
 import org.zoxweb.shared.util.SharedUtil;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.time.Instant;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
 
 public class DateFormatter {
 
-
-    public final static SimpleDateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-    public final static SimpleDateFormat GPS_DATE_FORMAT = new SimpleDateFormat("ddMMyyhhmmss.SSS");
-    public final static SimpleDateFormat GPS_UTC_TIME_FORMAT = new SimpleDateFormat("hhmmss.SSS");
-    public final static SimpleDateFormat GPS_ZDA_FORMAT = new SimpleDateFormat("hhmmss.SSS,dd,MM,yyyyZZ");
-    private static Date TIME_ZERO = null;
-    private final static Lock LOCK = new ReentrantLock();
+    // Thread-safe DateTimeFormatter instances
+    public final static DateTimeFormatter DEFAULT_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+    public final static DateTimeFormatter GPS_DATE_FORMAT = DateTimeFormatter.ofPattern("ddMMyyhhmmss.SSS");
+    public final static DateTimeFormatter GPS_UTC_TIME_FORMAT = DateTimeFormatter.ofPattern("HHmmss.SSS");
+    public final static DateTimeFormatter GPS_ZDA_FORMAT = DateTimeFormatter.ofPattern("HHmmss.SSS,dd,MM,yyyyZZ");
 
 
     private DateFormatter() {
-
     }
 
     public static String toString(DataDAO mb) {
-        return SharedUtil.toCanonicalID(':', mb.getSourceID(), DEFAULT_DATE_FORMAT.format(new Date(mb.getCreationTime())), new String(mb.getData()));
+        Instant instant = Instant.ofEpochMilli(mb.getCreationTime());
+        String formattedDate = DEFAULT_DATE_FORMAT.format(instant.atZone(ZoneOffset.UTC));
+        return SharedUtil.toCanonicalID(':', mb.getSourceID(), formattedDate, new String(mb.getData()));
     }
 
-
     public static long parseUTCTime(String utcTime) throws ParseException {
-        if (TIME_ZERO == null) {
-            try {
-                LOCK.lock();
-
-                if (TIME_ZERO == null) {
-                    TIME_ZERO = GPS_UTC_TIME_FORMAT.parse("000000.000");
-                }
-            } finally {
-                LOCK.unlock();
-            }
-        }
-
-        Date temp = GPS_UTC_TIME_FORMAT.parse(utcTime);
-
-        return temp.getTime() - TIME_ZERO.getTime();
+        LocalTime time = LocalTime.parse(utcTime, GPS_UTC_TIME_FORMAT);
+        return time.getLong(ChronoField.MILLI_OF_DAY);
     }
 
 }

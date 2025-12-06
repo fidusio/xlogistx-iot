@@ -29,8 +29,8 @@ public class UBNTEndPoints {
         NVPair sessionCookie = UBNTEqpt.loginCookie(url, user, password, null);
         UBNTEqpt.controlPort(url, sessionCookie, port, Const.Bool.lookupValue(state), null);
         UBNTEqpt.getSensorsStatus(url, sessionCookie, null);
-        SimpleMessage ret = new SimpleMessage("port: " + port + "@" + ip + " set successfully to: " + state, HTTPStatusCode.OK.CODE);
-        return ret;
+
+        return new SimpleMessage("port: " + port + "@" + ip + " set successfully to: " + state, HTTPStatusCode.OK.CODE);
     }
 
 
