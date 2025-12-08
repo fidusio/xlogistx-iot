@@ -15,7 +15,7 @@
 
 
     <properties>
-        <artemismq.version>2.32.0</artemismq.version>
+        <artemismq.version>2.44.0</artemismq.version>
     </properties>
 
     <dependencies>

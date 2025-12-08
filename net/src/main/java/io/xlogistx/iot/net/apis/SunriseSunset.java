@@ -77,8 +77,8 @@ public class SunriseSunset {
         HTTPResponseData hrd = OkHTTPCall.send(hmci);
         NVGenericMap result = GSONUtil.fromJSONGenericMap(hrd.getData());
         NVGenericMap resultSS = result.getNV("results");
-        long sunrise = DateUtil.ISO_8601.parse(resultSS.getValue(SunriseSunset.Params.SUNRISE)).getTime();
-        long sunset = DateUtil.ISO_8601.parse(resultSS.getValue(SunriseSunset.Params.SUNSET)).getTime();
+        long sunrise = DateUtil.ISO_8601.toTimeInMillis(resultSS.getValue(SunriseSunset.Params.SUNRISE));
+        long sunset = DateUtil.ISO_8601.toTimeInMillis(resultSS.getValue(SunriseSunset.Params.SUNSET));
         resultSS.build(new NVLong(Params.SUNRISE, sunrise));
         resultSS.build(new NVLong(Params.SUNSET, sunset));
         return resultSS;
