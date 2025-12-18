@@ -18,7 +18,7 @@
     <modules>
         <module>common</module>
         <module>gpio</module>
-        <module>ngpio</module>
+        <module>gpio64</module>
         <module>devices</module>
         <module>net</module>
         <module>usb</module>

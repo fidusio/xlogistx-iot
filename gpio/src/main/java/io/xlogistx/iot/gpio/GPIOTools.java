@@ -266,15 +266,15 @@ public class GPIOTools {
             long durationBeforeExit = -1;
             long delta = System.currentTimeMillis();
             NVCollectionStringDecoder decoder = new NVCollectionStringDecoder("=", ",", true);
-            GPIOAction action = null;
+            io.xlogistx.iot.data.GPIOAction action = null;
             for (; index < args.length; index++) {
                 if (index == 0) {
-                    action = GPIOAction.lookup(args[index]);
+                    action = io.xlogistx.iot.data.GPIOAction.lookup(args[index]);
                     System.out.println("Action:" + action);
                     if (action != null)
                         continue;
                     else
-                        action = GPIOAction.SET;
+                        action = io.xlogistx.iot.data.GPIOAction.SET;
                 }
                 GPIOPin gpioPin = null;
                 switch (action) {

@@ -6,7 +6,6 @@ import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
 import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 import io.xlogistx.common.data.DataTriggerAfterWait;
-import io.xlogistx.iot.gpio.data.GPIOUtil;
 import org.zoxweb.server.fsm.*;
 import org.zoxweb.server.http.OkHTTPCall;
 import org.zoxweb.server.task.TaskSchedulerProcessor;
@@ -90,7 +89,7 @@ public class PinStateMachine
                 }
             }
 
-            digitalGPIOStats.updateStats(GPIOUtil.state(event.getState()));
+            digitalGPIOStats.updateStats(event.getState().isHigh());
             if(event.getState() == PinState.HIGH)
                 log.getLogger().info( "[" + digitalGPIOStats.getLowCounter() + "] " + digitalGPIOStats + " " + event.getState());
             publishSync(event.getState(), event);
