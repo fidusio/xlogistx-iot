@@ -34,6 +34,12 @@
             <version>${pi4j.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>io.xlogistx</groupId>
+            <artifactId>xlogistx-iot-common</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
 
     </dependencies>
 

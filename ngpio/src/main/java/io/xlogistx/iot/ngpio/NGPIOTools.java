@@ -27,7 +27,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 
@@ -389,15 +388,15 @@ public class NGPIOTools {
             long durationBeforeExit = -1;
             long delta = System.currentTimeMillis();
             NVCollectionStringDecoder decoder = new NVCollectionStringDecoder("=", ",", true);
-            NIOAction action = null;
+            NGPIOAction action = null;
             for (; index < args.length; index++) {
                 if (index == 0) {
-                    action = NIOAction.lookup(args[index]);
+                    action = NGPIOAction.lookup(args[index]);
                     System.out.println("Action:" + action);
                     if (action != null)
                         continue;
                     else
-                        action = NIOAction.SET;
+                        action = NGPIOAction.SET;
                 }
                 NGPIOPin gpioPin = null;
                 switch (action) {

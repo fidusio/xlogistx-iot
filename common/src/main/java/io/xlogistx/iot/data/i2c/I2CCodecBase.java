@@ -1,5 +1,6 @@
-package io.xlogistx.iot.gpio.data;
+package io.xlogistx.iot.data.i2c;
 
+import io.xlogistx.iot.data.CommandToBytes;
 import org.zoxweb.shared.data.SimpleMessage;
 import org.zoxweb.shared.filters.TokenFilter;
 import org.zoxweb.shared.util.*;

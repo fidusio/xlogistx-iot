@@ -3,7 +3,7 @@ package io.xlogistx.iot.gpio;
 import org.zoxweb.shared.util.GetValue;
 import org.zoxweb.shared.util.SharedUtil;
 
-public enum IOAction implements GetValue<String> {
+public enum GPIOAction implements GetValue<String> {
     READ("-r"),
     READ_AS_INPUT("-ri"),
     MONITOR("-m"),
@@ -18,7 +18,7 @@ public enum IOAction implements GetValue<String> {
 
     private final String value;
 
-    IOAction(String val) {
+    GPIOAction(String val) {
         value = val;
     }
 
@@ -27,7 +27,7 @@ public enum IOAction implements GetValue<String> {
         return value;
     }
 
-    public static IOAction lookup(String token) {
+    public static GPIOAction lookup(String token) {
         return SharedUtil.lookupEnum(token, values());
     }
 }

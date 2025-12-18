@@ -1,4 +1,4 @@
-package io.xlogistx.iot.gpio;
+package io.xlogistx.iot.data;
 
 import org.zoxweb.shared.filters.DataFilter;
 import org.zoxweb.shared.util.ValueWithUnit;

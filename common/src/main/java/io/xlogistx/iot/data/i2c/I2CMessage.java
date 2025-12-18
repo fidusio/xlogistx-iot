@@ -1,4 +1,4 @@
-package io.xlogistx.iot.gpio.data;
+package io.xlogistx.iot.data.i2c;
 
 
 import org.zoxweb.shared.data.PropertyDAO;

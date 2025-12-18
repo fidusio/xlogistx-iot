@@ -266,15 +266,15 @@ public class GPIOTools {
             long durationBeforeExit = -1;
             long delta = System.currentTimeMillis();
             NVCollectionStringDecoder decoder = new NVCollectionStringDecoder("=", ",", true);
-            IOAction action = null;
+            GPIOAction action = null;
             for (; index < args.length; index++) {
                 if (index == 0) {
-                    action = IOAction.lookup(args[index]);
+                    action = GPIOAction.lookup(args[index]);
                     System.out.println("Action:" + action);
                     if (action != null)
                         continue;
                     else
-                        action = IOAction.SET;
+                        action = GPIOAction.SET;
                 }
                 GPIOPin gpioPin = null;
                 switch (action) {

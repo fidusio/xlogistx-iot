@@ -3,7 +3,9 @@ package io.xlogistx.iot.gpio.i2c;
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
-import io.xlogistx.iot.gpio.data.*;
+import io.xlogistx.iot.data.IOTDataUtil;
+import io.xlogistx.iot.data.i2c.I2CCodecBase;
+import io.xlogistx.iot.data.i2c.I2CResp;
 import io.xlogistx.iot.gpio.i2c.modules.I2CGeneric;
 import org.zoxweb.server.http.OkHTTPCall;
 import org.zoxweb.server.io.IOUtil;
@@ -11,13 +13,14 @@ import org.zoxweb.server.logging.LogWrapper;
 import org.zoxweb.server.task.TaskUtil;
 import org.zoxweb.server.util.GSONUtil;
 import org.zoxweb.shared.data.SimpleMessage;
-import org.zoxweb.shared.filters.DataFilter;
-import org.zoxweb.shared.filters.TokenFilter;
 import org.zoxweb.shared.http.HTTPMessageConfig;
 import org.zoxweb.shared.http.HTTPMessageConfigInterface;
 import org.zoxweb.shared.http.HTTPResponseData;
 import org.zoxweb.shared.http.HTTPStatusCode;
-import org.zoxweb.shared.util.*;
+import org.zoxweb.shared.util.Const;
+import org.zoxweb.shared.util.ParamUtil;
+import org.zoxweb.shared.util.SUS;
+import org.zoxweb.shared.util.SharedStringUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,19 +35,19 @@ public class I2CUtil {
 
     public static final String VERSION = "I2C-UTIL-1.04.14";
     public static final LogWrapper log = new LogWrapper(I2CUtil.class);
-    public static final RegistrarMapDefault<String, DataFilter> DATA_FILTER = new RegistrarMapDefault<>(null, DataFilter::getID);
+    //public static final RegistrarMapDefault<String, DataFilter> DATA_FILTER = new RegistrarMapDefault<>(null, DataFilter::getID);
 
-    private static final RegistrarMapDefault<String, I2CCodecBase> I2C_CODEC_MANAGER = new RegistrarMapDefault<>(TokenFilter.UPPER_COLON, I2CCodecBase::getName).setNamedDescription(new NamedDescription("I2CCodecManager", "I2CProtocol"))
-            .registerValue(new I2CCodec("ping", "Ping the device return the ping value as java int, usage: PING"))
-            .registerValue(new I2CCodec("messages", "The number i2c messages processed by the device return the count value as java int, usage: MESSAGES"))
-            .registerValue(new I2CCodec("cpu-speed", "Get the device cpu frequency in hz, value as java int, usage: CPU-SPEED"))
-            .registerValue(new I2CAref())
-            .registerValue(new I2CCodec("reset", "Reboot the device, no return value bus will throw exception, usage: RESET"))
-            .registerValue(I2CUptime.SINGLETON)
-            .registerValue(I2CVersion.SINGLETON)
-            .registerValue(I2CEcho.SINGLETON)
-            .registerValue(I2CAddress.SINGLETON)
-            .registerValue(new I2CIO());
+//    private static final RegistrarMapDefault<String, I2CCodecBase> I2C_CODEC_MANAGER = new RegistrarMapDefault<>(TokenFilter.UPPER_COLON, I2CCodecBase::getName).setNamedDescription(new NamedDescription("I2CCodecManager", "I2CProtocol"))
+//            .registerValue(new I2CCodec("ping", "Ping the device return the ping value as java int, usage: PING"))
+//            .registerValue(new I2CCodec("messages", "The number i2c messages processed by the device return the count value as java int, usage: MESSAGES"))
+//            .registerValue(new I2CCodec("cpu-speed", "Get the device cpu frequency in hz, value as java int, usage: CPU-SPEED"))
+//            .registerValue(new I2CAref())
+//            .registerValue(new I2CCodec("reset", "Reboot the device, no return value bus will throw exception, usage: RESET"))
+//            .registerValue(I2CUptime.SINGLETON)
+//            .registerValue(I2CVersion.SINGLETON)
+//            .registerValue(I2CEcho.SINGLETON)
+//            .registerValue(I2CAddress.SINGLETON)
+//            .registerValue(new I2CIO());
 
     public static final I2CUtil SINGLETON = new I2CUtil();
 
@@ -71,7 +74,7 @@ public class I2CUtil {
         I2CBaseDevice i2cDevice = createI2CDevice("generic", bus, address);
         String rawCommand = command.toUpperCase();
 
-        I2CCodecBase mc = I2C_CODEC_MANAGER.lookup(rawCommand);
+        I2CCodecBase mc = IOTDataUtil.I2C_CODEC_MANAGER.lookup(rawCommand);
         if (mc == null) {
             throw new IllegalArgumentException("Command not supported: " + command);
         }
@@ -79,7 +82,7 @@ public class I2CUtil {
 
         I2CDevice i2cDev = i2cDevice.getI2CDevice();
 
-        CommandToBytes i2cCommand = mc.encode(rawCommand);
+        io.xlogistx.iot.data.CommandToBytes i2cCommand = mc.encode(rawCommand);
         if (log.isEnabled()) log.getLogger().info("sending: " + rawCommand + " " + i2cCommand);
         byte[] respData = new byte[mc.responseLength()];
         // we can only send and read one message at time
@@ -144,7 +147,7 @@ public class I2CUtil {
     public I2CCodecBase[] getI2cCodecs() {
         List<I2CCodecBase> ret = new ArrayList<>();
 
-        Iterator<I2CCodecBase> iter = I2C_CODEC_MANAGER.values();
+        Iterator<I2CCodecBase> iter = IOTDataUtil.I2C_CODEC_MANAGER.values();
         while (iter.hasNext()) {
             ret.add(iter.next());
         }
@@ -175,11 +178,11 @@ public class I2CUtil {
         return ret.toArray(new I2CDevice[ret.size()]);
     }
 
-    public static void write(I2CBaseDevice dev, CommandToBytes command) throws IOException {
+    public static void write(I2CBaseDevice dev, io.xlogistx.iot.data.CommandToBytes command) throws IOException {
         write(dev.getI2CDevice(), command);
     }
 
-    public static void write(I2CDevice dev, CommandToBytes command) throws IOException {
+    public static void write(I2CDevice dev, io.xlogistx.iot.data.CommandToBytes command) throws IOException {
         dev.write(command.data(), 0, command.size());
     }
 
@@ -196,7 +199,7 @@ public class I2CUtil {
 
         System.err.println(VERSION + " usage :" + token + " [i2c=cmd] bus=bus-id address=i2c-address [uri=i2cCommand1 uri=2icCommand2]... \n\n");
 
-        Iterator<I2CCodecBase> all = I2C_CODEC_MANAGER.values();
+        Iterator<I2CCodecBase> all = IOTDataUtil.I2C_CODEC_MANAGER.values();
         while (all.hasNext()) {
             System.err.println(VERSION + ":I2C command: " + all.next());
         }

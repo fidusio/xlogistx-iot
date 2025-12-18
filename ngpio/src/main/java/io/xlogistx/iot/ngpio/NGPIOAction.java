@@ -3,7 +3,7 @@ package io.xlogistx.iot.ngpio;
 import org.zoxweb.shared.util.GetValue;
 import org.zoxweb.shared.util.SharedUtil;
 
-public enum NIOAction implements GetValue<String> {
+public enum NGPIOAction implements GetValue<String> {
     READ("-r"),
     READ_AS_INPUT("-ri"),
     MONITOR("-m"),
@@ -18,7 +18,7 @@ public enum NIOAction implements GetValue<String> {
 
     private final String value;
 
-    NIOAction(String val) {
+    NGPIOAction(String val) {
         value = val;
     }
 
@@ -27,7 +27,7 @@ public enum NIOAction implements GetValue<String> {
         return value;
     }
 
-    public static NIOAction lookup(String token) {
+    public static NGPIOAction lookup(String token) {
         return SharedUtil.lookupEnum(token, values());
     }
 }

@@ -1,8 +1,8 @@
 package io.xlogistx.iot.gpio;
 
-import io.xlogistx.iot.gpio.data.CommandToBytes;
-import io.xlogistx.iot.gpio.data.I2CEcho;
-import io.xlogistx.iot.gpio.data.I2CResp;
+import io.xlogistx.iot.data.CommandToBytes;
+import io.xlogistx.iot.data.i2c.I2CEcho;
+import io.xlogistx.iot.data.i2c.I2CResp;
 import org.junit.jupiter.api.Test;
 import org.zoxweb.server.util.GSONUtil;
 import org.zoxweb.shared.data.SimpleMessage;

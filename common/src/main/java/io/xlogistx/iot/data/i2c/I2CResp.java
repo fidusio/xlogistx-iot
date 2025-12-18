@@ -1,4 +1,4 @@
-package io.xlogistx.iot.gpio.data;
+package io.xlogistx.iot.data.i2c;
 
 public class I2CResp {
     public final int bus;

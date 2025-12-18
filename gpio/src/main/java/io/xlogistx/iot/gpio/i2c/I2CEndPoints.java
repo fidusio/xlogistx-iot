@@ -3,8 +3,8 @@ package io.xlogistx.iot.gpio.i2c;
 import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
 import io.xlogistx.common.data.PropertyContainer;
-import io.xlogistx.iot.gpio.MultiplierDataFilter;
-import io.xlogistx.iot.gpio.data.I2CCodecBase;
+import io.xlogistx.iot.data.MultiplierDataFilter;
+import io.xlogistx.iot.data.i2c.I2CCodecBase;
 import io.xlogistx.iot.gpio.i2c.modules.ADS1115;
 import org.zoxweb.server.logging.LogWrapper;
 import org.zoxweb.shared.annotation.EndPointProp;
@@ -19,6 +19,8 @@ import org.zoxweb.shared.util.*;
 
 import java.io.IOException;
 import java.util.Arrays;
+
+import static io.xlogistx.iot.data.IOTDataUtil.DATA_FILTER;
 
 @SecurityProp(authentications = {CryptoConst.AuthenticationType.BASIC,
         CryptoConst.AuthenticationType.BEARER,
@@ -56,7 +58,7 @@ public class I2CEndPoints
         MultiplierDataFilter mdf = new MultiplierDataFilter(type, filerID, dataFilterName, filerID);
         mdf.setMultiplier(multiplier);
         mdf.setUnit(unit);
-        I2CUtil.DATA_FILTER.registerValue(mdf);
+        DATA_FILTER.registerValue(mdf);
 
         return response;
     }

@@ -1,5 +1,8 @@
-package io.xlogistx.iot.gpio.data;
+package io.xlogistx.iot.data.i2c;
 
+import io.xlogistx.iot.data.CommandToBytes;
+import io.xlogistx.iot.data.i2c.I2CCodec;
+import io.xlogistx.iot.data.i2c.I2CResp;
 import org.zoxweb.shared.data.SimpleMessage;
 import org.zoxweb.shared.filters.TokenFilter;
 import org.zoxweb.shared.util.BytesValue;
@@ -40,7 +43,7 @@ public class I2CAref
         // input is ignored
         String[] tokens = SharedStringUtil.parseString(input, ":", true);
         int index = 0;
-        CommandToBytes ret = new CommandToBytes(16, ':').command(TokenFilter.UPPER_COLON.validate(tokens[index++]));
+       CommandToBytes ret = new CommandToBytes(16, ':').command(TokenFilter.UPPER_COLON.validate(tokens[index++]));
         for (; index < tokens.length; index++) {
             ret.toBytes(TokenFilter.UPPER_COLON.validate(tokens[index]));
         }
