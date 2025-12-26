@@ -20,11 +20,14 @@ package io.xlogistx.iot.gpio64;
 import org.zoxweb.shared.util.*;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import static io.xlogistx.iot.data.IOTDataUtil.PinFunction;
 
 /**
  * GPIO Pin enumeration for Pi4J v3 using BCM pin addresses directly.
@@ -33,39 +36,41 @@ import java.util.concurrent.locks.ReentrantLock;
 public enum GPIO64Pin
         implements GetValue<Integer>, GetName {
 
-    // BCM GPIO pins - address is the BCM pin number
-    GPIO_00(0),
-    GPIO_01(1),
-    GPIO_02(2),
-    GPIO_03(3),
-    GPIO_04(4),
-    GPIO_05(5),
-    GPIO_06(6),
-    GPIO_07(7),
-    GPIO_08(8),
-    GPIO_09(9),
-    GPIO_10(10),
-    GPIO_11(11),
-    GPIO_12(12),
-    GPIO_13(13),
-    GPIO_14(14),
-    GPIO_15(15),
-    GPIO_16(16),
-    GPIO_17(17),
-    GPIO_18(18),
-    GPIO_19(19),
-    GPIO_20(20),
-    GPIO_21(21),
-    GPIO_22(22),
-    GPIO_23(23),
-    GPIO_24(24),
-    GPIO_25(25),
-    GPIO_26(26),
-    GPIO_27(27),
-    GPIO_28(28),
-    GPIO_29(29),
-    GPIO_30(30),
-    GPIO_31(31);
+    // BCM GPIO pins - (bcmAddress, physicalPin, functions...)
+    // Physical pin -1 means not available on standard 40-pin header
+    GPIO_00(0, 27, PinFunction.GPIO, PinFunction.I2C),      // I2C0 SDA (EEPROM)
+    GPIO_01(1, 28, PinFunction.GPIO, PinFunction.I2C),      // I2C0 SCL (EEPROM)
+    GPIO_02(2, 3, PinFunction.GPIO, PinFunction.I2C),       // I2C1 SDA
+    GPIO_03(3, 5, PinFunction.GPIO, PinFunction.I2C),       // I2C1 SCL
+    GPIO_04(4, 7, PinFunction.GPIO, PinFunction.GPCLK, PinFunction.ONE_WIRE),  // GPCLK0, 1-Wire default
+    GPIO_05(5, 29, PinFunction.GPIO),
+    GPIO_06(6, 31, PinFunction.GPIO),
+    GPIO_07(7, 26, PinFunction.GPIO, PinFunction.SPI),      // SPI0 CE1
+    GPIO_08(8, 24, PinFunction.GPIO, PinFunction.SPI),      // SPI0 CE0
+    GPIO_09(9, 21, PinFunction.GPIO, PinFunction.SPI),      // SPI0 MISO
+    GPIO_10(10, 19, PinFunction.GPIO, PinFunction.SPI),     // SPI0 MOSI
+    GPIO_11(11, 23, PinFunction.GPIO, PinFunction.SPI),     // SPI0 SCLK
+    GPIO_12(12, 32, PinFunction.GPIO, PinFunction.PWM),     // PWM0
+    GPIO_13(13, 33, PinFunction.GPIO, PinFunction.PWM),     // PWM1
+    GPIO_14(14, 8, PinFunction.GPIO, PinFunction.UART),     // UART TXD
+    GPIO_15(15, 10, PinFunction.GPIO, PinFunction.UART),    // UART RXD
+    GPIO_16(16, 36, PinFunction.GPIO),
+    GPIO_17(17, 11, PinFunction.GPIO),
+    GPIO_18(18, 12, PinFunction.GPIO, PinFunction.PWM, PinFunction.PCM),  // PWM0 / PCM CLK
+    GPIO_19(19, 35, PinFunction.GPIO, PinFunction.PWM, PinFunction.PCM),  // PWM1 / PCM FS
+    GPIO_20(20, 38, PinFunction.GPIO, PinFunction.PCM),     // PCM DIN
+    GPIO_21(21, 40, PinFunction.GPIO, PinFunction.PCM),     // PCM DOUT
+    GPIO_22(22, 15, PinFunction.GPIO),
+    GPIO_23(23, 16, PinFunction.GPIO),
+    GPIO_24(24, 18, PinFunction.GPIO),
+    GPIO_25(25, 22, PinFunction.GPIO),
+    GPIO_26(26, 37, PinFunction.GPIO),
+    GPIO_27(27, 13, PinFunction.GPIO),
+    GPIO_28(28, -1, PinFunction.GPIO),  // Not on 40-pin header
+    GPIO_29(29, -1, PinFunction.GPIO),  // Not on 40-pin header
+    GPIO_30(30, -1, PinFunction.GPIO),  // Not on 40-pin header
+    GPIO_31(31, -1, PinFunction.GPIO);  // Not on 40-pin header
+
 
 
     private static final Lock lock = new ReentrantLock();
@@ -88,10 +93,16 @@ public enum GPIO64Pin
 
     private static final Map<String, GPIONameMap> mappedGPIOs = new HashMap<String, GPIONameMap>();
     private final int bcmAddress;
+    private final int physicalPin;
+    private final Set<PinFunction> functions;
 
 
-    GPIO64Pin(int bcmAddress) {
+    GPIO64Pin(int bcmAddress, int physicalPin, PinFunction... functions) {
         this.bcmAddress = bcmAddress;
+        this.physicalPin = physicalPin;
+        this.functions = functions.length > 0
+            ? EnumSet.copyOf(java.util.Arrays.asList(functions))
+            : EnumSet.of(PinFunction.GPIO);
     }
 
 
@@ -112,6 +123,86 @@ public enum GPIO64Pin
         return bcmAddress;
     }
 
+    /**
+     * Get the physical pin number on the 40-pin header.
+     * @return physical pin number, or -1 if not available on 40-pin header
+     */
+    public int getPhysicalPin() {
+        return physicalPin;
+    }
+
+    /**
+     * Check if this pin is available on the standard 40-pin header.
+     * @return true if available on 40-pin header
+     */
+    public boolean isOnHeader() {
+        return physicalPin > 0;
+    }
+
+    /**
+     * Get all supported functions for this pin.
+     * @return unmodifiable set of supported functions
+     */
+    public Set<PinFunction> getFunctions() {
+        return java.util.Collections.unmodifiableSet(functions);
+    }
+
+    /**
+     * Check if this pin supports a specific function.
+     * @param function the function to check
+     * @return true if the pin supports the function
+     */
+    public boolean supports(PinFunction function) {
+        return functions.contains(function);
+    }
+
+    /**
+     * Check if this pin supports PWM.
+     * @return true if PWM is supported
+     */
+    public boolean supportsPWM() {
+        return functions.contains(PinFunction.PWM);
+    }
+
+    /**
+     * Check if this pin supports I2C.
+     * @return true if I2C is supported
+     */
+    public boolean supportsI2C() {
+        return functions.contains(PinFunction.I2C);
+    }
+
+    /**
+     * Check if this pin supports SPI.
+     * @return true if SPI is supported
+     */
+    public boolean supportsSPI() {
+        return functions.contains(PinFunction.SPI);
+    }
+
+    /**
+     * Check if this pin supports UART.
+     * @return true if UART is supported
+     */
+    public boolean supportsUART() {
+        return functions.contains(PinFunction.UART);
+    }
+
+    /**
+     * Find all pins that support a specific function.
+     * @param function the function to filter by
+     * @return array of pins supporting the function
+     */
+    public static GPIO64Pin[] findByFunction(PinFunction function) {
+        List<GPIO64Pin> result = new ArrayList<>();
+        for (GPIO64Pin pin : values()) {
+            if (pin.supports(function)) {
+                result.add(pin);
+            }
+        }
+        return result.toArray(new GPIO64Pin[0]);
+    }
+
     @Override
     public Integer getValue() {
         return bcmAddress;
@@ -125,6 +216,19 @@ public enum GPIO64Pin
     public static GPIO64Pin lookup(int bcmAddress) {
         for (GPIO64Pin p : values()) {
             if (bcmAddress == p.bcmAddress)
+                return p;
+        }
+        return null;
+    }
+
+    /**
+     * Lookup a GPIO pin by its physical pin number on the 40-pin header.
+     * @param physicalPin the physical pin number (1-40)
+     * @return the GPIO64Pin or null if not found
+     */
+    public static GPIO64Pin lookupByPhysicalPin(int physicalPin) {
+        for (GPIO64Pin p : values()) {
+            if (physicalPin == p.physicalPin)
                 return p;
         }
         return null;
@@ -287,7 +391,7 @@ public enum GPIO64Pin
     }
 
     public String toString() {
-        return name() + "-" + bcmAddress;
+        return name() + "[bcm=" + bcmAddress + ",pin=" + (physicalPin > 0 ? physicalPin : "N/A") + ",functions=" + functions + "]";
     }
 
 }

@@ -74,4 +74,18 @@ public class IOTDataUtil {
             return SharedUtil.lookupEnum(str, PortType.values());
         }
     }
+    /**
+     * Supported pin functions/alternate modes
+     */
+    public enum PinFunction {
+        GPIO,       // General Purpose I/O (digital input/output)
+        PWM,        // Pulse Width Modulation
+        I2C,        // I2C bus (SDA/SCL)
+        SPI,        // SPI bus (MOSI/MISO/SCLK/CE)
+        UART,       // Serial UART (TX/RX)
+        PCM,        // PCM audio (CLK/FS/DIN/DOUT)
+        GPCLK,      // General Purpose Clock
+        ONE_WIRE    // 1-Wire protocol
+    }
+
 }
