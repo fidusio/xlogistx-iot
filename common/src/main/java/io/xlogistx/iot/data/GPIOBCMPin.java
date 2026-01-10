@@ -14,7 +14,7 @@
  * the License.
  */
 
-package io.xlogistx.iot.gpio64;
+package io.xlogistx.iot.data;
 
 
 import org.zoxweb.shared.util.*;
@@ -33,7 +33,7 @@ import static io.xlogistx.iot.data.IOTDataUtil.PinFunction;
  * GPIO Pin enumeration for Pi4J v3 using BCM pin addresses directly.
  * This replaces the RaspiPin-based approach from Pi4J v1.x.
  */
-public enum GPIO64Pin
+public enum GPIOBCMPin
         implements GetValue<Integer>, GetName {
 
     // BCM GPIO pins - (bcmAddress, physicalPin, functions...)
@@ -77,10 +77,10 @@ public enum GPIO64Pin
 
     public static class GPIONameMap {
 
-        public final GPIO64Pin gpioPin;
+        public final GPIOBCMPin gpioPin;
         public final String nameMap;
 
-        GPIONameMap(GPIO64Pin pin, String nameMap) {
+        GPIONameMap(GPIOBCMPin pin, String nameMap) {
             this.gpioPin = pin;
             this.nameMap = nameMap;
         }
@@ -97,7 +97,7 @@ public enum GPIO64Pin
     private final Set<PinFunction> functions;
 
 
-    GPIO64Pin(int bcmAddress, int physicalPin, PinFunction... functions) {
+    GPIOBCMPin(int bcmAddress, int physicalPin, PinFunction... functions) {
         this.bcmAddress = bcmAddress;
         this.physicalPin = physicalPin;
         this.functions = functions.length > 0
@@ -193,14 +193,14 @@ public enum GPIO64Pin
      * @param function the function to filter by
      * @return array of pins supporting the function
      */
-    public static GPIO64Pin[] findByFunction(PinFunction function) {
-        List<GPIO64Pin> result = new ArrayList<>();
-        for (GPIO64Pin pin : values()) {
+    public static GPIOBCMPin[] findByFunction(PinFunction function) {
+        List<GPIOBCMPin> result = new ArrayList<>();
+        for (GPIOBCMPin pin : values()) {
             if (pin.supports(function)) {
                 result.add(pin);
             }
         }
-        return result.toArray(new GPIO64Pin[0]);
+        return result.toArray(new GPIOBCMPin[0]);
     }
 
     @Override
@@ -213,8 +213,8 @@ public enum GPIO64Pin
         return name();
     }
 
-    public static GPIO64Pin lookup(int bcmAddress) {
-        for (GPIO64Pin p : values()) {
+    public static GPIOBCMPin lookup(int bcmAddress) {
+        for (GPIOBCMPin p : values()) {
             if (bcmAddress == p.bcmAddress)
                 return p;
         }
@@ -226,24 +226,24 @@ public enum GPIO64Pin
      * @param physicalPin the physical pin number (1-40)
      * @return the GPIO64Pin or null if not found
      */
-    public static GPIO64Pin lookupByPhysicalPin(int physicalPin) {
-        for (GPIO64Pin p : values()) {
+    public static GPIOBCMPin lookupByPhysicalPin(int physicalPin) {
+        for (GPIOBCMPin p : values()) {
             if (physicalPin == p.physicalPin)
                 return p;
         }
         return null;
     }
 
-    public static GPIO64Pin[] lookup(String... pinIDs) {
+    public static GPIOBCMPin[] lookup(String... pinIDs) {
         if (pinIDs != null && pinIDs.length == 1 && "all".equalsIgnoreCase(pinIDs[0])) {
-            return GPIO64Pin.values();
+            return GPIOBCMPin.values();
         }
 
-        List<GPIO64Pin> ret = new ArrayList<GPIO64Pin>();
+        List<GPIOBCMPin> ret = new ArrayList<GPIOBCMPin>();
         for (String pinID : pinIDs) {
             pinID = SharedStringUtil.trimOrNull(pinID);
             if (pinID != null) {
-                GPIO64Pin toAdd = null;
+                GPIOBCMPin toAdd = null;
                 // try to get the mapped
 
                 GPIONameMap toFind = mappedGPIOs.get(pinID);
@@ -287,11 +287,11 @@ public enum GPIO64Pin
             }
         }
 
-        return ret.toArray(new GPIO64Pin[ret.size()]);
+        return ret.toArray(new GPIOBCMPin[ret.size()]);
     }
 
 
-    public static GPIO64Pin mapGPIOName(String gpioNameUserDefinedName) {
+    public static GPIOBCMPin mapGPIOName(String gpioNameUserDefinedName) {
         gpioNameUserDefinedName = SharedStringUtil.trimOrNull(gpioNameUserDefinedName);
         SUS.checkIfNulls("GPIO_ID:UserDefinedName can't be null", gpioNameUserDefinedName);
 
@@ -313,7 +313,7 @@ public enum GPIO64Pin
         GPIONameMap ret = mappedGPIOs.get(tokens[1]);
 
         if (ret == null) {
-            GPIO64Pin pin = lookupGPIO(tokens[0]);
+            GPIOBCMPin pin = lookupGPIO(tokens[0]);
             if (pin == null) {
                 throw new IllegalArgumentException("Invalid NGPIOPin name  " + tokens[0]);
             }
@@ -324,7 +324,7 @@ public enum GPIO64Pin
     }
 
 
-    public static GPIO64Pin mapGPIOName(GPIONameMap gpio) {
+    public static GPIOBCMPin mapGPIOName(GPIONameMap gpio) {
         GPIONameMap ret = mappedGPIOs.get(gpio.nameMap);
         if (ret == null)
             return mapGPIOName(gpio.nameMap, gpio.gpioPin);
@@ -332,14 +332,14 @@ public enum GPIO64Pin
         return ret.gpioPin;
     }
 
-    public static GPIO64Pin mapGPIOName(String userDefinedName, GPIO64Pin gpio) {
+    public static GPIOBCMPin mapGPIOName(String userDefinedName, GPIOBCMPin gpio) {
         return mapGPIOName(userDefinedName, gpio.getName());
     }
 
-    public static GPIO64Pin mapGPIOName(String userDefinedName, String gpioName) {
+    public static GPIOBCMPin mapGPIOName(String userDefinedName, String gpioName) {
         userDefinedName = SharedStringUtil.trimOrNull(userDefinedName);
         SUS.checkIfNulls("GPIO name or GPIO can't be null", userDefinedName, gpioName);
-        GPIO64Pin gpio = lookupGPIO(gpioName);
+        GPIOBCMPin gpio = lookupGPIO(gpioName);
         if (gpio == null)
             throw new IllegalArgumentException(gpioName + " not found");
 
@@ -354,7 +354,7 @@ public enum GPIO64Pin
         return gpio;
     }
 
-    public static GPIO64Pin unmapGPIOName(String userDefinedName) {
+    public static GPIOBCMPin unmapGPIOName(String userDefinedName) {
         GPIONameMap toFind = mappedGPIOs.get(userDefinedName);
         if (toFind != null) {
 
@@ -372,12 +372,12 @@ public enum GPIO64Pin
 
 
     public static Integer lookupAddress(String pinID) {
-        GPIO64Pin[] ret = lookup(pinID);
+        GPIOBCMPin[] ret = lookup(pinID);
         return ret.length != 0 ? ret[0].getValue() : null;
     }
 
     public static GPIONameMap lookupGPIONameMap(int bcmAddress) {
-        GPIO64Pin gpioPin = GPIO64Pin.lookup(bcmAddress);
+        GPIOBCMPin gpioPin = GPIOBCMPin.lookup(bcmAddress);
         return gpioPin != null ? mappedGPIOs.get(gpioPin.name()) : null;
     }
 
@@ -385,8 +385,8 @@ public enum GPIO64Pin
         return mappedGPIOs.get(pin);
     }
 
-    public static GPIO64Pin lookupGPIO(String pinID) {
-        GPIO64Pin[] ret = lookup(pinID);
+    public static GPIOBCMPin lookupGPIO(String pinID) {
+        GPIOBCMPin[] ret = lookup(pinID);
         return ret.length != 0 ? ret[0] : null;
     }
 

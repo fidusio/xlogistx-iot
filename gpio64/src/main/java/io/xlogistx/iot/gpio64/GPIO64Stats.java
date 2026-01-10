@@ -9,9 +9,9 @@ public abstract class GPIO64Stats<T> {
 
 
     protected volatile T lastState;
-    protected GPIO64Pin pin;
+    protected io.xlogistx.iot.data.GPIOBCMPin pin;
 
-    public GPIO64Stats(GPIO64Pin pin) {
+    public GPIO64Stats(io.xlogistx.iot.data.GPIOBCMPin pin) {
         this.pin = pin;
     }
 
@@ -40,7 +40,7 @@ public abstract class GPIO64Stats<T> {
         this.lastTime = lastTime;
     }
 
-    public GPIO64Pin getPin() {
+    public io.xlogistx.iot.data.GPIOBCMPin getPin() {
         return pin;
     }
 

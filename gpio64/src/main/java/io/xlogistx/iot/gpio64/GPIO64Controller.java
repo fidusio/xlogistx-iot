@@ -32,7 +32,7 @@ public class GPIO64Controller
     @Override
     public void run() {
         try {
-            Integer address = GPIO64Pin.lookupAddress(getProperties().getValue(Param.PIN.getName()));
+            Integer address = io.xlogistx.iot.data.GPIOBCMPin.lookupAddress(getProperties().getValue(Param.PIN.getName()));
             long duration = 0;
 
             GetNameValue<?> gnvDuration = getProperties().get(Param.DURATION.getName());

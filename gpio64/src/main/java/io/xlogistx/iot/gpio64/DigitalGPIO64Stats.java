@@ -6,7 +6,7 @@ public class DigitalGPIO64Stats extends GPIO64Stats<Boolean> {
     protected volatile long lowCounter;
     protected volatile long highCounter;
 
-    public DigitalGPIO64Stats(GPIO64Pin pin) {
+    public DigitalGPIO64Stats(io.xlogistx.iot.data.GPIOBCMPin pin) {
         super(pin);
         lastState = false;
         startTime = System.currentTimeMillis();

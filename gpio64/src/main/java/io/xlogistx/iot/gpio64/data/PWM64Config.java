@@ -2,13 +2,12 @@ package io.xlogistx.iot.gpio64.data;
 
 import com.google.gson.annotations.SerializedName;
 import com.pi4j.io.gpio.digital.DigitalState;
-import io.xlogistx.iot.gpio64.GPIO64Pin;
 import org.zoxweb.shared.util.Const;
 
 public class PWM64Config {
 
 
-    private GPIO64Pin[] gpios;
+    private io.xlogistx.iot.data.GPIOBCMPin[] gpios;
     private float frequency;
     @SerializedName("duty_cycle")
     private float dutyCycle;
@@ -82,16 +81,16 @@ public class PWM64Config {
         return this;
     }
 
-    public PWM64Config gpioPinSetter(GPIO64Pin... pins) {
+    public PWM64Config gpioPinSetter(io.xlogistx.iot.data.GPIOBCMPin... pins) {
         setGPIOPins(pins);
         return this;
     }
 
-    public GPIO64Pin[] getGPIOPins() {
+    public io.xlogistx.iot.data.GPIOBCMPin[] getGPIOPins() {
         return gpios;
     }
 
-    public void setGPIOPins(GPIO64Pin... gpios) {
+    public void setGPIOPins(io.xlogistx.iot.data.GPIOBCMPin... gpios) {
         this.gpios = gpios;
     }
 

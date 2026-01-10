@@ -3,6 +3,8 @@ package io.xlogistx.iot.gpio64;
 
 import com.pi4j.io.gpio.digital.DigitalState;
 import io.xlogistx.common.data.PropertyContainer;
+import io.xlogistx.iot.gpio.GPIOHandler;
+import org.zoxweb.server.logging.LogWrapper;
 import org.zoxweb.shared.annotation.EndPointProp;
 import org.zoxweb.shared.annotation.ParamProp;
 import org.zoxweb.shared.annotation.SecurityProp;
@@ -14,8 +16,7 @@ import org.zoxweb.shared.http.HTTPMethod;
 import org.zoxweb.shared.http.HTTPStatusCode;
 import org.zoxweb.shared.http.URIScheme;
 import org.zoxweb.shared.util.*;
-
-import java.util.logging.Logger;
+import io.xlogistx.iot.data.GPIOBCMPin;
 
 
 @SecurityProp(authentications = {CryptoConst.AuthenticationType.BASIC,
@@ -26,14 +27,15 @@ import java.util.logging.Logger;
 public class GPIO64EndPoints
         extends PropertyContainer<NVGenericMap> {
 
-    private static final Logger log = Logger.getLogger(GPIO64EndPoints.class.getName());
+    public static final LogWrapper log = new LogWrapper(GPIO64EndPoints.class).setEnabled(true);
+    private static GPIOHandler gpioHandler = GPIO64Tools.SINGLETON;
 
 
     @EndPointProp(methods = {HTTPMethod.GET, HTTPMethod.POST}, name = "output-pin", uris = "/output/pin/{gpio}/{state}/{duration}")
     public SimpleMessage outputPin(@ParamProp(name = "gpio") String gpio,
                                    @ParamProp(name = "state") boolean state,
                                    @ParamProp(name = "duration", optional = true) String durationParam) {
-        GPIO64Pin pin = GPIO64Pin.lookupGPIO(gpio);
+        GPIOBCMPin pin = GPIOBCMPin.lookupGPIO(gpio);
         long duration = 0;
         if (durationParam != null) {
             duration = Const.TimeInMillis.toMillis(durationParam);
@@ -65,7 +67,7 @@ public class GPIO64EndPoints
     //@ParamProp(name="monitor", optional = true) boolean monitor)
     {
 
-        GPIO64Pin pin = GPIO64Pin.lookupGPIO(gpio);
+       GPIOBCMPin pin = GPIOBCMPin.lookupGPIO(gpio);
 
         if (duration != null) {
 
@@ -74,7 +76,7 @@ public class GPIO64EndPoints
         } else {
             duration = "" + 0;
         }
-        GPIO64Tools.SINGLETON.setPWM(pin, freq, dutyCycle, Const.TimeInMillis.toMillis(duration));
+        gpioHandler.setPWM(pin.getBCMAddress(), freq, dutyCycle, Const.TimeInMillis.toMillis(duration));
 
         SimpleMessage response = new SimpleMessage(pin + " pwm set successfully.",
                 HTTPStatusCode.OK.CODE);
@@ -90,7 +92,7 @@ public class GPIO64EndPoints
                                    @ParamProp(name = "delay") String delayParam,
                                    @ParamProp(name = "count") int count) {
 
-        GPIO64Pin pin = GPIO64Pin.lookupGPIO(gpio);
+        GPIOBCMPin pin = GPIOBCMPin.lookupGPIO(gpio);
         Range<Float> dutyCycle = new Range<Float>(lower, upper);
         long delay = Const.TimeInMillis.toMillis(delayParam);
 
@@ -121,8 +123,8 @@ public class GPIO64EndPoints
     @EndPointProp(methods = {HTTPMethod.GET, HTTPMethod.POST}, name = "map-gpio", uris = "/gpio/map/{gpio}/{name}")
     public SimpleMessage mapGPIO(@ParamProp(name = "gpio") String gpio,
                                  @ParamProp(name = "name") String name) {
-        GPIO64Pin gpioPin = GPIO64Pin.lookupGPIO(gpio);
-        GPIO64Pin.mapGPIOName(name, gpioPin);
+        io.xlogistx.iot.data.GPIOBCMPin gpioPin = io.xlogistx.iot.data.GPIOBCMPin.lookupGPIO(gpio);
+        io.xlogistx.iot.data.GPIOBCMPin.mapGPIOName(name, gpioPin);
 
         SimpleMessage response = new SimpleMessage(gpioPin.getName() + " successfully mapped to " + name,
                 HTTPStatusCode.OK.CODE);
@@ -131,7 +133,7 @@ public class GPIO64EndPoints
 
     @EndPointProp(methods = {HTTPMethod.GET, HTTPMethod.DELETE}, name = "map-gpio", uris = "/gpio/unmap/{name}")
     public SimpleMessage unmapGPIO(@ParamProp(name = "name") String name) {
-        GPIO64Pin gpioPin = GPIO64Pin.unmapGPIOName(name);
+        io.xlogistx.iot.data.GPIOBCMPin gpioPin = io.xlogistx.iot.data.GPIOBCMPin.unmapGPIOName(name);
         if (gpioPin == null)
             throw new IllegalArgumentException("gpio was never mapped to " + name);
 
@@ -258,20 +260,20 @@ public class GPIO64EndPoints
 //    }
 
     protected void refreshProperties() {
-        log.info("WE MUST UPDATE");
+        if(log.isEnabled()) log.getLogger().info("WE MUST UPDATE");
         if (getProperties() != null) {
             NVGenericMap gpiosMap = (NVGenericMap) getProperties().get("gpios-map");
             if (gpiosMap != null) {
                 for (GetNameValue<?> pinInfo : gpiosMap.values()) {
                     try {
-                        GPIO64Pin gpio = GPIO64Pin.mapGPIOName(pinInfo.getName(), "" + pinInfo.getValue());
-                        log.info(gpio.getName() + " --> " + pinInfo.getName());
+                        io.xlogistx.iot.data.GPIOBCMPin gpio = io.xlogistx.iot.data.GPIOBCMPin.mapGPIOName(pinInfo.getName(), "" + pinInfo.getValue());
+                        if(log.isEnabled()) log.getLogger().info(gpio.getName() + " --> " + pinInfo.getName());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
             } else {
-                log.info("GPIO-MAPS NOT FOUND");
+                if(log.isEnabled()) log.getLogger().info("GPIO-MAPS NOT FOUND");
             }
 
             NVGenericMap gpiosInit = (NVGenericMap) getProperties().get("gpios-init");
@@ -280,8 +282,8 @@ public class GPIO64EndPoints
                     try {
                         NVGenericMap pinConfig = (NVGenericMap) gnv;
 
-                        GPIO64Pin pin = GPIO64Pin.lookupGPIO(pinConfig.getName());
-                        log.info(getID() + " *********************************************Pin lookup:" + pinConfig + " pin:" + pin);
+                        io.xlogistx.iot.data.GPIOBCMPin pin = io.xlogistx.iot.data.GPIOBCMPin.lookupGPIO(pinConfig.getName());
+                        if(log.isEnabled()) log.getLogger().info(getID() + " *********************************************Pin lookup:" + pinConfig + " pin:" + pin);
 
                         if (pin != null) {
 
@@ -289,10 +291,10 @@ public class GPIO64EndPoints
                             long duration = pinConfig.get("duration") != null ? Const.TimeInMillis.toMillis("" + pinConfig.getValue("duration")) : 0;
 
                             GPIO64Tools.SINGLETON.setOutputPin(pin.getValue(), DigitalState.getState(state), duration);
-                            log.info(pin + " set " + state + " duration " + duration);
+                            if(log.isEnabled()) log.getLogger().info(pin + " set " + state + " duration " + duration);
 
                         } else {
-                            log.info("Pin not found:" + pinConfig.getName());
+                            if(log.isEnabled()) log.getLogger().info("Pin not found:" + pinConfig.getName());
                         }
 
                     } catch (Exception e) {
@@ -301,7 +303,7 @@ public class GPIO64EndPoints
                 }
             }
         } else {
-            log.info("Properties is null");
+            if(log.isEnabled()) log.getLogger().info("Properties is null");
         }
     }
 }

@@ -1,12 +1,13 @@
-package io.xlogistx.iot.gpio64.i2c;
+package io.xlogistx.iot.gpio;
 
 
-import com.pi4j.io.i2c.I2C;
 import io.xlogistx.common.data.PropertyContainer;
 import io.xlogistx.iot.data.IOTDataUtil;
 import io.xlogistx.iot.data.MultiplierDataFilter;
 import io.xlogistx.iot.data.i2c.I2CCodecBase;
 import org.zoxweb.server.logging.LogWrapper;
+import org.zoxweb.server.util.JMod;
+import org.zoxweb.server.util.ReflectionUtil;
 import org.zoxweb.shared.annotation.EndPointProp;
 import org.zoxweb.shared.annotation.ParamProp;
 import org.zoxweb.shared.annotation.SecurityProp;
@@ -25,9 +26,10 @@ import java.io.IOException;
         CryptoConst.AuthenticationType.BEARER,
         CryptoConst.AuthenticationType.JWT},
         permissions = "i2c:access")
-public class I2C64EndPoints
+public class I2CEndPoints
         extends PropertyContainer<NVGenericMap> {
-    private static final LogWrapper log = new LogWrapper(I2C64EndPoints.class).setEnabled(true);
+    private static final LogWrapper log = new LogWrapper(I2CEndPoints.class).setEnabled(true);
+    private static I2CHandler  i2cHandler;
 
 
     @EndPointProp(methods = {HTTPMethod.GET}, name = "i2c-command", uris = "/i2c/{i2c-bus}/{i2c-address}/{command}")
@@ -37,7 +39,7 @@ public class I2C64EndPoints
             throws IOException {
         int address = SharedUtil.parseInt(addressID);
         log.getLogger().info("i2c address:" + address);
-        return I2C64Util.SINGLETON.sendI2CCommand(bus, address, command, SharedUtil.toCanonicalID('/', "i2c", bus, Integer.toHexString(address), command).toUpperCase(), 1);
+        return i2cHandler.sendI2CCommand(bus, address, command, SharedUtil.toCanonicalID('/', "i2c", bus, Integer.toHexString(address), command).toUpperCase(), 1);
     }
 
 
@@ -66,7 +68,7 @@ public class I2C64EndPoints
     @SecurityProp(permissions = SecurityModel.PERM_RESOURCE_ANY)
     public SimpleMessage i2cSupportedCommands() {
 
-        I2CCodecBase[] allMessages = I2C64Util.SINGLETON.getI2CCodecs();
+        I2CCodecBase[] allMessages = i2cHandler.getI2CCodecs();
         SimpleMessage response = new SimpleMessage();
         response.setDescription("All supported messages, for web calls ie https://host:port/i2c/{bus-id}/{i2c-device-address}/[command]");
         response.getProperties().build("BUS-SCAN", "Scan i2c bus ie https://host:port/i2c/scan/{bus-id}");
@@ -78,20 +80,25 @@ public class I2C64EndPoints
 
     @EndPointProp(methods = {HTTPMethod.GET}, name = "i2c-scan-bus", uris = "/i2c/scan/{i2c-bus}")
     public SimpleMessage i2cScanBus(@ParamProp(name = "i2c-bus") int bus) throws IOException {
-
-        log.getLogger().info("i2c bus " + bus);
-        I2C[] actives = I2C64Util.SINGLETON.scanI2CDevices(bus, 1, 127);
-
         SimpleMessage response = new SimpleMessage();
-        response.setDescription("List of i2c devices");
-        response.getProperties().add(new NVInt("bus", bus));
+        try {
+            log.getLogger().info("i2c bus " + bus);
+            int[] actives = i2cHandler.getI2CDeviceIDs(bus, 1, 127);
 
-        NVIntList list = new NVIntList("active-i2c-devices");
 
-        for (I2C icd : actives) {
-            list.getValue().add(icd.getDevice());
+            response.setDescription("List of i2c devices");
+            response.getProperties().add(new NVInt("bus", bus));
+
+            NVIntList list = new NVIntList("active-i2c-devices");
+
+            for (int i = 0; i < actives.length; i++) {
+                list.getValue().add(actives[i]);
+            }
+            response.getProperties().add(list);
         }
-        response.getProperties().add(list);
+        catch (Exception e) {
+            throw new IOException(e);
+        }
         return response;
     }
 
@@ -175,6 +182,21 @@ public class I2C64EndPoints
 
     @Override
     protected void refreshProperties() {
-
+        String className = getProperties().getValue("i2c-class-name");
+        log.getLogger().info("i2c-class-name " + className);
+        if(className != null) {
+            try
+            {
+                Class<I2CHandler> clazz = (Class<I2CHandler>) Class.forName(className);
+                log.getLogger().info("class " + clazz);
+                Object instance = ReflectionUtil.getValueFromField(clazz, I2CHandler.class, JMod.PUBLIC, JMod.STATIC, JMod.FINAL);
+                log.getLogger().info("I2CHandler " + instance);
+                i2cHandler = (I2CHandler) instance;
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
     }
 }

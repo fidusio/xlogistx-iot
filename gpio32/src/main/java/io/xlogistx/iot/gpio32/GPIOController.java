@@ -3,15 +3,13 @@ package io.xlogistx.iot.gpio32;
 import com.pi4j.io.gpio.Pin;
 import com.pi4j.io.gpio.PinState;
 import io.xlogistx.common.task.RunnableProperties;
+import org.zoxweb.server.logging.LogWrapper;
 import org.zoxweb.shared.util.*;
-
-
-import java.util.logging.Logger;
 
 public class GPIOController
         extends RunnableProperties {
 
-    private static final transient Logger log = Logger.getLogger(GPIOController.class.getName());
+    public static final LogWrapper log = new LogWrapper(GPIOController.class).setEnabled(true);
 
     public enum Param
             implements GetName {
@@ -47,7 +45,7 @@ public class GPIOController
                 }
             }
             boolean state = getProperties().getValue(Param.STATE);
-            log.info("Set pin: " + pin + " to: " + state + " for: " + Const.TimeInMillis.toString(duration));
+            log.getLogger().info("Set pin: " + pin + " to: " + state + " for: " + Const.TimeInMillis.toString(duration));
             GPIOTools.SINGLETON.setOutputPin(pin, PinState.getState(state), duration);
         } catch (Exception e) {
             e.printStackTrace();

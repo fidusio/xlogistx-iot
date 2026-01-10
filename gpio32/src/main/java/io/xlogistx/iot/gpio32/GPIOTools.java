@@ -4,6 +4,7 @@ package io.xlogistx.iot.gpio32;
 import com.pi4j.io.gpio.*;
 import com.pi4j.wiringpi.Gpio;
 import io.xlogistx.iot.gpio32.data.PWMConfig;
+import io.xlogistx.iot.gpio.GPIOHandler;
 import org.zoxweb.server.io.IOUtil;
 import org.zoxweb.server.logging.LogWrapper;
 import org.zoxweb.server.task.TaskSchedulerProcessor;
@@ -23,7 +24,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 
-public class GPIOTools {
+public class GPIOTools implements GPIOHandler {
     public static final Range<Integer> PWM_RANGE = new Range<Integer>(2, 4095);
     public static final LogWrapper log = new LogWrapper(GPIOTools.class);
 
@@ -122,6 +123,7 @@ public class GPIOTools {
         }
     }
 
+    @Override
     public synchronized void setPWMRangeMod(int range, int mod) {
         if (!PWM_RANGE.within(range))
             throw new IllegalArgumentException(range + " value out of range [2-4095]");
@@ -129,6 +131,7 @@ public class GPIOTools {
         Gpio.pwmSetMode(Gpio.PWM_MODE_MS);
     }
 
+    @Override
     public int getPWMRange() {
         return pwmRangeValue;
     }
@@ -161,6 +164,7 @@ public class GPIOTools {
         return pwmOutputPin;
     }
 
+    @Override
     public int dutyCycleToPWM(float dutyCycle) {
         float pwm = ((float) getPWMRange() * dutyCycle) / 100;
         return (int) pwm;
@@ -258,6 +262,52 @@ public class GPIOTools {
         return Gpio.digitalRead(pin.getBCMID()) == 1 ? PinState.HIGH : PinState.LOW;
     }
 
+    // GPIOHandler interface implementations
+
+    @Override
+    public synchronized void resetPin(int bcmAddress) {
+        GPIOPin gpioPin = GPIOPin.lookupByBCMAddress(bcmAddress);
+        if (gpioPin != null) {
+            resetPin(gpioPin.getValue());
+        }
+    }
+
+    @Override
+    public synchronized void setOutputPin(int bcmAddress, boolean high, long durationInMillis) {
+        GPIOPin gpioPin = GPIOPin.lookupByBCMAddress(bcmAddress);
+        if (gpioPin != null) {
+            setOutputPin(gpioPin.getValue(), high ? PinState.HIGH : PinState.LOW, durationInMillis);
+        }
+    }
+
+    @Override
+    public synchronized void setOutputPinState(int bcmAddress, boolean high, boolean persist, long durationInMillis, boolean delay) {
+        GPIOPin gpioPin = GPIOPin.lookupByBCMAddress(bcmAddress);
+        if (gpioPin != null) {
+            setOutputPinState(gpioPin.getValue(), high ? PinState.HIGH : PinState.LOW, persist, durationInMillis, delay);
+        }
+    }
+
+    @Override
+    public synchronized void setInputPin(int bcmAddress) {
+        GPIOPin gpioPin = GPIOPin.lookupByBCMAddress(bcmAddress);
+        if (gpioPin != null) {
+            setInputPin(gpioPin);
+        }
+    }
+
+    @Override
+    public synchronized boolean getPinState(int bcmAddress) {
+        return Gpio.digitalRead(bcmAddress) == 1;
+    }
+
+    @Override
+    public synchronized void setPWM(int bcmAddress, float frequency, float dutyCycle, long duration) {
+        GPIOPin gpioPin = GPIOPin.lookupByBCMAddress(bcmAddress);
+        if (gpioPin != null) {
+            setPWM(gpioPin.getValue(), frequency, dutyCycle, duration);
+        }
+    }
 
     public static void main(String... args) {
         try {

@@ -10,6 +10,7 @@ import com.pi4j.io.pwm.PwmConfig;
 import com.pi4j.io.pwm.PwmType;
 import io.xlogistx.iot.data.GPIOAction;
 import io.xlogistx.iot.gpio64.data.PWM64Config;
+import io.xlogistx.iot.gpio.GPIOHandler;
 import org.zoxweb.server.io.IOUtil;
 import org.zoxweb.server.logging.LogWrapper;
 import org.zoxweb.server.task.TaskSchedulerProcessor;
@@ -33,7 +34,7 @@ import java.util.regex.Pattern;
  * GPIO Tools singleton for Pi4J v3.
  * Uses Context-based architecture instead of GpioController from v1.x.
  */
-public class GPIO64Tools {
+public class GPIO64Tools implements GPIOHandler {
     public static final Range<Integer> PWM_RANGE = new Range<Integer>(2, 4095);
     public static final LogWrapper log = new LogWrapper(GPIO64Tools.class);
 
@@ -63,6 +64,7 @@ public class GPIO64Tools {
         return pi4j;
     }
 
+    @Override
     public synchronized void resetPin(int bcmAddress) {
         // Reset output if exists
         DigitalOutput output = lookupDigitalOutput(bcmAddress);
@@ -98,11 +100,11 @@ public class GPIO64Tools {
         }
     }
 
-    public synchronized void resetPin(GPIO64Pin pin) {
+    public synchronized void resetPin(io.xlogistx.iot.data.GPIOBCMPin pin) {
         resetPin(pin.getBCMAddress());
     }
 
-    public synchronized DigitalOutput setOutputPin(GPIO64Pin pin, DigitalState state, long durationInMillis) {
+    public synchronized DigitalOutput setOutputPin(io.xlogistx.iot.data.GPIOBCMPin pin, DigitalState state, long durationInMillis) {
         return setOutputPin(pin.getBCMAddress(), state, durationInMillis);
     }
 
@@ -182,7 +184,7 @@ public class GPIO64Tools {
         return output;
     }
 
-    public synchronized DigitalOutput setOutputPinState(GPIO64Pin pin, DigitalState state, boolean persist, long durationInMillis, boolean delay) {
+    public synchronized DigitalOutput setOutputPinState(io.xlogistx.iot.data.GPIOBCMPin pin, DigitalState state, boolean persist, long durationInMillis, boolean delay) {
         return setOutputPinState(pin.getBCMAddress(), state, persist, durationInMillis, delay);
     }
 
@@ -216,13 +218,13 @@ public class GPIO64Tools {
         return output;
     }
 
-    public synchronized DigitalInput setInputPin(GPIO64Pin... gpios) {
+    public synchronized DigitalInput setInputPin(io.xlogistx.iot.data.GPIOBCMPin... gpios) {
         return setInputPin(null, gpios);
     }
 
-    public synchronized DigitalInput setInputPin(PullResistance pullResistance, GPIO64Pin... gpios) {
+    public synchronized DigitalInput setInputPin(PullResistance pullResistance, io.xlogistx.iot.data.GPIOBCMPin... gpios) {
         DigitalInput lastInput = null;
-        for (GPIO64Pin gpio : gpios) {
+        for (io.xlogistx.iot.data.GPIOBCMPin gpio : gpios) {
             resetPin(gpio.getBCMAddress());
 
             DigitalInputConfigBuilder configBuilder = DigitalInput.newConfigBuilder(pi4j)
@@ -243,18 +245,20 @@ public class GPIO64Tools {
         return lastInput;
     }
 
+    @Override
     public synchronized void setPWMRangeMod(int range, int mod) {
         if (!PWM_RANGE.within(range))
             throw new IllegalArgumentException(range + " value out of range [2-4095]");
         this.pwmRangeValue = range;
     }
 
+    @Override
     public int getPWMRange() {
         return pwmRangeValue;
     }
 
 
-    public synchronized Pwm setPWM(GPIO64Pin pin, float frequency, Range<Float> dutyCycle, long cycleDelay, int repeat) {
+    public synchronized Pwm setPWM(io.xlogistx.iot.data.GPIOBCMPin pin, float frequency, Range<Float> dutyCycle, long cycleDelay, int repeat) {
         log.getLogger().info(SharedUtil.toCanonicalID(',', pin, frequency, dutyCycle, cycleDelay, repeat));
 
         if (dutyCycle.getStart() < 0 || dutyCycle.getEnd() > 100) {
@@ -281,12 +285,13 @@ public class GPIO64Tools {
         return pwmOutput;
     }
 
+    @Override
     public int dutyCycleToPWM(float dutyCycle) {
         float pwm = ((float) getPWMRange() * dutyCycle) / 100;
         return (int) pwm;
     }
 
-    public synchronized Pwm setPWM(GPIO64Pin pin, float frequency, float dutyCycle, long duration) {
+    public synchronized Pwm setPWM(io.xlogistx.iot.data.GPIOBCMPin pin, float frequency, float dutyCycle, long duration) {
         log.getLogger().info(SharedUtil.toCanonicalID(',', pin, frequency, dutyCycle, TimeInMillis.toString(duration)));
 
         if (dutyCycle < 0 || dutyCycle > 100) {
@@ -325,10 +330,10 @@ public class GPIO64Tools {
     }
 
     public synchronized long setPWM(PWM64Config pwmConfig) {
-        GPIO64Pin[] all = pwmConfig.getGPIOPins();
+        io.xlogistx.iot.data.GPIOBCMPin[] all = pwmConfig.getGPIOPins();
 
         List<Pwm> outputs = new ArrayList<Pwm>();
-        for (GPIO64Pin pin : all) {
+        for (io.xlogistx.iot.data.GPIOBCMPin pin : all) {
             resetPin(pin.getBCMAddress());
 
             PwmConfig config = Pwm.newConfigBuilder(pi4j)
@@ -374,7 +379,7 @@ public class GPIO64Tools {
     }
 
 
-    public synchronized DigitalState getPinState(GPIO64Pin pin) {
+    public synchronized DigitalState getPinState(io.xlogistx.iot.data.GPIOBCMPin pin) {
         DigitalInput input = lookupDigitalInput(pin.getBCMAddress());
         if (input != null) {
             return input.state();
@@ -407,6 +412,43 @@ public class GPIO64Tools {
         }
     }
 
+    // GPIOHandler interface implementations
+
+    @Override
+    public synchronized void setOutputPin(int bcmAddress, boolean high, long durationInMillis) {
+        setOutputPin(bcmAddress, high ? DigitalState.HIGH : DigitalState.LOW, durationInMillis);
+    }
+
+    @Override
+    public synchronized void setOutputPinState(int bcmAddress, boolean high, boolean persist, long durationInMillis, boolean delay) {
+        setOutputPinState(bcmAddress, high ? DigitalState.HIGH : DigitalState.LOW, persist, durationInMillis, delay);
+    }
+
+    @Override
+    public synchronized void setInputPin(int bcmAddress) {
+        createDigitalInput(bcmAddress);
+    }
+
+    @Override
+    public synchronized boolean getPinState(int bcmAddress) {
+        DigitalInput input = lookupDigitalInput(bcmAddress);
+        if (input != null) {
+            return input.state() == DigitalState.HIGH;
+        }
+        DigitalOutput output = lookupDigitalOutput(bcmAddress);
+        if (output != null) {
+            return output.state() == DigitalState.HIGH;
+        }
+        return false;
+    }
+
+    @Override
+    public synchronized void setPWM(int bcmAddress, float frequency, float dutyCycle, long duration) {
+        io.xlogistx.iot.data.GPIOBCMPin pin = io.xlogistx.iot.data.GPIOBCMPin.lookup(bcmAddress);
+        if (pin != null) {
+            setPWM(pin, frequency, dutyCycle, duration);
+        }
+    }
 
     public static void main(String... args) {
         try {
@@ -425,31 +467,31 @@ public class GPIO64Tools {
                     else
                         action = GPIOAction.SET;
                 }
-                GPIO64Pin gpioPin = null;
+                io.xlogistx.iot.data.GPIOBCMPin gpioPin = null;
                 switch (action) {
                     case READ:
-                        GPIO64Pin[] gpioPins = GPIO64Pin.lookup(args[index]);
-                        for (GPIO64Pin gpioP : gpioPins) {
+                        io.xlogistx.iot.data.GPIOBCMPin[] gpioPins = io.xlogistx.iot.data.GPIOBCMPin.lookup(args[index]);
+                        for (io.xlogistx.iot.data.GPIOBCMPin gpioP : gpioPins) {
                             System.out.println(gpioP + ", " + SINGLETON.getPinState(gpioP));
                         }
                         break;
                     case READ_AS_INPUT:
-                        gpioPins = GPIO64Pin.lookup(args[index]);
-                        for (GPIO64Pin gpioP : gpioPins) {
+                        gpioPins = io.xlogistx.iot.data.GPIOBCMPin.lookup(args[index]);
+                        for (io.xlogistx.iot.data.GPIOBCMPin gpioP : gpioPins) {
                             SINGLETON.setInputPin(gpioP);
                             System.out.println(gpioP + ", " + SINGLETON.getPinState(gpioP));
                         }
                         break;
                     case SET_PULL_DOWN:
-                        gpioPins = GPIO64Pin.lookup(args[index]);
-                        for (GPIO64Pin gpioP : gpioPins) {
+                        gpioPins = io.xlogistx.iot.data.GPIOBCMPin.lookup(args[index]);
+                        for (io.xlogistx.iot.data.GPIOBCMPin gpioP : gpioPins) {
                             SINGLETON.setInputPin(PullResistance.PULL_DOWN, gpioP);
                             System.out.println(gpioP + ", " + SINGLETON.getPinState(gpioP));
                         }
                         break;
                     case SET_PULL_UP:
-                        gpioPins = GPIO64Pin.lookup(args[index]);
-                        for (GPIO64Pin gpioP : gpioPins) {
+                        gpioPins = io.xlogistx.iot.data.GPIOBCMPin.lookup(args[index]);
+                        for (io.xlogistx.iot.data.GPIOBCMPin gpioP : gpioPins) {
                             SINGLETON.setInputPin(PullResistance.PULL_UP, gpioP);
                             System.out.println(gpioP + ", " + SINGLETON.getPinState(gpioP));
                         }
@@ -464,10 +506,10 @@ public class GPIO64Tools {
                             pins = Arrays.copyOfRange(pins, 1, pins.length);
                         }
 
-                        gpioPins = GPIO64Pin.lookup(pins);
+                        gpioPins = io.xlogistx.iot.data.GPIOBCMPin.lookup(pins);
                         log.getLogger().info("to monitor:" + pins[0]);
                         gpioPin = gpioPins[0];
-                        ArrayList<GPIO64Pin> toSet = new ArrayList<GPIO64Pin>();
+                        ArrayList<io.xlogistx.iot.data.GPIOBCMPin> toSet = new ArrayList<io.xlogistx.iot.data.GPIOBCMPin>();
 
                         for (int p = 1; p < gpioPins.length; p++) {
                             toSet.add(gpioPins[p]);
@@ -476,7 +518,7 @@ public class GPIO64Tools {
                         DigitalInput input = SINGLETON.setInputPin(gpioPin);
 
                         GPIO64Config gm = new GPIO64Config().monitorSetter(gpioPin)
-                                .followersSetter(toSet.toArray(new GPIO64Pin[0]))
+                                .followersSetter(toSet.toArray(new io.xlogistx.iot.data.GPIOBCMPin[0]))
                                 .followersHighDelaySetter("10sec")
                                 .followersLowDelaySetter("0sec")
                                 .nameSetter(gpioPin.toString())
@@ -495,7 +537,7 @@ public class GPIO64Tools {
                         PinState64Machine pinStateMachine = new PinState64Machine(TaskUtil.defaultTaskScheduler());
                         pinStateMachine.start(true);
 
-                        GPIO64Pin.GPIONameMap gpioNameMap = GPIO64Pin.toGPIONameMap(args[index]);
+                        io.xlogistx.iot.data.GPIOBCMPin.GPIONameMap gpioNameMap = io.xlogistx.iot.data.GPIOBCMPin.toGPIONameMap(args[index]);
 
                         pinStateMachine.monitorDigitalPin(PullResistance.PULL_DOWN, args[index],
                                 gpioNameMap != null ? gpioNameMap.nameMap : "pod-counter");
@@ -504,7 +546,7 @@ public class GPIO64Tools {
                     case SET:
                         NVCollection<String> param = decoder.decode(args[index]);
 
-                        Integer address = GPIO64Pin.lookupAddress(param.getName());
+                        Integer address = io.xlogistx.iot.data.GPIOBCMPin.lookupAddress(param.getName());
 
                         List<String> values = param.asList();
                         int valuesIndex = 0;

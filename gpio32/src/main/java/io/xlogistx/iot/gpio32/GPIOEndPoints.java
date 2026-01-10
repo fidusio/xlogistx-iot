@@ -3,6 +3,7 @@ package io.xlogistx.iot.gpio32;
 import com.pi4j.io.gpio.Pin;
 import com.pi4j.io.gpio.PinState;
 import io.xlogistx.common.data.PropertyContainer;
+import org.zoxweb.server.logging.LogWrapper;
 import org.zoxweb.shared.annotation.EndPointProp;
 import org.zoxweb.shared.annotation.ParamProp;
 import org.zoxweb.shared.annotation.SecurityProp;
@@ -14,8 +15,6 @@ import org.zoxweb.shared.http.HTTPStatusCode;
 import org.zoxweb.shared.http.URIScheme;
 import org.zoxweb.shared.util.*;
 
-import java.util.logging.Logger;
-
 
 @SecurityProp(authentications = {CryptoConst.AuthenticationType.BASIC,
         CryptoConst.AuthenticationType.BEARER,
@@ -25,7 +24,7 @@ import java.util.logging.Logger;
 public class GPIOEndPoints
         extends PropertyContainer<NVGenericMap> {
 
-    private static final Logger log = Logger.getLogger(GPIOEndPoints.class.getName());
+    public static final LogWrapper log = new LogWrapper(GPIOEndPoints.class).setEnabled(true);
 
 
     @EndPointProp(methods = {HTTPMethod.GET, HTTPMethod.POST}, name = "output-pin", uris = "/output/pin/{gpio}/{state}/{duration}")
@@ -250,20 +249,20 @@ public class GPIOEndPoints
 //    }
 
     protected void refreshProperties() {
-        log.info("WE MUST UPDATE");
+        if(log.isEnabled()) log.getLogger().info("WE MUST UPDATE");
         if (getProperties() != null) {
             NVGenericMap gpiosMap = (NVGenericMap) getProperties().get("gpios-map");
             if (gpiosMap != null) {
                 for (GetNameValue<?> pinInfo : gpiosMap.values()) {
                     try {
                         GPIOPin gpio = GPIOPin.mapGPIOName(pinInfo.getName(), "" + pinInfo.getValue());
-                        log.info(gpio.getName() + " --> " + pinInfo.getName());
+                        if(log.isEnabled()) log.getLogger().info(gpio.getName() + " --> " + pinInfo.getName());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
             } else {
-                log.info("GPIO-MAPS NOT FOUND");
+                if(log.isEnabled()) log.getLogger().info("GPIO-MAPS NOT FOUND");
             }
 
             NVGenericMap gpiosInit = (NVGenericMap) getProperties().get("gpios-init");
@@ -273,7 +272,7 @@ public class GPIOEndPoints
                         NVGenericMap pinConfig = (NVGenericMap) gnv;
 
                         GPIOPin pin = GPIOPin.lookupGPIO(pinConfig.getName());
-                        log.info(getID() + " *********************************************Pin lookup:" + pinConfig + " pin:" + pin);
+                        if(log.isEnabled()) log.getLogger().info(getID() + " *********************************************Pin lookup:" + pinConfig + " pin:" + pin);
 
                         if (pin != null) {
 
@@ -281,10 +280,10 @@ public class GPIOEndPoints
                             long duration = pinConfig.get("duration") != null ? Const.TimeInMillis.toMillis("" + pinConfig.getValue("duration")) : 0;
 
                             GPIOTools.SINGLETON.setOutputPin(pin.getValue(), PinState.getState(state), duration);
-                            log.info(pin + " set " + state + " duration " + duration);
+                            if(log.isEnabled()) log.getLogger().info(pin + " set " + state + " duration " + duration);
 
                         } else {
-                            log.info("Pin not found:" + pinConfig.getName());
+                            if(log.isEnabled()) log.getLogger().info("Pin not found:" + pinConfig.getName());
                         }
 
                     } catch (Exception e) {
@@ -293,7 +292,7 @@ public class GPIOEndPoints
                 }
             }
         } else {
-            log.info("Properties is null");
+            if(log.isEnabled()) log.getLogger().info("Properties is null");
         }
     }
 }

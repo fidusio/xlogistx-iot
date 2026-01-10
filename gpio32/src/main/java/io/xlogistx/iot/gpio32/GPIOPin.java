@@ -281,6 +281,14 @@ public enum GPIOPin
         return ret.length != 0 ? ret[0] : null;
     }
 
+    public static GPIOPin lookupByBCMAddress(int bcmAddress) {
+        for (GPIOPin p : values()) {
+            if (p.bcmPinID == bcmAddress)
+                return p;
+        }
+        return null;
+    }
+
     public String toString() {
         return bcmPinID != -1 ? name() + "-" + bcmPinID : name();
     }

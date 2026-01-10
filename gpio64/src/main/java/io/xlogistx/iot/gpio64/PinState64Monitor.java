@@ -40,7 +40,7 @@ public class PinState64Monitor
     @Override
     public void onDigitalStateChange(DigitalStateChangeEvent event) {
         lastEventTS = System.currentTimeMillis();
-        GPIO64Pin gpioPin = GPIO64Pin.lookup(event.source().address());
+        io.xlogistx.iot.data.GPIOBCMPin gpioPin = io.xlogistx.iot.data.GPIOBCMPin.lookup(event.source().address());
         log.info("[" + counter.incrementAndGet() + "] GPIO " + event.source().address() + " = "
                 + GPIO64Tools.SINGLETON.getPinState(gpioPin));
         if (fp != null)

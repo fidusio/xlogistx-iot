@@ -10,8 +10,8 @@ import java.util.concurrent.atomic.AtomicLong;
 public class GPIO64Config {
 
     @SerializedName("to_monitor")
-    private GPIO64Pin toMonitor;
-    private GPIO64Pin[] followers;
+    private io.xlogistx.iot.data.GPIOBCMPin toMonitor;
+    private io.xlogistx.iot.data.GPIOBCMPin[] followers;
     @SerializedName("high_delay")
     private long highDelay = 0;
     @SerializedName("low_delay")
@@ -30,23 +30,23 @@ public class GPIO64Config {
     public GPIO64Config() {
     }
 
-    public GPIO64Config(GPIO64Pin toMonitor) {
+    public GPIO64Config(io.xlogistx.iot.data.GPIOBCMPin toMonitor) {
         setToMonitor(toMonitor);
     }
 
-    public void setToMonitor(GPIO64Pin toMonitor) {
+    public void setToMonitor(io.xlogistx.iot.data.GPIOBCMPin toMonitor) {
         this.toMonitor = toMonitor;
     }
 
-    public GPIO64Pin getToMonitor() {
+    public io.xlogistx.iot.data.GPIOBCMPin getToMonitor() {
         return toMonitor;
     }
 
-    public void setFollowers(GPIO64Pin... toFollow) {
+    public void setFollowers(io.xlogistx.iot.data.GPIOBCMPin... toFollow) {
         this.followers = toFollow;
     }
 
-    public GPIO64Pin[] getFollowers() {
+    public io.xlogistx.iot.data.GPIOBCMPin[] getFollowers() {
         return followers;
     }
 
@@ -98,7 +98,7 @@ public class GPIO64Config {
     }
 
     public synchronized void setFollowersState(DigitalState state, boolean checkMonitorState) {
-        GPIO64Pin[] followers = getFollowers();
+        io.xlogistx.iot.data.GPIOBCMPin[] followers = getFollowers();
         if (toMonitor != null && followers != null && state != null) {
             if (checkMonitorState) {
                 // if set to high always get the current sensor value
@@ -107,7 +107,7 @@ public class GPIO64Config {
             if (isInverse()) {
                 state = state == DigitalState.HIGH ? DigitalState.LOW : DigitalState.HIGH;
             }
-            for (GPIO64Pin toSet : followers) {
+            for (io.xlogistx.iot.data.GPIOBCMPin toSet : followers) {
                 GPIO64Tools.SINGLETON.setOutputPinState(toSet, state, false, 0, false);
             }
         }
@@ -115,12 +115,12 @@ public class GPIO64Config {
 
     // Builder
 
-    public GPIO64Config monitorSetter(GPIO64Pin toMonitor) {
+    public GPIO64Config monitorSetter(io.xlogistx.iot.data.GPIOBCMPin toMonitor) {
         setToMonitor(toMonitor);
         return this;
     }
 
-    public GPIO64Config followersSetter(GPIO64Pin... toFollow) {
+    public GPIO64Config followersSetter(io.xlogistx.iot.data.GPIOBCMPin... toFollow) {
         setFollowers(toFollow);
         return this;
     }

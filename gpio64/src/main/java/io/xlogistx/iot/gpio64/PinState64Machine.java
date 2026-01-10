@@ -74,7 +74,7 @@ public class PinState64Machine
             if (digitalGPIOStats == null) {
                 synchronized (this) {
                     if (digitalGPIOStats == null)
-                        digitalGPIOStats = new DigitalGPIO64Stats(GPIO64Pin.lookup(event.source().address()));
+                        digitalGPIOStats = new DigitalGPIO64Stats(io.xlogistx.iot.data.GPIOBCMPin.lookup(event.source().address()));
                 }
             }
 
@@ -100,7 +100,7 @@ public class PinState64Machine
 
         @Override
         public void accept(DigitalStateChangeEvent event) {
-            GPIO64Pin.GPIONameMap gpnm = GPIO64Pin.lookupGPIONameMap(event.source().address());
+            io.xlogistx.iot.data.GPIOBCMPin.GPIONameMap gpnm = io.xlogistx.iot.data.GPIOBCMPin.lookupGPIONameMap(event.source().address());
             log.getLogger().info("high trigger state: " + event.state() + (gpnm != null ? " " + gpnm : ""));
             Function<Void, HTTPResponseData> webCaller = getFunction();
             if (webCaller != null) {
@@ -129,7 +129,7 @@ public class PinState64Machine
 
         @Override
         public void accept(DigitalStateChangeEvent event) {
-            GPIO64Pin.GPIONameMap gpnm = GPIO64Pin.lookupGPIONameMap(event.source().address());
+            io.xlogistx.iot.data.GPIOBCMPin.GPIONameMap gpnm = io.xlogistx.iot.data.GPIOBCMPin.lookupGPIONameMap(event.source().address());
             log.getLogger().info("low trigger state: " + event.state() + (gpnm != null ? " " + gpnm : ""));
             Function<Void, HTTPResponseData> webCaller = getFunction();
             if (webCaller != null) {
@@ -177,18 +177,18 @@ public class PinState64Machine
     }
 
     public void monitorDigitalPin(PullResistance pullState, String pin, String userDefinedName) {
-        GPIO64Pin.GPIONameMap gpioNameMap = GPIO64Pin.toGPIONameMap(pin);
+        io.xlogistx.iot.data.GPIOBCMPin.GPIONameMap gpioNameMap = io.xlogistx.iot.data.GPIOBCMPin.toGPIONameMap(pin);
         if (gpioNameMap != null) {
             pin = gpioNameMap.gpioPin.getName();
-            GPIO64Pin.mapGPIOName(gpioNameMap);
+            io.xlogistx.iot.data.GPIOBCMPin.mapGPIOName(gpioNameMap);
 
         }
-        GPIO64Pin gpioPin = GPIO64Pin.lookupGPIO(pin);
+        io.xlogistx.iot.data.GPIOBCMPin gpioPin = io.xlogistx.iot.data.GPIOBCMPin.lookupGPIO(pin);
         if (pullState == null)
             pullState = PullResistance.OFF;
         if (gpioPin != null) {
             log.getLogger().info(gpioPin + " " + userDefinedName);
-            GPIO64Pin.mapGPIOName(userDefinedName, gpioPin);
+            io.xlogistx.iot.data.GPIOBCMPin.mapGPIOName(userDefinedName, gpioPin);
             DigitalInput input = GPIO64Tools.SINGLETON.setInputPin(pullState, gpioPin);
             input.addListener(this);
         }
@@ -209,14 +209,14 @@ public class PinState64Machine
                 String gpio = parsedGPIO[0];
                 String name = parsedGPIO[1];
                 String url = parsedGPIO[2];
-                GPIO64Pin.GPIONameMap gpioNameMap = GPIO64Pin.toGPIONameMap(gpio + ":" + name);
+                io.xlogistx.iot.data.GPIOBCMPin.GPIONameMap gpioNameMap = io.xlogistx.iot.data.GPIOBCMPin.toGPIONameMap(gpio + ":" + name);
 
 
-                GPIO64Pin gpioPin = null;
+                io.xlogistx.iot.data.GPIOBCMPin gpioPin = null;
                 if (gpioNameMap != null) {
                     gpioPin = gpioNameMap.gpioPin;
                 } else {
-                    gpioPin = GPIO64Pin.lookupGPIO(gpio);
+                    gpioPin = io.xlogistx.iot.data.GPIOBCMPin.lookupGPIO(gpio);
                 }
 
                 if (gpioPin == null) {
