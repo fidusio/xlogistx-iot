@@ -6,12 +6,15 @@ import io.xlogistx.iot.data.CommandToBytes;
 import io.xlogistx.iot.data.IOTDataUtil;
 import io.xlogistx.iot.data.i2c.I2CCodecBase;
 import io.xlogistx.iot.data.i2c.I2CResp;
+import io.xlogistx.iot.gpio.I2CHandler;
+import io.xlogistx.iot.gpio.I2CIO;
 import io.xlogistx.iot.gpio64.GPIO64Tools;
 import org.zoxweb.server.http.OkHTTPCall;
 import org.zoxweb.server.io.IOUtil;
 import org.zoxweb.server.logging.LogWrapper;
 import org.zoxweb.server.task.TaskUtil;
 import org.zoxweb.server.util.GSONUtil;
+import org.zoxweb.server.util.LockHolder;
 import org.zoxweb.shared.data.SimpleMessage;
 import org.zoxweb.shared.http.HTTPMessageConfig;
 import org.zoxweb.shared.http.HTTPMessageConfigInterface;
@@ -26,15 +29,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 
 /**
  * I2C Utility class for Pi4J v3.
  * Uses Context-based I2C instead of I2CFactory from v1.x.
  */
-public class I2C64Util {
+public class I2C64Util implements I2CHandler {
 
     public static final String VERSION = "I2C-64-UTIL-1.00.01";
     public static final LogWrapper log = new LogWrapper(I2C64Util.class);
@@ -50,22 +51,19 @@ public class I2C64Util {
 
     public static final I2C64Util SINGLETON = new I2C64Util();
 
-    private final Lock lock = new ReentrantLock();
+    private final LockHolder lockHolder = new LockHolder();
 
 
     private I2C64Util() {
     }
 
-    public void acquireLock(boolean lockStat) {
-        if (lockStat)
-            lock.lock();
+
+    @Override
+    public LockHolder getLockHolder() {
+        return lockHolder;
     }
 
-    public void releaseLock(boolean lockStat) {
-        if (lockStat)
-            lock.unlock();
-    }
-
+    @Override
     public SimpleMessage sendI2CCommand(int bus, int address, String command, String filterID, int repeat) throws IOException {
         SUS.checkIfNulls("null command.", command);
         if (repeat < 1)
@@ -85,7 +83,7 @@ public class I2C64Util {
         if (log.isEnabled()) log.getLogger().info("sending: " + rawCommand + " " + i2cCommand);
         byte[] respData = new byte[mc.responseLength()];
 
-        acquireLock(true);
+        getLockHolder().lock(true);
         try {
             mc.resetTimeStamp();
             for (int i = 0; i < repeat; i++) {
@@ -94,7 +92,7 @@ public class I2C64Util {
                 i2c.read(respData, 0, respData.length);
             }
         } finally {
-            releaseLock(true);
+            getLockHolder().unlock(true);
         }
 
         SimpleMessage ret = mc.decode(I2CResp.build(bus, address, respData, filterID));
@@ -103,14 +101,15 @@ public class I2C64Util {
     }
 
 
+    @Override
     public void writeToI2C(boolean lockStat, int bus, int address, byte[] data) throws IOException {
         I2C64BaseDevice i2cDevice = createI2CDevice("generic", bus, address);
-        acquireLock(lockStat);
+        getLockHolder().lock(lockStat);
         try {
             I2C i2c = i2cDevice.getI2C();
             i2c.write(data);
         } finally {
-            releaseLock(lockStat);
+            getLockHolder().unlock(lockStat);
         }
     }
 
@@ -120,7 +119,8 @@ public class I2C64Util {
 
 
     public synchronized I2C createI2C(String name, int bus, int address) {
-        SUS.checkIfNulls("name can't be null", name);
+       if(name == null)
+           name = bus + "-" + address;
 
         I2CConfig config = I2C.newConfigBuilder(GPIO64Tools.SINGLETON.getContext())
                 .id("I2C-" + bus + "-" + Integer.toHexString(address))
@@ -139,7 +139,8 @@ public class I2C64Util {
     }
 
     public synchronized void releaseI2C(String name, int bus, int address) {
-        SUS.checkIfNulls("name can't be null", name);
+        if(name == null)
+            name = bus + "-" + address;
 
         I2CConfig config = I2C.newConfigBuilder(GPIO64Tools.SINGLETON.getContext())
                 .id("I2C-" + bus + "-" + Integer.toHexString(address))
@@ -154,6 +155,7 @@ public class I2C64Util {
         }
     }
 
+    @Override
     public I2CCodecBase[] getI2CCodecs() {
         List<I2CCodecBase> ret = new ArrayList<>();
 
@@ -163,6 +165,25 @@ public class I2C64Util {
         }
         return ret.toArray(new I2CCodecBase[0]);
     }
+
+
+    public int[] getI2CDeviceIDs(int bus, int startAddress, int endAddress) throws IOException {
+        I2C[] devs = scanI2CDevices(bus, startAddress, endAddress);
+        int[] ret = new int[devs.length];
+        for (int i = 0; i < ret.length; i++) {
+            ret[i] = devs[i].getDevice();
+        }
+
+        return ret;
+    }
+
+    @Override
+    public I2CIO getI2CIO(int bus, int address) throws IOException {
+        I2C i2c = createI2C(null, bus, address);
+
+        return new I2CIO(address, getLockHolder(), i2c.getInputStream(), i2c.getOutputStream());
+    }
+
 
     public synchronized I2C[] scanI2CDevices(int bus, int startAddress, int endAddress) throws IOException {
         List<I2C> ret = new ArrayList<I2C>();

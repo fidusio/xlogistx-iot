@@ -43,12 +43,6 @@ public class GPIO64Tools {
     private volatile Context pi4j = null;
     private int pwmRangeValue;
 
-    // Track provisioned I/O instances by their pin address
-//    private final Map<Integer, DigitalOutput> provisionedOutputs = new ConcurrentHashMap<>();
-//    private final Map<Integer, DigitalInput> provisionedInputs = new ConcurrentHashMap<>();
-//    private final Map<Integer, Pwm> provisionedPwm = new ConcurrentHashMap<>();
-
-
     private GPIO64Tools() {
         try {
             pi4j = Pi4J.newAutoContext();
