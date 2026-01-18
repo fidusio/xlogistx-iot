@@ -14,7 +14,7 @@ import java.util.Date;
 public class SunriseSunset {
     public enum Params
             implements GetNameValue<String> {
-        URL("url", "http://api.sunrise-sunset.org/json"),
+        URL("url", "https://api.sunrise-sunset.org/json"),
         LATITUDE("lat", null),
         LONGITUDE("lng", null),
         FORMATTED("formatted", "0"),
