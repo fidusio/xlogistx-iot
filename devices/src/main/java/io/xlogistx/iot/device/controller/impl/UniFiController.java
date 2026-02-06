@@ -1,11 +1,12 @@
 package io.xlogistx.iot.device.controller.impl;
 
-import io.xlogistx.common.task.RunnableProperties;
+
 import org.zoxweb.server.http.HTTPUtil;
 import org.zoxweb.server.http.OkHTTPCall;
 import org.zoxweb.server.logging.LogWrapper;
 import org.zoxweb.server.util.GSONUtil;
 import org.zoxweb.shared.http.*;
+import org.zoxweb.shared.task.RunnableProperties;
 import org.zoxweb.shared.util.GetNameValue;
 import org.zoxweb.shared.util.NVGenericMap;
 import org.zoxweb.shared.util.NVGenericMapList;

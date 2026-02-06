@@ -1,6 +1,7 @@
 package io.xlogistx.iot.device.controller.impl;
 
-import io.xlogistx.common.task.RunnableProperties;
+
+import org.zoxweb.shared.task.RunnableProperties;
 import org.zoxweb.shared.util.GetName;
 import org.zoxweb.shared.util.NVGenericMap;
 

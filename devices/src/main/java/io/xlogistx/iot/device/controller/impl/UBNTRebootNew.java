@@ -1,6 +1,6 @@
 package io.xlogistx.iot.device.controller.impl;
 
-import io.xlogistx.common.task.RunnableProperties;
+import org.zoxweb.shared.task.RunnableProperties;
 import org.zoxweb.server.http.HTTPCall;
 import org.zoxweb.server.util.GSONUtil;
 import org.zoxweb.shared.http.HTTPMessageConfig;

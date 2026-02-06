@@ -2,7 +2,7 @@ package io.xlogistx.iot.gpio32;
 
 import com.pi4j.io.gpio.Pin;
 import com.pi4j.io.gpio.PinState;
-import io.xlogistx.common.task.RunnableProperties;
+import org.zoxweb.shared.task.RunnableProperties;
 import org.zoxweb.server.logging.LogWrapper;
 import org.zoxweb.shared.util.*;
 

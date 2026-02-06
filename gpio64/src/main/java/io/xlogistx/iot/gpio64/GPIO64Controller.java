@@ -1,7 +1,7 @@
 package io.xlogistx.iot.gpio64;
 
 import com.pi4j.io.gpio.digital.DigitalState;
-import io.xlogistx.common.task.RunnableProperties;
+import org.zoxweb.shared.task.RunnableProperties;
 import org.zoxweb.server.logging.LogWrapper;
 import org.zoxweb.shared.util.*;
 
