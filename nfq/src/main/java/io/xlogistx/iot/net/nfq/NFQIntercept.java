@@ -8,7 +8,7 @@ import jnr.ffi.annotations.Delegate;
 import jnr.ffi.byref.PointerByReference;
 import org.zoxweb.server.logging.LogWrapper;
 import org.zoxweb.server.task.TaskUtil;
-import org.zoxweb.shared.util.CloseableType;
+import org.zoxweb.shared.io.CloseableType;
 import org.zoxweb.shared.util.Const;
 import org.zoxweb.shared.util.ParamUtil;
 import org.zoxweb.shared.util.SUS;

@@ -5,7 +5,7 @@ import org.pcap4j.core.BpfProgram.BpfCompileMode;
 import org.pcap4j.core.*;
 import org.zoxweb.server.io.IOUtil;
 import org.zoxweb.server.logging.LogWrapper;
-import org.zoxweb.shared.util.CloseableType;
+import org.zoxweb.shared.io.CloseableType;
 import org.zoxweb.shared.util.SUS;
 import org.zoxweb.shared.util.SharedUtil;
 

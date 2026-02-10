@@ -1,7 +1,7 @@
 package io.xlogistx.iot.net.iptables;
 
 import org.zoxweb.shared.net.IPAddress;
-import org.zoxweb.shared.util.BytesArray;
+import org.zoxweb.shared.io.BytesArray;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
