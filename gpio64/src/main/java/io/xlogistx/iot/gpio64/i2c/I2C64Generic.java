@@ -1,6 +1,6 @@
 package io.xlogistx.iot.gpio64.i2c;
 
-import org.zoxweb.server.io.IOUtil;
+import org.zoxweb.shared.io.SharedIOUtil;
 
 /**
  * Generic I2C device for Pi4J v3.
@@ -13,6 +13,6 @@ public class I2C64Generic extends I2C64BaseDevice {
 
     @Override
     public void close() throws Exception {
-        IOUtil.close(getI2C());
+        SharedIOUtil.close(getI2C());
     }
 }

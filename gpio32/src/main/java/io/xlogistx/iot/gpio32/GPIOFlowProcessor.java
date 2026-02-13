@@ -5,7 +5,7 @@ import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
 import org.zoxweb.server.flow.DefaultFlowProcessor;
 import org.zoxweb.server.flow.FlowEvent;
-import org.zoxweb.server.io.IOUtil;
+import org.zoxweb.shared.io.SharedIOUtil;
 import org.zoxweb.server.task.TaskSchedulerProcessor;
 import org.zoxweb.shared.util.Const;
 
@@ -56,7 +56,7 @@ public class GPIOFlowProcessor
 
     @Override
     public synchronized void close() throws IOException {
-        IOUtil.close(tsp);
+        SharedIOUtil.close(tsp);
     }
 
     public synchronized void init() {

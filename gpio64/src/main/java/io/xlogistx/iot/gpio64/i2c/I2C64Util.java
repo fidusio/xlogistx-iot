@@ -10,7 +10,7 @@ import io.xlogistx.iot.gpio.I2CHandler;
 import io.xlogistx.iot.gpio.I2CIO;
 import io.xlogistx.iot.gpio64.GPIO64Tools;
 import org.zoxweb.server.http.OkHTTPCall;
-import org.zoxweb.server.io.IOUtil;
+import org.zoxweb.shared.io.SharedIOUtil;
 import org.zoxweb.server.logging.LogWrapper;
 import org.zoxweb.server.task.TaskUtil;
 import org.zoxweb.server.util.GSONUtil;
@@ -151,7 +151,7 @@ public class I2C64Util implements I2CHandler {
         if (GPIO64Tools.SINGLETON.getContext().registry().exists(config.getId())) {
             com.pi4j.io.IO ioDev = GPIO64Tools.SINGLETON.getContext().registry().get(config.getId());
             if(ioDev instanceof AutoCloseable)
-                IOUtil.close((AutoCloseable) ioDev);
+                SharedIOUtil.close((AutoCloseable) ioDev);
         }
     }
 

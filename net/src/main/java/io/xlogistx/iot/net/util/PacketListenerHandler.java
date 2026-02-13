@@ -3,7 +3,7 @@ package io.xlogistx.iot.net.util;
 import com.sun.jna.Platform;
 import org.pcap4j.core.BpfProgram.BpfCompileMode;
 import org.pcap4j.core.*;
-import org.zoxweb.server.io.IOUtil;
+import org.zoxweb.shared.io.SharedIOUtil;
 import org.zoxweb.server.logging.LogWrapper;
 import org.zoxweb.shared.io.CloseableType;
 import org.zoxweb.shared.util.SUS;
@@ -80,7 +80,7 @@ public abstract class PacketListenerHandler
 
         log.getLogger().info("***************************** PacketListener handler end of run method ******************************");
 
-        IOUtil.close(handle);
+        SharedIOUtil.close(handle);
     }
 
 
@@ -91,7 +91,7 @@ public abstract class PacketListenerHandler
     public void close() throws IOException {
         if (!isClosed.getAndSet(true)) {
             log.getLogger().info("Closing");
-            IOUtil.close(handle);
+            SharedIOUtil.close(handle);
             try {
                 handle.breakLoop();
             } catch (NotOpenException e) {

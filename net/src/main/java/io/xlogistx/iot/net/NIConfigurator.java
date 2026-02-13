@@ -1,7 +1,7 @@
 package io.xlogistx.iot.net;
 
 
-import org.zoxweb.server.io.IOUtil;
+import org.zoxweb.shared.io.SharedIOUtil;
 import org.zoxweb.server.util.GSONUtil;
 import org.zoxweb.server.util.RuntimeUtil;
 import org.zoxweb.shared.data.RuntimeResultDAO;
@@ -126,7 +126,7 @@ public class NIConfigurator {
                 }
             }
         } finally {
-            IOUtil.close(reader);
+            SharedIOUtil.close(reader);
         }
         return ret.values().toArray(new NIConfigDAO[ret.size()]);
     }
@@ -169,7 +169,7 @@ public class NIConfigurator {
             fis = new FileOutputStream(destination);
             fis.write(SharedStringUtil.getBytes(configFile));
         } finally {
-            IOUtil.close(fis);
+            SharedIOUtil.close(fis);
         }
     }
 

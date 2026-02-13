@@ -11,7 +11,7 @@ import io.xlogistx.iot.gpio.I2CHandler;
 import io.xlogistx.iot.gpio.I2CIO;
 import io.xlogistx.iot.gpio32.i2c.modules.I2CGeneric;
 import org.zoxweb.server.http.OkHTTPCall;
-import org.zoxweb.server.io.IOUtil;
+import org.zoxweb.shared.io.SharedIOUtil;
 import org.zoxweb.server.io.InputStreamInt;
 import org.zoxweb.server.io.OutputStreamInt;
 import org.zoxweb.server.logging.LogWrapper;
@@ -191,7 +191,7 @@ public class I2CUtil implements I2CHandler {
             // close the bus it is a must
             // to avoid bus read issues specially with io set commands
         } finally {
-            IOUtil.close(i2cDevice);
+            SharedIOUtil.close(i2cDevice);
             getLockHolder().unlock(true);
         }
 
@@ -211,7 +211,7 @@ public class I2CUtil implements I2CHandler {
             I2CDevice i2cDev = i2cDevice.getI2CDevice();
             i2cDev.write(data);
         } finally {
-            IOUtil.close(i2cDevice);
+            SharedIOUtil.close(i2cDevice);
             getLockHolder().unlock(lockStat);
         }
     }
