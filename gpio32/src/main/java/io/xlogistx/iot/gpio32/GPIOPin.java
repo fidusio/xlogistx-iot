@@ -130,7 +130,7 @@ public enum GPIOPin
 
         List<GPIOPin> ret = new ArrayList<GPIOPin>();
         for (String pinID : pinIDs) {
-            pinID = SharedStringUtil.trimOrNull(pinID);
+            pinID = SUS.trimOrNull(pinID);
             if (pinID != null) {
                 GPIOPin toAdd = null;
                 // try to get the mapped
@@ -182,7 +182,7 @@ public enum GPIOPin
 
 
     public static GPIOPin mapGPIOName(String gpioNameUserDefinedName) {
-        gpioNameUserDefinedName = SharedStringUtil.trimOrNull(gpioNameUserDefinedName);
+        gpioNameUserDefinedName = SUS.trimOrNull(gpioNameUserDefinedName);
         SUS.checkIfNulls("GPIO_ID:UserDefinedName can't be null", gpioNameUserDefinedName);
 
         String[] tokens = gpioNameUserDefinedName.split("_");
@@ -193,7 +193,7 @@ public enum GPIOPin
     }
 
     public static GPIONameMap toGPIONameMap(String gpioNameUserDefinedName) {
-        gpioNameUserDefinedName = SharedStringUtil.trimOrNull(gpioNameUserDefinedName);
+        gpioNameUserDefinedName = SUS.trimOrNull(gpioNameUserDefinedName);
         SUS.checkIfNulls("GPIO_ID:UserDefinedName can't be null", gpioNameUserDefinedName);
 
         String[] tokens = gpioNameUserDefinedName.split(":");
@@ -228,7 +228,7 @@ public enum GPIOPin
     }
 
     public static GPIOPin mapGPIOName(String userDefinedName, String gpioName) {
-        userDefinedName = SharedStringUtil.trimOrNull(userDefinedName);
+        userDefinedName = SUS.trimOrNull(userDefinedName);
         SUS.checkIfNulls("GPIO name or GPIO can't be null", userDefinedName, gpioName);
         GPIOPin gpio = lookupGPIO(gpioName);
         if (gpio == null)

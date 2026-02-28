@@ -6,7 +6,7 @@ import org.zoxweb.shared.http.*;
 import org.zoxweb.shared.util.GetNameValue;
 import org.zoxweb.shared.util.NVGenericMap;
 import org.zoxweb.shared.util.NVPair;
-import org.zoxweb.shared.util.SharedStringUtil;
+import org.zoxweb.shared.util.SUS;
 
 import java.io.IOException;
 
@@ -57,7 +57,7 @@ public class IPGeoLocation {
 
     public NVGenericMap lookup(String ip)
             throws IOException {
-        ip = SharedStringUtil.trimOrNull(ip);
+        ip = SUS.trimOrNull(ip);
         HTTPMessageConfigInterface hmci = HTTPMessageConfig.createAndInit(endpoint, null, HTTPMethod.GET);
         hmci.setHTTPParameterFormatter(HTTPEncoder.URI_REST_ENCODED);
         if (ip != null) {
