@@ -74,7 +74,7 @@ public class PinState64Machine
             if (digitalGPIOStats == null) {
                 synchronized (this) {
                     if (digitalGPIOStats == null)
-                        digitalGPIOStats = new DigitalGPIO64Stats(io.xlogistx.iot.data.GPIOBCMPin.lookup(event.source().address()));
+                        digitalGPIOStats = new DigitalGPIO64Stats(io.xlogistx.iot.data.GPIOBCMPin.lookup(event.source().bcm()));
                 }
             }
 
@@ -100,7 +100,7 @@ public class PinState64Machine
 
         @Override
         public void accept(DigitalStateChangeEvent event) {
-            io.xlogistx.iot.data.GPIOBCMPin.GPIONameMap gpnm = io.xlogistx.iot.data.GPIOBCMPin.lookupGPIONameMap(event.source().address());
+            io.xlogistx.iot.data.GPIOBCMPin.GPIONameMap gpnm = io.xlogistx.iot.data.GPIOBCMPin.lookupGPIONameMap(event.source().bcm());
             log.getLogger().info("high trigger state: " + event.state() + (gpnm != null ? " " + gpnm : ""));
             Function<Void, HTTPResponseData> webCaller = getFunction();
             if (webCaller != null) {
@@ -129,7 +129,7 @@ public class PinState64Machine
 
         @Override
         public void accept(DigitalStateChangeEvent event) {
-            io.xlogistx.iot.data.GPIOBCMPin.GPIONameMap gpnm = io.xlogistx.iot.data.GPIOBCMPin.lookupGPIONameMap(event.source().address());
+            io.xlogistx.iot.data.GPIOBCMPin.GPIONameMap gpnm = io.xlogistx.iot.data.GPIOBCMPin.lookupGPIONameMap(event.source().bcm());
             log.getLogger().info("low trigger state: " + event.state() + (gpnm != null ? " " + gpnm : ""));
             Function<Void, HTTPResponseData> webCaller = getFunction();
             if (webCaller != null) {

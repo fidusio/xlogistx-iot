@@ -115,7 +115,7 @@ public class GPIO64Tools implements GPIOHandler {
             DigitalOutputConfig config = DigitalOutput.newConfigBuilder(pi4j)
                     .id("gpio-out-" + bcmAddress)
                     .name("GPIO Output " + bcmAddress)
-                    .address(bcmAddress)
+                    .bcm(bcmAddress)
                     .initial(state)
                     .shutdown(DigitalState.LOW)
                     .build();
@@ -155,7 +155,7 @@ public class GPIO64Tools implements GPIOHandler {
             DigitalInputConfig config = DigitalInput.newConfigBuilder(pi4j)
                     .id("gpio-in-" + bcmAddress)
                     .name("GPIO Input " + bcmAddress)
-                    .address(bcmAddress).build();
+                    .bcm(bcmAddress).build();
             input = pi4j.create(config);
         }
 
@@ -230,7 +230,7 @@ public class GPIO64Tools implements GPIOHandler {
             DigitalInputConfigBuilder configBuilder = DigitalInput.newConfigBuilder(pi4j)
                     .id("gpio-in-" + gpio.getBCMAddress())
                     .name("GPIO Input " + gpio.getBCMAddress())
-                    .address(gpio.getBCMAddress());
+                    .bcm(gpio.getBCMAddress());
 
             if (pullResistance != null) {
                 configBuilder.pull(pullResistance);
@@ -269,7 +269,7 @@ public class GPIO64Tools implements GPIOHandler {
         PwmConfig config = Pwm.newConfigBuilder(pi4j)
                 .id("pwm-" + pin.getBCMAddress())
                 .name("PWM " + pin.getBCMAddress())
-                .address(pin.getBCMAddress())
+                .channel(pin.getBCMAddress())
                 .pwmType(PwmType.HARDWARE)
                 .initial(0)
                 .shutdown(0)
@@ -302,7 +302,7 @@ public class GPIO64Tools implements GPIOHandler {
         PwmConfig config = Pwm.newConfigBuilder(pi4j)
                 .id("pwm-" + pin.getBCMAddress())
                 .name("PWM " + pin.getBCMAddress())
-                .address(pin.getBCMAddress())
+                .channel(pin.getBCMAddress())
                 .pwmType(PwmType.HARDWARE)
                 .initial(0)
                 .shutdown(0)
@@ -339,7 +339,7 @@ public class GPIO64Tools implements GPIOHandler {
             PwmConfig config = Pwm.newConfigBuilder(pi4j)
                     .id("pwm-" + pin.getBCMAddress())
                     .name("PWM " + pin.getBCMAddress())
-                    .address(pin.getBCMAddress())
+                    .channel(pin.getBCMAddress())
                     .pwmType(PwmType.HARDWARE)
                     .initial(0)
                     .shutdown(0)
