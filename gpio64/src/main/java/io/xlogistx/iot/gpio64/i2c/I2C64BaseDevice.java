@@ -32,7 +32,7 @@ public abstract class I2C64BaseDevice
 
     protected I2C64BaseDevice(String name, I2C i2c, int bus, int address) {
         super(name);
-        SharedUtil.checkIfNulls("I2C can't be null", i2c);
+        SUS.checkIfNulls("I2C can't be null", i2c);
         this.i2c = i2c;
         this.bus = bus;
         this.address = address;

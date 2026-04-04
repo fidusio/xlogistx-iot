@@ -1,10 +1,7 @@
 package io.xlogistx.iot.net.data;
 
 import io.xlogistx.common.data.PropertyContainer;
-import org.zoxweb.shared.util.GetName;
-import org.zoxweb.shared.util.NVGenericMap;
-import org.zoxweb.shared.util.NVInt;
-import org.zoxweb.shared.util.SharedUtil;
+import org.zoxweb.shared.util.*;
 
 public class VLanConfig
         extends PropertyContainer<NVGenericMap> {
@@ -29,7 +26,7 @@ public class VLanConfig
     }
 
     public VLanConfig(NVGenericMap ngvm) {
-        SharedUtil.checkIfNulls("NVGenericMap can't be null", ngvm);
+        SUS.checkIfNulls("NVGenericMap can't be null", ngvm);
         setProperties(ngvm);
     }
 

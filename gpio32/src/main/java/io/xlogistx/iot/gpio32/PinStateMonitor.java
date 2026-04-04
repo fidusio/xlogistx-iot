@@ -6,7 +6,7 @@ import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 import org.zoxweb.server.flow.FlowEvent;
 import org.zoxweb.server.flow.FlowProcessor;
 import org.zoxweb.server.task.TaskSchedulerProcessor;
-import org.zoxweb.shared.util.SharedUtil;
+import org.zoxweb.shared.util.SUS;
 
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
@@ -27,7 +27,7 @@ public class PinStateMonitor
     }
 
     public PinStateMonitor(GPIOConfig gpiom, FlowProcessor fp, TaskSchedulerProcessor tsp) {
-        SharedUtil.checkIfNulls("GPIOM can't be null.", gpiom);
+        SUS.checkIfNulls("GPIOM can't be null.", gpiom);
         this.gpiom = gpiom;
         this.tsp = tsp;
         this.fp = fp;

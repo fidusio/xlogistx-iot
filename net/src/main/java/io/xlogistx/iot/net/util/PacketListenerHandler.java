@@ -3,11 +3,10 @@ package io.xlogistx.iot.net.util;
 import com.sun.jna.Platform;
 import org.pcap4j.core.BpfProgram.BpfCompileMode;
 import org.pcap4j.core.*;
-import org.zoxweb.shared.io.SharedIOUtil;
 import org.zoxweb.server.logging.LogWrapper;
 import org.zoxweb.shared.io.CloseableType;
+import org.zoxweb.shared.io.SharedIOUtil;
 import org.zoxweb.shared.util.SUS;
-import org.zoxweb.shared.util.SharedUtil;
 
 import java.io.IOException;
 import java.util.concurrent.Executor;
@@ -35,7 +34,7 @@ public abstract class PacketListenerHandler
     }
 
     public PacketListenerHandler(PcapHandle handle, String filter, Executor executor) {
-        SharedUtil.checkIfNulls("Handle or PacketListener null", handle);
+        SUS.checkIfNulls("Handle or PacketListener null", handle);
         this.handle = handle;
         this.filter = filter;
         this.executor = executor;

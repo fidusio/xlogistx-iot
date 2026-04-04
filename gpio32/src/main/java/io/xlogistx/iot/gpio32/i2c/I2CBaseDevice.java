@@ -5,6 +5,7 @@ import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
 import org.zoxweb.shared.util.CanonicalID;
 import org.zoxweb.shared.util.NamedDescription;
+import org.zoxweb.shared.util.SUS;
 import org.zoxweb.shared.util.SharedUtil;
 
 import java.io.IOException;
@@ -31,7 +32,7 @@ public abstract class I2CBaseDevice
 
     protected I2CBaseDevice(String name, I2CBus i2cBus, I2CDevice i2cDevice) {
         super(name);
-        SharedUtil.checkIfNulls("bus or device can't be null", i2cBus, i2cDevice);
+        SUS.checkIfNulls("bus or device can't be null", i2cBus, i2cDevice);
         this.i2cBus = i2cBus;
         this.i2cDevice = i2cDevice;
     }
