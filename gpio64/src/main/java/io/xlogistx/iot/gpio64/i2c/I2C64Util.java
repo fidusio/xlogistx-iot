@@ -37,7 +37,7 @@ import java.util.List;
  */
 public class I2C64Util implements I2CHandler {
 
-    public static final String VERSION = "I2C-64-UTIL-1.00.01";
+    public static final String VERSION = "I2C-64-UTIL-1.00.02";
     public static final LogWrapper log = new LogWrapper(I2C64Util.class);
 //    private volatile Map<String, I2C> i2cMap = new ConcurrentHashMap<>();
 //    public static final RegistrarMapDefault<String, DataFilter> DATA_FILTER = new RegistrarMapDefault<>(null, DataFilter::getID);
@@ -119,8 +119,8 @@ public class I2C64Util implements I2CHandler {
 
 
     public synchronized I2C createI2C(String name, int bus, int address) {
-       if(name == null)
-           name = bus + "-" + address;
+        if(name == null)
+            name = bus + "-" + address;
 
         I2CConfig config = I2C.newConfigBuilder(GPIO64Tools.SINGLETON.getContext())
                 .id("I2C-" + bus + "-" + Integer.toHexString(address))
