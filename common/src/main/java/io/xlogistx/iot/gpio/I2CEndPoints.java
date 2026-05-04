@@ -14,6 +14,7 @@ import org.zoxweb.shared.annotation.SecurityProp;
 import org.zoxweb.shared.crypto.CryptoConst;
 import org.zoxweb.shared.data.SimpleMessage;
 import org.zoxweb.shared.http.HTTPMethod;
+import org.zoxweb.shared.http.HTTPStatusCode;
 import org.zoxweb.shared.security.model.SecurityModel;
 import org.zoxweb.shared.util.NVGenericMap;
 import org.zoxweb.shared.util.NVInt;
@@ -40,6 +41,17 @@ public class I2CEndPoints
         int address = SharedUtil.parseInt(addressID);
         log.getLogger().info("i2c address:" + address);
         return i2cHandler.sendI2CCommand(bus, address, command, SharedUtil.toCanonicalID('/', "i2c", bus, Integer.toHexString(address), command).toUpperCase(), 1);
+    }
+
+
+    @EndPointProp(methods = {HTTPMethod.GET}, name = "i2c-close-device", uris = "/i2c/close/{i2c-bus}/{i2c-address}")
+    public HTTPStatusCode i2cCloseDevice(@ParamProp(name = "i2c-bus") int bus,
+                                     @ParamProp(name = "i2c-address") String addressID)
+            throws IOException {
+        int address = SharedUtil.parseInt(addressID);
+        log.getLogger().info("bus: " + bus +" i2c address: " + address);
+        i2cHandler.close(bus, address);
+        return HTTPStatusCode.OK;//;i2cHandler.sendI2CCommand(bus, address, command, SharedUtil.toCanonicalID('/', "i2c", bus, Integer.toHexString(address), command).toUpperCase(), 1);
     }
 
 

@@ -199,6 +199,11 @@ public class I2C64Util implements I2CHandler {
     }
 
     @Override
+    public void close(int bus, int address) {
+        releaseI2C("generic", bus, address);
+    }
+
+    @Override
     public I2CIO getI2CIO(int bus, int address) throws IOException {
         I2C i2c = createI2C(null, bus, address);
         if (i2c == null)

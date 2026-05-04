@@ -52,4 +52,7 @@ public interface I2CHandler {
 
     I2CIO getI2CIO(int bus, int address) throws IOException;
 
+    default void close(int bus, int address) throws IOException{
+    }
+
 }
