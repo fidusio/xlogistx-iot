@@ -153,6 +153,8 @@ public class I2CUtil implements I2CHandler {
     }
 
 
+
+    public String version() {return VERSION;}
     public LockHolder getLockHolder() {
         return lockHolder;
     }

@@ -13,7 +13,7 @@ import java.io.IOException;
  */
 public interface I2CHandler {
 
-
+    String version();
     /**
      *
      * @return the lock holder associated with IC implementation

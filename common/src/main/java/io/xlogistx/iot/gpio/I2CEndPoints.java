@@ -29,7 +29,7 @@ import java.io.IOException;
 public class I2CEndPoints
         extends PropertyContainer<NVGenericMap> {
     private static final LogWrapper log = new LogWrapper(I2CEndPoints.class).setEnabled(true);
-    private static I2CHandler  i2cHandler;
+    private static I2CHandler i2cHandler;
 
 
     @EndPointProp(methods = {HTTPMethod.GET}, name = "i2c-command", uris = "/i2c/{i2c-bus}/{i2c-address}/{command}")
@@ -52,7 +52,7 @@ public class I2CEndPoints
                                           @ParamProp(name = "multiplier") float multiplier,
                                           @ParamProp(name = "unit") String unit)
 
-            throws IOException  {
+            throws IOException {
         SimpleMessage response = new SimpleMessage();
         String filerID = SharedUtil.toCanonicalID('/', "i2c", bus, Integer.toHexString(SharedUtil.parseInt(addressID)), command).toUpperCase();
 
@@ -66,12 +66,13 @@ public class I2CEndPoints
 
     @EndPointProp(methods = {HTTPMethod.GET}, name = "i2c-all-commands", uris = "/i2c/help")
     @SecurityProp(permissions = SecurityModel.PERM_RESOURCE_ANY)
-    public SimpleMessage i2cSupportedCommands() {
+    public SimpleMessage i2cHelp() {
 
         I2CCodecBase[] allMessages = i2cHandler.getI2CCodecs();
         SimpleMessage response = new SimpleMessage();
         response.setDescription("All supported messages, for web calls ie https://host:port/i2c/{bus-id}/{i2c-device-address}/[command]");
-        response.getProperties().build("BUS-SCAN", "Scan i2c bus ie https://host:port/i2c/scan/{bus-id}");
+        response.getProperties().build("i2c-handler-version", i2cHandler.version())
+                .build("BUS-SCAN", "Scan i2c bus ie https://host:port/i2c/scan/{bus-id}");
         for (I2CCodecBase icmb : allMessages) {
             response.getProperties().add(icmb.getName(), icmb.getDescription());
         }
@@ -95,8 +96,7 @@ public class I2CEndPoints
                 list.getValue().add(actives[i]);
             }
             response.getProperties().add(list);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new IOException(e);
         }
         return response;
@@ -184,17 +184,14 @@ public class I2CEndPoints
     protected void refreshProperties() {
         String className = getProperties().getValue("i2c-class-name");
         log.getLogger().info("i2c-class-name " + className);
-        if(className != null) {
-            try
-            {
+        if (className != null) {
+            try {
                 Class<I2CHandler> clazz = (Class<I2CHandler>) Class.forName(className);
                 log.getLogger().info("class " + clazz);
                 Object instance = ReflectionUtil.getValueFromField(clazz, I2CHandler.class, JMod.PUBLIC, JMod.STATIC, JMod.FINAL);
                 log.getLogger().info("I2CHandler " + instance);
                 i2cHandler = (I2CHandler) instance;
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

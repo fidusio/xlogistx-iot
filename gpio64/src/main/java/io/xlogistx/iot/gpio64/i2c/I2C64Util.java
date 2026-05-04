@@ -37,8 +37,8 @@ import java.util.List;
  */
 public class I2C64Util implements I2CHandler {
 
-    public static final String VERSION = "I2C-64-UTIL-1.00.02";
-    public static final LogWrapper log = new LogWrapper(I2C64Util.class);
+    public static final String VERSION = "I2C-64-UTIL-PI4J-4.0.1-1.00.10";
+    public static final LogWrapper log = new LogWrapper(I2C64Util.class).setEnabled(false);
 //    private volatile Map<String, I2C> i2cMap = new ConcurrentHashMap<>();
 //    public static final RegistrarMapDefault<String, DataFilter> DATA_FILTER = new RegistrarMapDefault<>(null, DataFilter::getID);
 //
@@ -57,6 +57,9 @@ public class I2C64Util implements I2CHandler {
     private I2C64Util() {
     }
 
+    public String version() {
+        return VERSION;
+    }
 
     @Override
     public LockHolder getLockHolder() {
@@ -118,40 +121,64 @@ public class I2C64Util implements I2CHandler {
     }
 
 
-    public synchronized I2C createI2C(String name, int bus, int address) {
-        if(name == null)
-            name = bus + "-" + address;
+    public I2C createI2C(String name, int bus, int address) {
+        String id = "I2C-" + (SUS.isNotEmpty(name) ? name + "-" : "") + bus + "-" + Integer.toHexString(address);
+        if (log.isEnabled()) log.getLogger().info("Creating I2C device " + id);
+        getLockHolder().lock(true);
+        try {
+            if (GPIO64Tools.SINGLETON.getContext().registry().exists(id)) {
+                if (log.isEnabled()) log.getLogger().info(id + " already exists");
+                return GPIO64Tools.SINGLETON.getContext().registry().get(id);
+            }
 
-        I2CConfig config = I2C.newConfigBuilder(GPIO64Tools.SINGLETON.getContext())
-                .id("I2C-" + bus + "-" + Integer.toHexString(address))
-                .name(name)
-                .bus(bus)
-                .device(address)
-                .build();
+            if (SUS.isEmpty(name))
+                name = bus + "-" + address;
 
-        I2C i2c = null;
-        if (GPIO64Tools.SINGLETON.getContext().registry().exists(config.getId())) {
-            i2c = GPIO64Tools.SINGLETON.getContext().registry().get(config.getId());
-        } else {
-            i2c = GPIO64Tools.SINGLETON.getContext().create(config);
+            I2CConfig config = I2C.newConfigBuilder(GPIO64Tools.SINGLETON.getContext())
+                    .id(id)
+                    .name(name)
+                    .bus(bus)
+                    .device(address)
+                    .build();
+
+            I2C i2c = GPIO64Tools.SINGLETON.getContext().create(config);
+            try {
+                int n = i2c.write(new byte[1], 0, 0);
+                log.getLogger().info(id + " I2C exists wrote " + n);
+//                if (n < 0) {
+//                    if(log.isEnabled()) log.getLogger().info("I2C device " + id + " not found wrote < 0");
+//                    SharedIOUtil.close(i2c);
+//                    return null;
+//                }
+            } catch (Exception e) {
+                if (log.isEnabled())
+                    e.printStackTrace();
+
+                if (log.isEnabled()) log.getLogger().info("probe failed for " + id + ": " + e);
+                GPIO64Tools.SINGLETON.getContext().registry().remove(id);
+                SharedIOUtil.close(i2c);
+
+                return null;
+            }
+            return i2c;
+        } finally {
+            getLockHolder().unlock(true);
         }
-        return i2c;
     }
 
-    public synchronized void releaseI2C(String name, int bus, int address) {
-        if(name == null)
-            name = bus + "-" + address;
+    public void releaseI2C(String name, int bus, int address) {
+        String id = "I2C-" + (SUS.isNotEmpty(name) ? name + "-" : "") + bus + "-" + Integer.toHexString(address);
+        getLockHolder().lock(true);
+        try {
+            if (GPIO64Tools.SINGLETON.getContext().registry().exists(id)) {
 
-        I2CConfig config = I2C.newConfigBuilder(GPIO64Tools.SINGLETON.getContext())
-                .id("I2C-" + bus + "-" + Integer.toHexString(address))
-                .name(name)
-                .bus(bus)
-                .device(address)
-                .build();
-        if (GPIO64Tools.SINGLETON.getContext().registry().exists(config.getId())) {
-            com.pi4j.io.IO ioDev = GPIO64Tools.SINGLETON.getContext().registry().get(config.getId());
-            if(ioDev instanceof AutoCloseable)
-                SharedIOUtil.close((AutoCloseable) ioDev);
+                com.pi4j.io.IO ioDev = GPIO64Tools.SINGLETON.getContext().registry().get(id);
+                GPIO64Tools.SINGLETON.getContext().registry().remove(id);
+                if (ioDev instanceof AutoCloseable)
+                    SharedIOUtil.close((AutoCloseable) ioDev);
+            }
+        } finally {
+            getLockHolder().unlock(true);
         }
     }
 
@@ -168,41 +195,39 @@ public class I2C64Util implements I2CHandler {
 
 
     public int[] getI2CDeviceIDs(int bus, int startAddress, int endAddress) throws IOException {
-        I2C[] devs = scanI2CDevices(bus, startAddress, endAddress);
-        int[] ret = new int[devs.length];
-        for (int i = 0; i < ret.length; i++) {
-            ret[i] = devs[i].getDevice();
-        }
-
-        return ret;
+        return scanI2CDevices(bus, startAddress, endAddress);
     }
 
     @Override
     public I2CIO getI2CIO(int bus, int address) throws IOException {
         I2C i2c = createI2C(null, bus, address);
-
+        if (i2c == null)
+            throw new IOException("No I2C device at bus " + bus + " address 0x" + Integer.toHexString(address));
         return new I2CIO(address, getLockHolder(), i2c.getInputStream(), i2c.getOutputStream());
     }
 
 
-    public synchronized I2C[] scanI2CDevices(int bus, int startAddress, int endAddress) throws IOException {
-        List<I2C> ret = new ArrayList<I2C>();
-        for (int i = startAddress; i <= endAddress; i++) {
-            I2C i2c = null;
-            try {
-                i2c = createI2C("generic", bus, i);
-                // Try to read from the device to see if it exists
-                i2c.read();
-                ret.add(i2c);
+    public int[] scanI2CDevices(int bus, int startAddress, int endAddress) {
 
-            } catch (Exception e) {
-                // Device doesn't exist at this address
-                releaseI2C("generic", bus, i);
+        List<Integer> found = new ArrayList<>();
+        getLockHolder().lock(true);
+        try {
+            for (int i = startAddress; i <= endAddress; i++) {
+                try {
+                    if (createI2C("scan", bus, i) != null)
+                        found.add(i);
+                } finally {
+                    releaseI2C("scan", bus, i);
+                }
             }
-
+        } finally {
+            getLockHolder().unlock(true);
         }
 
-        return ret.toArray(new I2C[ret.size()]);
+        int[] ret = new int[found.size()];
+        for (int j = 0; j < found.size(); j++)
+            ret[j] = found.get(j);
+        return ret;
     }
 
     public static void write(I2C64BaseDevice dev, CommandToBytes command) throws IOException {
@@ -280,11 +305,11 @@ public class I2C64Util implements I2CHandler {
 //                } catch (IOException exception) {
 //                    if (log.isEnabled()) log.getLogger().info("I/O error during fetch of I2C busses occurred");
 //                }
-                I2C[] devs = SINGLETON.scanI2CDevices(busID, 4, 127);
+                int[] devs = SINGLETON.scanI2CDevices(busID, 4, 127);
 
-                for (I2C dev : devs) {
+                for (int dev : devs) {
                     if (log.isEnabled())
-                        log.getLogger().info("I2C Device Address: " + String.format("%x", dev.getDevice()));
+                        log.getLogger().info("I2C Device Address: " + String.format("%x", dev));
                 }
                 break;
             default:
