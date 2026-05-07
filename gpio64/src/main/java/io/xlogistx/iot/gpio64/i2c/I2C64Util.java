@@ -37,7 +37,7 @@ import java.util.List;
  */
 public class I2C64Util implements I2CHandler {
 
-    public static final String VERSION = "I2C-64-UTIL-PI4J-4.0.1-1.00.10";
+    public static final String VERSION = "I2C-64-UTIL-PI4J-4.0.1-1.00.11";
     public static final LogWrapper log = new LogWrapper(I2C64Util.class).setEnabled(false);
 //    private volatile Map<String, I2C> i2cMap = new ConcurrentHashMap<>();
 //    public static final RegistrarMapDefault<String, DataFilter> DATA_FILTER = new RegistrarMapDefault<>(null, DataFilter::getID);
@@ -52,10 +52,12 @@ public class I2C64Util implements I2CHandler {
     public static final I2C64Util SINGLETON = new I2C64Util();
 
     private final LockHolder lockHolder = new LockHolder();
+    private boolean lockMode = true;
 
 
     private I2C64Util() {
     }
+
 
     public String version() {
         return VERSION;
@@ -86,7 +88,7 @@ public class I2C64Util implements I2CHandler {
         if (log.isEnabled()) log.getLogger().info("sending: " + rawCommand + " " + i2cCommand);
         byte[] respData = new byte[mc.responseLength()];
 
-        getLockHolder().lock(true);
+        getLockHolder().lock(isLockModeEnabled());
         try {
             mc.resetTimeStamp();
             for (int i = 0; i < repeat; i++) {
@@ -95,7 +97,7 @@ public class I2C64Util implements I2CHandler {
                 i2c.read(respData, 0, respData.length);
             }
         } finally {
-            getLockHolder().unlock(true);
+            getLockHolder().unlock(isLockModeEnabled());
         }
 
         SimpleMessage ret = mc.decode(I2CResp.build(bus, address, respData, filterID));
@@ -124,7 +126,7 @@ public class I2C64Util implements I2CHandler {
     public I2C createI2C(String name, int bus, int address) {
         String id = "I2C-" + (SUS.isNotEmpty(name) ? name + "-" : "") + bus + "-" + Integer.toHexString(address);
         if (log.isEnabled()) log.getLogger().info("Creating I2C device " + id);
-        getLockHolder().lock(true);
+        getLockHolder().lock(isLockModeEnabled());
         try {
             if (GPIO64Tools.SINGLETON.getContext().registry().exists(id)) {
                 if (log.isEnabled()) log.getLogger().info(id + " already exists");
@@ -162,13 +164,13 @@ public class I2C64Util implements I2CHandler {
             }
             return i2c;
         } finally {
-            getLockHolder().unlock(true);
+            getLockHolder().unlock(isLockModeEnabled());
         }
     }
 
     public void releaseI2C(String name, int bus, int address) {
         String id = "I2C-" + (SUS.isNotEmpty(name) ? name + "-" : "") + bus + "-" + Integer.toHexString(address);
-        getLockHolder().lock(true);
+        getLockHolder().lock(isLockModeEnabled());
         try {
             if (GPIO64Tools.SINGLETON.getContext().registry().exists(id)) {
 
@@ -178,7 +180,7 @@ public class I2C64Util implements I2CHandler {
                     SharedIOUtil.close((AutoCloseable) ioDev);
             }
         } finally {
-            getLockHolder().unlock(true);
+            getLockHolder().unlock(isLockModeEnabled());
         }
     }
 
@@ -215,7 +217,7 @@ public class I2C64Util implements I2CHandler {
     public int[] scanI2CDevices(int bus, int startAddress, int endAddress) {
 
         List<Integer> found = new ArrayList<>();
-        getLockHolder().lock(true);
+        getLockHolder().lock(isLockModeEnabled());
         try {
             for (int i = startAddress; i <= endAddress; i++) {
                 try {
@@ -226,7 +228,7 @@ public class I2C64Util implements I2CHandler {
                 }
             }
         } finally {
-            getLockHolder().unlock(true);
+            getLockHolder().unlock(isLockModeEnabled());
         }
 
         int[] ret = new int[found.size()];
@@ -346,6 +348,14 @@ public class I2C64Util implements I2CHandler {
         System.exit(-1);
     }
 
+
+    public boolean isLockModeEnabled() {
+        return lockMode;
+    }
+
+    public void setLockModeEnabled(boolean lockModeEnabled) {
+        lockMode = lockModeEnabled;
+    }
 
     public static void main(String[] args) {
         try {

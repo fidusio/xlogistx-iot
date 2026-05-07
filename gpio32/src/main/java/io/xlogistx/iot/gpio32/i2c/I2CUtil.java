@@ -130,6 +130,7 @@ public class I2CUtil implements I2CHandler {
 
     public static final String VERSION = "I2C-UTIL-1.04.14";
     public static final LogWrapper log = new LogWrapper(I2CUtil.class);
+    private boolean lockMode = true;
     //public static final RegistrarMapDefault<String, DataFilter> DATA_FILTER = new RegistrarMapDefault<>(null, DataFilter::getID);
 
 //    private static final RegistrarMapDefault<String, I2CCodecBase> I2C_CODEC_MANAGER = new RegistrarMapDefault<>(TokenFilter.UPPER_COLON, I2CCodecBase::getName).setNamedDescription(new NamedDescription("I2CCodecManager", "I2CProtocol"))
@@ -245,6 +246,14 @@ public class I2CUtil implements I2CHandler {
 //        return ret;
     }
 
+
+    public boolean isLockModeEnabled() {
+        return lockMode;
+    }
+
+    public void setLockModeEnabled(boolean lockModeEnabled) {
+        lockMode = lockModeEnabled;
+    }
     @Override
     public I2CCodecBase[] getI2CCodecs() {
         List<I2CCodecBase> ret = new ArrayList<>();

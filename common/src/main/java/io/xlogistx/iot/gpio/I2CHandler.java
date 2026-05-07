@@ -55,4 +55,7 @@ public interface I2CHandler {
     default void close(int bus, int address) throws IOException{
     }
 
+    boolean isLockModeEnabled();
+    void setLockModeEnabled(boolean lockModeEnabled);
+
 }

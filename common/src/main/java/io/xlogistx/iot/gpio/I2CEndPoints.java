@@ -16,10 +16,7 @@ import org.zoxweb.shared.data.SimpleMessage;
 import org.zoxweb.shared.http.HTTPMethod;
 import org.zoxweb.shared.http.HTTPStatusCode;
 import org.zoxweb.shared.security.model.SecurityModel;
-import org.zoxweb.shared.util.NVGenericMap;
-import org.zoxweb.shared.util.NVInt;
-import org.zoxweb.shared.util.NVIntList;
-import org.zoxweb.shared.util.SharedUtil;
+import org.zoxweb.shared.util.*;
 
 import java.io.IOException;
 
@@ -46,12 +43,24 @@ public class I2CEndPoints
 
     @EndPointProp(methods = {HTTPMethod.GET}, name = "i2c-close-device", uris = "/i2c/close/{i2c-bus}/{i2c-address}")
     public HTTPStatusCode i2cCloseDevice(@ParamProp(name = "i2c-bus") int bus,
-                                     @ParamProp(name = "i2c-address") String addressID)
+                                         @ParamProp(name = "i2c-address") String addressID)
             throws IOException {
         int address = SharedUtil.parseInt(addressID);
-        log.getLogger().info("bus: " + bus +" i2c address: " + address);
+        log.getLogger().info("bus: " + bus + " i2c address: " + address);
         i2cHandler.close(bus, address);
-        return HTTPStatusCode.OK;//;i2cHandler.sendI2CCommand(bus, address, command, SharedUtil.toCanonicalID('/', "i2c", bus, Integer.toHexString(address), command).toUpperCase(), 1);
+        return HTTPStatusCode.OK;
+    }
+
+
+    @EndPointProp(methods = {HTTPMethod.GET}, name = "i2c-lock-mode", uris = "/i2c/lock-mode/{mode}")
+    public NVGenericMap i2cLockMode(@ParamProp(name = "mode", optional = true) String mode) {
+        Const.Bool stat = Const.Bool.parse(mode);
+        if (stat != null) {
+            i2cHandler.setLockModeEnabled(stat.getValue());
+        }
+        return new NVGenericMap().build("i2c-handler-version", i2cHandler.version())
+                .build("i2c-lock-mode", i2cHandler.isLockModeEnabled() ? Const.Bool.ENABLED.getName() : Const.Bool.DISABLED.getName());
+
     }
 
 
@@ -195,6 +204,7 @@ public class I2CEndPoints
     @Override
     protected void refreshProperties() {
         String className = getProperties().getValue("i2c-class-name");
+
         log.getLogger().info("i2c-class-name " + className);
         if (className != null) {
             try {
@@ -203,6 +213,9 @@ public class I2CEndPoints
                 Object instance = ReflectionUtil.getValueFromField(clazz, I2CHandler.class, JMod.PUBLIC, JMod.STATIC, JMod.FINAL);
                 log.getLogger().info("I2CHandler " + instance);
                 i2cHandler = (I2CHandler) instance;
+                boolean lockMode = getProperties().getValue("i2c-lock-mode", true);
+                i2cHandler.setLockModeEnabled(lockMode);
+                log.getLogger().info("lock mode " + i2cHandler.isLockModeEnabled());
             } catch (Exception e) {
                 e.printStackTrace();
             }
