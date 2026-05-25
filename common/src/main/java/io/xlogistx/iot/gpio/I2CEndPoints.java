@@ -11,18 +11,18 @@ import org.zoxweb.server.util.ReflectionUtil;
 import org.zoxweb.shared.annotation.EndPointProp;
 import org.zoxweb.shared.annotation.ParamProp;
 import org.zoxweb.shared.annotation.SecurityProp;
-import org.zoxweb.shared.crypto.CryptoConst;
 import org.zoxweb.shared.data.SimpleMessage;
 import org.zoxweb.shared.http.HTTPMethod;
 import org.zoxweb.shared.http.HTTPStatusCode;
+import org.zoxweb.shared.security.SecConst;
 import org.zoxweb.shared.security.model.SecurityModel;
 import org.zoxweb.shared.util.*;
 
 import java.io.IOException;
 
-@SecurityProp(authentications = {CryptoConst.AuthenticationType.BASIC,
-        CryptoConst.AuthenticationType.BEARER,
-        CryptoConst.AuthenticationType.JWT},
+@SecurityProp(authentications = {SecConst.AuthenticationType.BASIC,
+        SecConst.AuthenticationType.BEARER,
+        SecConst.AuthenticationType.JWT},
         permissions = "i2c:access")
 public class I2CEndPoints
         extends PropertyContainer<NVGenericMap> {

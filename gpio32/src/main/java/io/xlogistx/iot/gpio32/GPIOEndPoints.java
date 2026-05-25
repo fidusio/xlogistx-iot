@@ -7,18 +7,18 @@ import org.zoxweb.server.logging.LogWrapper;
 import org.zoxweb.shared.annotation.EndPointProp;
 import org.zoxweb.shared.annotation.ParamProp;
 import org.zoxweb.shared.annotation.SecurityProp;
-import org.zoxweb.shared.crypto.CryptoConst;
 import org.zoxweb.shared.data.Range;
 import org.zoxweb.shared.data.SimpleMessage;
 import org.zoxweb.shared.http.HTTPMethod;
 import org.zoxweb.shared.http.HTTPStatusCode;
 import org.zoxweb.shared.http.URIScheme;
+import org.zoxweb.shared.security.SecConst;
 import org.zoxweb.shared.util.*;
 
 
-@SecurityProp(authentications = {CryptoConst.AuthenticationType.BASIC,
-        CryptoConst.AuthenticationType.BEARER,
-        CryptoConst.AuthenticationType.JWT},
+@SecurityProp(authentications = {SecConst.AuthenticationType.BASIC,
+        SecConst.AuthenticationType.BEARER,
+        SecConst.AuthenticationType.JWT},
         permissions = "gpio:access",
         protocols = {URIScheme.HTTPS})
 public class GPIOEndPoints
