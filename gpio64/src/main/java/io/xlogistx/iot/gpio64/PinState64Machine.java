@@ -16,6 +16,7 @@ import org.zoxweb.shared.util.SharedStringUtil;
 import org.zoxweb.shared.util.SharedUtil;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 /**
@@ -54,9 +55,9 @@ public class PinState64Machine
         public void accept(DataTriggerAfterWait waitTime) {
             if (waitTime != null) {
                 if (waitTime.getWaitTime() > 0) {
-                    getStateMachine().getScheduler().queue(waitTime.getWaitTime(), () -> {
-                        publish(waitTime.getName(), waitTime.getData());
-                    });
+                    getStateMachine().getScheduler().schedule( () -> publish(waitTime.getName(), waitTime.getData()),
+                            waitTime.getWaitTime(),
+                            TimeUnit.MILLISECONDS);
                 }
             }
         }

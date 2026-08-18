@@ -16,6 +16,7 @@ import org.zoxweb.shared.util.NVBoolean;
 import org.zoxweb.shared.util.NVLong;
 
 
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -95,7 +96,7 @@ public final class FSMWebCaller {
             @Override
             public void accept(Long aLong) {
                 delta = System.currentTimeMillis();
-                getState().getStateMachine().getScheduler().queue(aLong, run);
+                getState().getStateMachine().getScheduler().schedule(run, aLong, TimeUnit.MILLISECONDS);
                 log.getLogger().info(this + " created for " + Const.TimeInMillis.toString(aLong));
             }
         };

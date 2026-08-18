@@ -20,6 +20,7 @@ import org.zoxweb.shared.util.SharedStringUtil;
 import org.zoxweb.shared.util.SharedUtil;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 public class PinStateMachine
@@ -63,9 +64,9 @@ public class PinStateMachine
                 if (waitTime.getWaitTime() > 0)
                 {
                     // use scheduler
-                    getStateMachine().getScheduler().queue(waitTime.getWaitTime(), ()->{
-                        publish(waitTime.getName(), waitTime.getData());
-                    });
+                    getStateMachine().getScheduler().schedule( ()-> publish(waitTime.getName(), waitTime.getData()),
+                            waitTime.getWaitTime(),
+                            TimeUnit.MILLISECONDS);
                 }
             }
         }
