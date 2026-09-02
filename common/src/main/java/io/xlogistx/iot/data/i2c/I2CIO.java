@@ -47,7 +47,7 @@ public class I2CIO
                 result = BytesValue.INT.toValue(input.data, index);
                 MultiplierDataFilter df = IOTDataUtil.DATA_FILTER.lookup(input.command);
                 if(df != null)
-                    ret.getProperties().add(df.decode(result));
+                    ret.getProperties().add(df.encode(result));
                 else
                     ret.getProperties().add(new NVInt(Token.RESULT, result));
 

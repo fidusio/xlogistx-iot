@@ -26,7 +26,7 @@ public class MultiplierDataFilter
     }
 
     @Override
-    public ValueWithUnit<Float, String> decode(Integer input) {
+    public ValueWithUnit<Float, String> validate(Integer input) {
         float val = input * multiplier;
 
         ValueWithUnit<Float, String> ret = new ValueWithUnit<Float, String>(val, unit);
