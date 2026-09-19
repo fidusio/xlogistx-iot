@@ -1,7 +1,7 @@
 package io.xlogistx.iot.data;
 
 import org.zoxweb.shared.util.GetValue;
-import org.zoxweb.shared.util.SharedUtil;
+import org.zoxweb.shared.util.SUS;
 
 public enum GPIOAction implements GetValue<String> {
     READ("-r"),
@@ -28,6 +28,6 @@ public enum GPIOAction implements GetValue<String> {
     }
 
     public static GPIOAction lookup(String token) {
-        return SharedUtil.lookupEnum(token, values());
+        return SUS.lookupEnum(token, values());
     }
 }

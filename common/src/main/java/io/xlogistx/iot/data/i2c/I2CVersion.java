@@ -15,7 +15,7 @@ public class I2CVersion extends I2CCodec {
     public SimpleMessage decode(I2CResp i2cResp) {
         SimpleMessage ret = createDecoderResponse(i2cResp.bus, i2cResp.address);
         int length = i2cResp.data[0];
-        String version = SharedStringUtil.toString(i2cResp.data, 1, length);
+        String version = SUS.toString(i2cResp.data, 1, length);
 
         ret.getProperties().add("version", version);
         return ret;

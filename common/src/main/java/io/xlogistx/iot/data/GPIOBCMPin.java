@@ -265,7 +265,7 @@ public enum GPIOBCMPin
                             // exception OK
                         }
                     }
-                    toAdd = SharedUtil.lookupEnum(pinID, values());
+                    toAdd = SUS.lookupEnum(pinID, values());
                 }
 
                 // maybe by number

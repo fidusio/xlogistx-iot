@@ -33,7 +33,7 @@ public class I2CMessage extends SimpleMessage {
             false,
             false,
             SimpleMessage.class,
-            SharedUtil.extractNVConfigs(Param.I2C_BUS, Param.I2C_ADDRESS, PropertyDAO.Param.PROPERTIES),
+            SUS.extractNVConfigs(Param.I2C_BUS, Param.I2C_ADDRESS, PropertyDAO.Param.PROPERTIES),
             null,
             false,
             SimpleMessage.NVC_SIMPLE_MESSAGE

@@ -59,7 +59,7 @@ public class GPSSatelliteInfo extends SetNameDAO {
 
 
     private static final NVConfigEntity NVC_GPS_SATELLITE_INFO = new NVConfigEntityPortable("gps_navigation", null, "GPSNavigation", true, false, false, false,
-            GPSNavigation.class, SharedUtil.extractNVConfigs(Params.values()), SharedUtil.toNVConfigList(
+            GPSNavigation.class, SUS.extractNVConfigs(Params.values()), SUS.toNVConfigList(
             Params.SATELLITE_ID.getNVConfig(),
             Params.ELEVATION.getNVConfig(),
             Params.AZIMUTH.getNVConfig(),

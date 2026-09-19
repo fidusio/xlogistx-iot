@@ -17,7 +17,7 @@
 package io.xlogistx.iot.util;
 
 import org.zoxweb.shared.data.DataDAO;
-import org.zoxweb.shared.util.SharedUtil;
+import org.zoxweb.shared.util.SUS;
 
 import java.text.ParseException;
 import java.time.Instant;
@@ -41,7 +41,7 @@ public class DateFormatter {
     public static String toString(DataDAO mb) {
         Instant instant = Instant.ofEpochMilli(mb.getCreationTime());
         String formattedDate = DEFAULT_DATE_FORMAT.format(instant.atZone(ZoneOffset.UTC));
-        return SharedUtil.toCanonicalID(':', mb.getSourceID(), formattedDate, new String(mb.getData()));
+        return SUS.toCanonicalID(':', mb.getSourceID(), formattedDate, new String(mb.getData()));
     }
 
     public static long parseUTCTime(String utcTime) throws ParseException {

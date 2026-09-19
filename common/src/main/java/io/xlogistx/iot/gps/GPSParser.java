@@ -50,7 +50,7 @@ public class GPSParser {
         String[] rawMessageAndCheckSum = parseParamWithCheckSum(rawGPSMessage);
         String[] tokens = rawMessageAndCheckSum[0].split(delim);
 
-        GPSMessageID messageType = (GPSMessageID) SharedUtil.lookupEnum(tokens[0], GPSMessageID.values());
+        GPSMessageID messageType = (GPSMessageID) SUS.lookupEnum(tokens[0], GPSMessageID.values());
         GPSMessage ret = null;
 
         switch (messageType) {
@@ -84,7 +84,7 @@ public class GPSParser {
 
         if (ret != null) {
             ret.setData(rawMessageAndCheckSum[0].getBytes());
-            String tmpCheckSum = SharedStringUtil.byteToHex(null, null, (byte) ret.computeCheckSum()).toString();
+            String tmpCheckSum = SUS.byteToHex(null, null, (byte) ret.computeCheckSum()).toString();
 
             if (!tmpCheckSum.equals(rawMessageAndCheckSum[1])) {
                 throw new IllegalArgumentException("Checksum mismatch! Expected " + tmpCheckSum + " Sent Value:" + rawMessageAndCheckSum[1] + " for" + rawMessageAndCheckSum[0]);
@@ -146,7 +146,7 @@ public class GPSParser {
                     }
                     break;
                 default:
-                    fixed.setValue(nvc, SharedUtil.stringToValue(nvc, tokens[i]));
+                    fixed.setValue(nvc, SUS.stringToValue(nvc, tokens[i]));
                     break;
             }
         }
@@ -183,10 +183,10 @@ public class GPSParser {
                 switch (i) {
 
                     case 1:
-                        active.setMode1((ModeOne) SharedUtil.lookupEnum(tokens[i], GPSConst.ModeOne.values()));
+                        active.setMode1((ModeOne) SUS.lookupEnum(tokens[i], GPSConst.ModeOne.values()));
                         break;
                     case 2:
-                        active.setMode2((ModeTwo) SharedUtil.lookupEnum(tokens[i], GPSConst.ModeTwo.values()));
+                        active.setMode2((ModeTwo) SUS.lookupEnum(tokens[i], GPSConst.ModeTwo.values()));
                         break;
                     case 15:
                         active.setPDOP(Float.valueOf(tokens[i]));
@@ -254,7 +254,7 @@ public class GPSParser {
                     case 10:
                         break;
                     default:
-                        navig.setValue(nvc, SharedUtil.stringToValue(nvc, tokens[i]));
+                        navig.setValue(nvc, SUS.stringToValue(nvc, tokens[i]));
                         break;
                 }
             } else {
@@ -268,13 +268,13 @@ public class GPSParser {
                         }
                         break;
                     case 10:
-                        navig.setMagneticVariationValue((float) SharedUtil.stringToValue(nvc, tokens[i]));
+                        navig.setMagneticVariationValue((float) SUS.stringToValue(nvc, tokens[i]));
                         break;
                     case 11:
-                        navig.setMagneticVariationDirection((CardinalDirection) SharedUtil.stringToValue(nvc, tokens[i]));
+                        navig.setMagneticVariationDirection((CardinalDirection) SUS.stringToValue(nvc, tokens[i]));
                         break;
                     default:
-                        navig.setValue(nvc, SharedUtil.stringToValue(nvc, tokens[i]));
+                        navig.setValue(nvc, SUS.stringToValue(nvc, tokens[i]));
                         break;
                 }
             }
@@ -305,7 +305,7 @@ public class GPSParser {
 
         for (int i = 0; i < tokens.length; i++) {
             NVConfig nvc = nvconfigList.get(i);
-            course.setValue(nvc, SharedUtil.stringToValue(nvc, tokens[i]));
+            course.setValue(nvc, SUS.stringToValue(nvc, tokens[i]));
         }
 
         return course;
@@ -331,7 +331,7 @@ public class GPSParser {
 
         for (int i = 0; i < tokens.length; i++) {
             NVConfig nvc = nvconfigList.get(i);
-            message.setValue(nvc, SharedUtil.stringToValue(nvc, tokens[i]));
+            message.setValue(nvc, SUS.stringToValue(nvc, tokens[i]));
         }
 
         return message;
@@ -369,7 +369,7 @@ public class GPSParser {
                     }
                     break;
                 default:
-                    geopos.setValue(nvc, SharedUtil.stringToValue(nvc, tokens[i]));
+                    geopos.setValue(nvc, SUS.stringToValue(nvc, tokens[i]));
                     break;
             }
         }
@@ -422,7 +422,7 @@ public class GPSParser {
 
             if (i < 4) {
                 satellite.setValue(nvconfigList.get(i),
-                        SharedUtil.stringToValue(nvconfigList.get(i),
+                        SUS.stringToValue(nvconfigList.get(i),
                                 tokens[i]));
             } else {
                 GPSSatelliteInfo info = new GPSSatelliteInfo();
@@ -430,7 +430,7 @@ public class GPSParser {
                 List<NVConfig> nvcSatInfoList = nvcSatInfo.getDisplayAttributes();
 
                 for (int j = 0; j < nvcSatInfoList.size() && i < tokens.length; j++, i++) {
-                    info.setValue(nvcSatInfoList.get(j), SharedUtil.stringToValue(nvcSatInfoList.get(j), tokens[i]));
+                    info.setValue(nvcSatInfoList.get(j), SUS.stringToValue(nvcSatInfoList.get(j), tokens[i]));
 
                 }
 

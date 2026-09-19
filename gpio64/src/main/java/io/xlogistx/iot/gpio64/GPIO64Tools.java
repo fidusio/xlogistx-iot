@@ -22,7 +22,7 @@ import org.zoxweb.shared.util.Const.Bool;
 import org.zoxweb.shared.util.Const.TimeInMillis;
 import org.zoxweb.shared.util.NVCollection;
 import org.zoxweb.shared.util.NVCollectionStringDecoder;
-import org.zoxweb.shared.util.SharedUtil;
+import org.zoxweb.shared.util.SUS;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -163,7 +163,7 @@ public class GPIO64Tools implements GPIOHandler {
     }
 
     public synchronized DigitalOutput setOutputPin(int bcmAddress, DigitalState state, long durationInMillis) {
-        log.getLogger().info(SharedUtil.toCanonicalID(',', Thread.currentThread(), bcmAddress, state, durationInMillis));
+        log.getLogger().info(SUS.toCanonicalID(',', Thread.currentThread(), bcmAddress, state, durationInMillis));
         resetPin(bcmAddress);
         DigitalOutput output = createDigitalOutput(bcmAddress, state);
 
@@ -189,7 +189,7 @@ public class GPIO64Tools implements GPIOHandler {
     }
 
     public synchronized DigitalOutput setOutputPinState(int bcmAddress, DigitalState state, boolean persist, long durationInMillis, boolean delay) {
-        log.getLogger().info(SharedUtil.toCanonicalID(',', Thread.currentThread(), bcmAddress, state, persist, durationInMillis));
+        log.getLogger().info(SUS.toCanonicalID(',', Thread.currentThread(), bcmAddress, state, persist, durationInMillis));
 
         resetPin(bcmAddress);
 
@@ -259,7 +259,7 @@ public class GPIO64Tools implements GPIOHandler {
 
 
     public synchronized Pwm setPWM(io.xlogistx.iot.data.GPIOBCMPin pin, float frequency, Range<Float> dutyCycle, long cycleDelay, int repeat) {
-        log.getLogger().info(SharedUtil.toCanonicalID(',', pin, frequency, dutyCycle, cycleDelay, repeat));
+        log.getLogger().info(SUS.toCanonicalID(',', pin, frequency, dutyCycle, cycleDelay, repeat));
 
         if (dutyCycle.getStart() < 0 || dutyCycle.getEnd() > 100) {
             throw new IllegalArgumentException(dutyCycle + " duty cycle out of range [0-100]");
@@ -292,7 +292,7 @@ public class GPIO64Tools implements GPIOHandler {
     }
 
     public synchronized Pwm setPWM(io.xlogistx.iot.data.GPIOBCMPin pin, float frequency, float dutyCycle, long duration) {
-        log.getLogger().info(SharedUtil.toCanonicalID(',', pin, frequency, dutyCycle, TimeInMillis.toString(duration)));
+        log.getLogger().info(SUS.toCanonicalID(',', pin, frequency, dutyCycle, TimeInMillis.toString(duration)));
 
         if (dutyCycle < 0 || dutyCycle > 100) {
             throw new IllegalArgumentException(dutyCycle + " duty cycle out of range [0-100]");

@@ -31,7 +31,7 @@ public class Port extends PropertyDAO {
             false,
             false,
             Port.class,
-            SharedUtil.extractNVConfigs(Param.values()),
+            SUS.extractNVConfigs(Param.values()),
             null,
             false,
             PropertyDAO.NVC_PROPERTY_DAO);

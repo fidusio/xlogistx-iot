@@ -49,11 +49,11 @@ public class I2CEcho extends I2CCodec {
         {
             case "I":
                 ret.toBytes((byte)'I');
-                ret.toBytes(SharedUtil.parseShort(tokens[index++]));
+                ret.toBytes(SUS.parseShort(tokens[index++]));
                 break;
             case "L":
                 ret.toBytes((byte)'L');
-                ret.toBytes(SharedUtil.parseInt(tokens[index++]));
+                ret.toBytes(SUS.parseInt(tokens[index++]));
                 break;
             default:
                 throw new IllegalArgumentException("Invalid input" + input);

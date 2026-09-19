@@ -63,8 +63,8 @@ public class GPSGeographicPosition extends GPSMessage {
 
     private static final NVConfigEntity NVC_GPS_GEOGRAPHIC_POSITION = new NVConfigEntityPortable("gps_geographic_position", null, "GPSGeographicPosition", true, false, false, false,
             GPSGeographicPosition.class,
-            SharedUtil.extractNVConfigs(Params.values()),
-            SharedUtil.toNVConfigList(
+            SUS.extractNVConfigs(Params.values()),
+            SUS.toNVConfigList(
                     NVC_MESSAGE_ID,
                     Params.LATITUDE.getNVConfig(),
                     Params.NS_INDICATOR.getNVConfig(),

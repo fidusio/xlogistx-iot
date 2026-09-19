@@ -40,7 +40,7 @@ public class NIRenameConfig
             false,
             false,
             PropertyDAO.class,
-            SharedUtil.extractNVConfigs(),
+            SUS.extractNVConfigs(),
             null,
             false,
             PropertyDAO.NVC_PROPERTY_DAO);
@@ -64,7 +64,7 @@ public class NIRenameConfig
 
     public void setFilteredNIs(String... nis) {
         NVStringList nvsl = new NVStringList(Param.FILTERED_NIS.getName());
-        SharedUtil.addTo(nvsl.getValue(), nis);
+        SUS.addTo(nvsl.getValue(), nis);
         getProperties().add(nvsl);
     }
 

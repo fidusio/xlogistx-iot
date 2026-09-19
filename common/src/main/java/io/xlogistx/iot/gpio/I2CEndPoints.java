@@ -35,9 +35,9 @@ public class I2CEndPoints
                                     @ParamProp(name = "i2c-address") String addressID,
                                     @ParamProp(name = "command") String command)
             throws IOException {
-        int address = SharedUtil.parseInt(addressID);
+        int address = SUS.parseInt(addressID);
         log.getLogger().info("i2c address:" + address);
-        return i2cHandler.sendI2CCommand(bus, address, command, SharedUtil.toCanonicalID('/', "i2c", bus, Integer.toHexString(address), command).toUpperCase(), 1);
+        return i2cHandler.sendI2CCommand(bus, address, command, SUS.toCanonicalID('/', "i2c", bus, Integer.toHexString(address), command).toUpperCase(), 1);
     }
 
 
@@ -45,7 +45,7 @@ public class I2CEndPoints
     public HTTPStatusCode i2cCloseDevice(@ParamProp(name = "i2c-bus") int bus,
                                          @ParamProp(name = "i2c-address") String addressID)
             throws IOException {
-        int address = SharedUtil.parseInt(addressID);
+        int address = SUS.parseInt(addressID);
         log.getLogger().info("bus: " + bus + " i2c address: " + address);
         i2cHandler.close(bus, address);
         return HTTPStatusCode.OK;
@@ -75,7 +75,7 @@ public class I2CEndPoints
 
             throws IOException {
         SimpleMessage response = new SimpleMessage();
-        String filerID = SharedUtil.toCanonicalID('/', "i2c", bus, Integer.toHexString(SharedUtil.parseInt(addressID)), command).toUpperCase();
+        String filerID = SUS.toCanonicalID('/', "i2c", bus, Integer.toHexString(SUS.parseInt(addressID)), command).toUpperCase();
 
         MultiplierDataFilter mdf = new MultiplierDataFilter(type, filerID, dataFilterName, filerID);
         mdf.setMultiplier(multiplier);
@@ -132,7 +132,7 @@ public class I2CEndPoints
 //            throws IOException, I2CFactory.UnsupportedBusNumberException {
 //
 //        int address = Integer.parseInt(addressID, 16);
-//        String id = SharedUtil.toCanonicalID('-', "ADS1115", bus, Integer.toHexString(address));
+//        String id = SUS.toCanonicalID('-', "ADS1115", bus, Integer.toHexString(address));
 //        ADS1115 device = ResourceManager.lookupResource(id);
 //        ADS1115.PGA pga = ADS1115.PGA.match(voltRef);
 //
@@ -173,7 +173,7 @@ public class I2CEndPoints
 //                                         @ParamProp(name = "delay", optional = true) String delay) throws IOException, I2CFactory.UnsupportedBusNumberException {
 //
 //        int address = Integer.parseInt(addressID, 16);
-//        String id = SharedUtil.toCanonicalID('-', "ADS1115", bus, Integer.toHexString(address));
+//        String id = SUS.toCanonicalID('-', "ADS1115", bus, Integer.toHexString(address));
 //        ADS1115 device = ResourceManager.lookupResource(id);
 //
 //

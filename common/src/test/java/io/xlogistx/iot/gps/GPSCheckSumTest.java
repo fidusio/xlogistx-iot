@@ -16,7 +16,7 @@
 
 package io.xlogistx.iot.gps;
 
-import org.zoxweb.shared.util.SharedStringUtil;
+import org.zoxweb.shared.util.SUS;
 
 /**
  * @author mzebib
@@ -46,7 +46,7 @@ public class GPSCheckSumTest
 	 public static void main(String[] args)
 	 {
 		 
-		 System.out.println(SharedStringUtil.byteToHex(null, null, (byte) checkSum("PGCMD,33,1")));
+		 System.out.println(SUS.byteToHex(null, null, (byte) checkSum("PGCMD,33,1")));
 		 
 		 
 	 }

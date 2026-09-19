@@ -36,10 +36,10 @@ public class NIConfigurator {
         //if(nvb != null)
         {
             if (nvb != null && nvb.getValue() != null) {
-                String formattedToken = SharedStringUtil.format(nvb, " ", false);
-                str = SharedStringUtil.embedText(str, SharedStringUtil.tag(nvb.getName()), formattedToken);
+                String formattedToken = SUS.format(nvb, " ", false);
+                str = SUS.embedText(str, SUS.tag(nvb.getName()), formattedToken);
             } else {
-                str = SharedStringUtil.embedText(str, SharedStringUtil.tag(nvc.getName()), "");
+                str = SUS.embedText(str, SUS.tag(nvc.getName()), "");
             }
         }
         return str;
@@ -50,9 +50,9 @@ public class NIConfigurator {
 
 
         // replace the ni_name
-        ret = SharedStringUtil.embedText(ret, SharedStringUtil.tag(Param.NI_NAME.getNVConfig().getName()), nicd.getNIName());
+        ret = SUS.embedText(ret, SUS.tag(Param.NI_NAME.getNVConfig().getName()), nicd.getNIName());
         // replace the inet protocol
-        ret = SharedStringUtil.embedText(ret, SharedStringUtil.tag(Param.INET_PROTO.getNVConfig().getName()),
+        ret = SUS.embedText(ret, SUS.tag(Param.INET_PROTO.getNVConfig().getName()),
                 nicd.getInetProtocol().getName());
 
         // address
@@ -96,7 +96,7 @@ public class NIConfigurator {
             NIConfigDAO match = null;
             while ((line = br.readLine()) != null) {
                 line = line.trim();
-                if (!line.isEmpty() && !SharedStringUtil.isComment(line)) {
+                if (!line.isEmpty() && !SUS.isComment(line)) {
                     NIConfigDAO temp = niMarker(line);
                     if (temp != null) {
                         ret.put(temp.getNIName(), temp);
@@ -114,7 +114,7 @@ public class NIConfigurator {
 //              }         
 //            }
 
-                        GetNameValueComment<String> nvpc = SharedUtil.parseGetNameStringComment(line, " ", "#", "//");
+                        GetNameValueComment<String> nvpc = SUS.parseGetNameStringComment(line, " ", "#", "//");
                         if (nvpc != null) {
                             if (match.lookup(nvpc.getGNV().getName()) != null)
                                 match.setValue(nvpc.getGNV().getName(), nvpc.getGNV().getValue());
@@ -140,7 +140,7 @@ public class NIConfigurator {
             String inet = niInfos.length > index ? (niInfos[index++].equals("inet") ? "inet" : null) : null;
             String proto = niInfos.length > index ? niInfos[index++] : null;
             if (niName != null && inet != null && proto != null) {
-                InetProto ip = SharedUtil.lookupEnum(proto, InetProto.values());
+                InetProto ip = SUS.lookupEnum(proto, InetProto.values());
                 if (ip != null) {
                     NIConfigDAO ret = new NIConfigDAO();
                     ret.setNIName(niName);
@@ -167,7 +167,7 @@ public class NIConfigurator {
 
         try {
             fis = new FileOutputStream(destination);
-            fis.write(SharedStringUtil.getBytes(configFile));
+            fis.write(SUS.getBytes(configFile));
         } finally {
             SharedIOUtil.close(fis);
         }

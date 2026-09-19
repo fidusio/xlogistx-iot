@@ -20,7 +20,7 @@ package io.xlogistx.iot.gps;
 
 
 
-import org.zoxweb.shared.util.SharedStringUtil;
+import org.zoxweb.shared.util.SUS;
 
 
 
@@ -38,8 +38,8 @@ public class GPSInputTest
 		
 		String command = "$PMTK" + "251,57600";
 		System.out.println(command);
-		System.out.println(SharedStringUtil.byteToHex(null, null, (byte) GPSMessage.checkSum(command)));
-		command = command + "*" + SharedStringUtil.byteToHex(null, null, (byte) GPSMessage.checkSum(command));
+		System.out.println(SUS.byteToHex(null, null, (byte) GPSMessage.checkSum(command)));
+		command = command + "*" + SUS.byteToHex(null, null, (byte) GPSMessage.checkSum(command));
 		System.out.println(command);
 		
 		

@@ -6,7 +6,6 @@ import com.pi4j.io.i2c.I2CFactory;
 import org.zoxweb.shared.util.CanonicalID;
 import org.zoxweb.shared.util.NamedDescription;
 import org.zoxweb.shared.util.SUS;
-import org.zoxweb.shared.util.SharedUtil;
 
 import java.io.IOException;
 
@@ -48,7 +47,7 @@ public abstract class I2CBaseDevice
 
 
     public String toCanonicalID() {
-        return SharedUtil.toCanonicalID('-', getName(), getI2CBus().getBusNumber(), Integer.toHexString(getI2CDevice().getAddress()));
+        return SUS.toCanonicalID('-', getName(), getI2CBus().getBusNumber(), Integer.toHexString(getI2CDevice().getAddress()));
     }
 
     public int hashCode() {
@@ -67,7 +66,7 @@ public abstract class I2CBaseDevice
 
 
     public static String i2cDeviceID(int bus, int address) {
-        return SharedUtil.toCanonicalID('-', "I2CDevice", bus, Integer.toHexString(address));
+        return SUS.toCanonicalID('-', "I2CDevice", bus, Integer.toHexString(address));
     }
 
 

@@ -59,7 +59,7 @@ public class GPSReceiverSignal extends GPSMessage {
 
 
     private static final NVConfigEntity NVC_GPS_RECEIVER_SIGNAL = new NVConfigEntityPortable("gps_receiver_signal", null, "GPSReceiverSignal", true, false, false, false,
-            GPSReceiverSignal.class, SharedUtil.extractNVConfigs(Params.values()), SharedUtil.toNVConfigList(
+            GPSReceiverSignal.class, SUS.extractNVConfigs(Params.values()), SUS.toNVConfigList(
             NVC_MESSAGE_ID,
             Params.SIGNAL_STRENGTH.getNVConfig(),
             Params.SIGNAL_TO_NOISE_RATIO.getNVConfig(),

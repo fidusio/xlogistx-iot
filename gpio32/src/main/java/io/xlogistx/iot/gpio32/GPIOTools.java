@@ -16,7 +16,7 @@ import org.zoxweb.shared.util.Const.Bool;
 import org.zoxweb.shared.util.Const.TimeInMillis;
 import org.zoxweb.shared.util.NVCollection;
 import org.zoxweb.shared.util.NVCollectionStringDecoder;
-import org.zoxweb.shared.util.SharedUtil;
+import org.zoxweb.shared.util.SUS;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -53,7 +53,7 @@ public class GPIOTools implements GPIOHandler {
     }
 
     public synchronized void setOutputPin(Pin pin, PinState state, long durationInMillis) {
-        log.getLogger().info(SharedUtil.toCanonicalID(',', Thread.currentThread(), pin, state, durationInMillis));
+        log.getLogger().info(SUS.toCanonicalID(',', Thread.currentThread(), pin, state, durationInMillis));
         resetPin(pin);
         GpioPinDigitalOutput output = getGpioController().provisionDigitalOutputPin(pin, state);
         output.setShutdownOptions(false);
@@ -72,7 +72,7 @@ public class GPIOTools implements GPIOHandler {
     }
 
     public synchronized void setOutputPinState(Pin pin, PinState state, boolean persist, long durationInMillis, boolean delay) {
-        log.getLogger().info(SharedUtil.toCanonicalID(',', Thread.currentThread(), pin, state, persist, durationInMillis));
+        log.getLogger().info(SUS.toCanonicalID(',', Thread.currentThread(), pin, state, persist, durationInMillis));
         //synchronized(pin)
         {
 
@@ -138,7 +138,7 @@ public class GPIOTools implements GPIOHandler {
 
 
     public synchronized GpioPinPwmOutput setPWM(Pin pin, float frequency, Range<Float> dutyCycle, long cycleDelay, int repeat) {
-        log.getLogger().info(SharedUtil.toCanonicalID(',', pin, frequency, dutyCycle, cycleDelay, repeat));
+        log.getLogger().info(SUS.toCanonicalID(',', pin, frequency, dutyCycle, cycleDelay, repeat));
 
         if (dutyCycle.getStart() < 0 || dutyCycle.getEnd() > 100) {
             throw new IllegalArgumentException(dutyCycle + " duty cycle out of range [0-100]");
@@ -171,7 +171,7 @@ public class GPIOTools implements GPIOHandler {
     }
 
     public synchronized GpioPinPwmOutput setPWM(Pin pin, float frequency, float dutyCycle, long duration) {
-        log.getLogger().info(SharedUtil.toCanonicalID(',', pin, frequency, dutyCycle, TimeInMillis.toString(duration)));
+        log.getLogger().info(SUS.toCanonicalID(',', pin, frequency, dutyCycle, TimeInMillis.toString(duration)));
 
         if (dutyCycle < 0 || dutyCycle > 100) {
             throw new IllegalArgumentException(dutyCycle + " duty cycle out of range [0-100]");
@@ -405,7 +405,7 @@ public class GPIOTools implements GPIOHandler {
                         List<String> values = param.asList();
                         int valuesIndex = 0;
                         PinState state = PinState.getState(Bool.lookupValue(values.get(valuesIndex++)));
-                        //	SharedUtil.lookupEnum(values.get(valuesIndex++), PinState.values());
+                        //	SUS.lookupEnum(values.get(valuesIndex++), PinState.values());
 
                         boolean persist = values.size() > valuesIndex ? Bool.lookupValue(values.get(valuesIndex++)) : false;
 

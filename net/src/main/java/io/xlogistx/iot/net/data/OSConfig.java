@@ -5,7 +5,7 @@ import org.zoxweb.shared.data.PropertyDAO;
 import org.zoxweb.shared.util.GetName;
 import org.zoxweb.shared.util.NVConfigEntity;
 import org.zoxweb.shared.util.NVConfigEntityPortable;
-import org.zoxweb.shared.util.SharedUtil;
+import org.zoxweb.shared.util.SUS;
 
 
 @SuppressWarnings("serial")
@@ -44,7 +44,7 @@ public class OSConfig
             false,
             false,
             OSConfig.class,
-            SharedUtil.extractNVConfigs(),
+            SUS.extractNVConfigs(),
             null,
             false,
             PropertyDAO.NVC_PROPERTY_DAO);

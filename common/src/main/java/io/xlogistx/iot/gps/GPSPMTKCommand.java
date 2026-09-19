@@ -41,7 +41,7 @@ public class GPSPMTKCommand extends GPSInput {
 
     private static final NVConfigEntity NVC_GPS_PMTK_COMMAND = new NVConfigEntityPortable("gps_pmtk_command", null, "GPSPMTKCommand", true, false, false, false,
             GPSPMTKCommand.class,
-            SharedUtil.toNVConfigList(PKT_TYPE, DATA_FIELD),
+            SUS.toNVConfigList(PKT_TYPE, DATA_FIELD),
             null,
             false,
             NVC_GPS_INPUT);
@@ -53,7 +53,7 @@ public class GPSPMTKCommand extends GPSInput {
      * set to PMTK and the message type set as input.
      */
     public GPSPMTKCommand() {
-        super(SharedUtil.merge(null, NVC_GPS_PMTK_COMMAND));
+        super(SUS.merge(null, NVC_GPS_PMTK_COMMAND));
         setMessageID(GPSMessageID.PMTK);
         setMessageType(GPSMessageType.INPUT);
     }
@@ -112,7 +112,7 @@ public class GPSPMTKCommand extends GPSInput {
 //			
 //		}
 //		
-//		return "$" + command + "*" + SharedStringUtil.byteToHex(null, (byte) checkSum(command));
+//		return "$" + command + "*" + SUS.byteToHex(null, (byte) checkSum(command));
 //		
 //	}
 
@@ -139,7 +139,7 @@ public class GPSPMTKCommand extends GPSInput {
         String command = sb.substring(1);
         sb.append('*');
 
-        return SharedStringUtil.byteToHex(sb, null, (byte) checkSum(command)).toString();
+        return SUS.byteToHex(sb, null, (byte) checkSum(command)).toString();
 
     }
 

@@ -44,7 +44,7 @@ public class GPSDateTime extends GPSMessage {
 
 
     private static final NVConfigEntity NVC_GPS_DATE_TIME = new NVConfigEntityPortable("gps_date_time", null, "GPSDateTime", true, false, false, false,
-            GPSDateTime.class, SharedUtil.toNVConfigList(NVC_GPS_TIME, NVC_TIME_ZONE), null, false,
+            GPSDateTime.class, SUS.toNVConfigList(NVC_GPS_TIME, NVC_TIME_ZONE), null, false,
             NVC_GPS_MESSAGE);
     /**
      * This constructor creates a GPSDateTime object

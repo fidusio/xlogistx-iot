@@ -72,7 +72,7 @@ public class GPSFixedData extends GPSMessage {
     }
 
     private static final NVConfigEntity NVC_GPS_FIXED_DATA = new NVConfigEntityPortable("gps_fixed_data", null, "GPSFixedData", true, false, false, false,
-            GPSFixedData.class, SharedUtil.extractNVConfigs(Params.values()), SharedUtil.toNVConfigList(GPSMessage.NVC_MESSAGE_ID,
+            GPSFixedData.class, SUS.extractNVConfigs(Params.values()), SUS.toNVConfigList(GPSMessage.NVC_MESSAGE_ID,
             Params.UTC_TIME.getNVConfig(),
             Params.LATITUDE.getNVConfig(),
             Params.NS_INDICATOR.getNVConfig(),

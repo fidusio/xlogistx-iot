@@ -4,7 +4,7 @@ import io.xlogistx.iot.net.data.VLanConfig;
 import org.junit.jupiter.api.Test;
 import org.zoxweb.server.util.GSONUtil;
 import org.zoxweb.shared.util.NVGenericMap;
-import org.zoxweb.shared.util.SharedUtil;
+import org.zoxweb.shared.util.SUS;
 
 public class VLanConfigTest
 {
@@ -14,7 +14,7 @@ public class VLanConfigTest
         VLanConfig vLanConfig = new VLanConfig(new NVGenericMap());
         vLanConfig.setEtherName("eth1").setVlanID(200).setIPNetmask("192.168.1.1/24");
 
-        System.out.println(SharedUtil.toCanonicalID(',', vLanConfig.getEtherName(),
+        System.out.println(SUS.toCanonicalID(',', vLanConfig.getEtherName(),
                 vLanConfig.getVlanID(),
                 vLanConfig.getIPNetmask(),
                 vLanConfig.getIP(),
@@ -30,7 +30,7 @@ public class VLanConfigTest
         String json = GSONUtil.toJSONDefault(vLanConfig.getProperties(), true);
         NVGenericMap nvgm = GSONUtil.fromJSONDefault(json, NVGenericMap.class);
         vLanConfig = new VLanConfig(nvgm);
-        System.out.println(SharedUtil.toCanonicalID(',', vLanConfig.getEtherName(),
+        System.out.println(SUS.toCanonicalID(',', vLanConfig.getEtherName(),
                 vLanConfig.getVlanID(),
                 vLanConfig.getIPNetmask(),
                 vLanConfig.getIP(),

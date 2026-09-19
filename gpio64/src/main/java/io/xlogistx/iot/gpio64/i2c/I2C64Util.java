@@ -23,7 +23,6 @@ import org.zoxweb.shared.http.HTTPStatusCode;
 import org.zoxweb.shared.util.Const;
 import org.zoxweb.shared.util.ParamUtil;
 import org.zoxweb.shared.util.SUS;
-import org.zoxweb.shared.util.SharedStringUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -271,16 +270,16 @@ public class I2C64Util implements I2CHandler {
                             try {
                                 if (uri != null) {
                                     if (busID > 0)
-                                        uri = SharedStringUtil.embedText(uri, "{bus}", "" + busID);
+                                        uri = SUS.embedText(uri, "{bus}", "" + busID);
 
                                     if (address > 0)
-                                        uri = SharedStringUtil.embedText(uri, "{address}", "" + address);
+                                        uri = SUS.embedText(uri, "{address}", "" + address);
                                     HTTPMessageConfigInterface hmci = HTTPMessageConfig.createAndInit(url, uri, httpMethod, false);
                                     hmci.setBasicAuthorization(user, password);
                                     HTTPResponseData hrd = OkHTTPCall.send(hmci);
                                     if (hrd.getStatus() == HTTPStatusCode.OK.CODE) {
                                         if (log.isEnabled())
-                                            log.getLogger().info(SharedStringUtil.toString(hrd.getData()));
+                                            log.getLogger().info(SUS.toString(hrd.getData()));
                                     } else if (log.isEnabled()) log.getLogger().info("" + hrd);
                                 }
                                 if (delay > 0)

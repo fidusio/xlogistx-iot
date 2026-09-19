@@ -6,7 +6,7 @@ import org.zoxweb.shared.filters.TokenFilter;
 import org.zoxweb.shared.util.GetName;
 import org.zoxweb.shared.util.NamedDescription;
 import org.zoxweb.shared.util.RegistrarMapDefault;
-import org.zoxweb.shared.util.SharedUtil;
+import org.zoxweb.shared.util.SUS;
 
 public class IOTDataUtil {
     private IOTDataUtil() {}
@@ -71,7 +71,7 @@ public class IOTDataUtil {
         }
 
         public static PortType lookup(String str) {
-            return SharedUtil.lookupEnum(str, PortType.values());
+            return SUS.lookupEnum(str, PortType.values());
         }
     }
     /**

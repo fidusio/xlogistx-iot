@@ -6,7 +6,7 @@ import org.zoxweb.shared.data.SimpleMessage;
 import org.zoxweb.shared.filters.TokenFilter;
 import org.zoxweb.shared.util.BytesValue;
 import org.zoxweb.shared.util.NVInt;
-import org.zoxweb.shared.util.SharedUtil;
+import org.zoxweb.shared.util.SUS;
 
 
 public class I2CAddress extends I2CCodec {
@@ -42,7 +42,7 @@ public class I2CAddress extends I2CCodec {
         int index = 0;
 
         CommandToBytes ret = new CommandToBytes(16, ':').command(TokenFilter.UPPER_COLON.validate(tokens[index++])).toBytes(TokenFilter.UPPER_COLON.validate(tokens[index++]));
-        int address = SharedUtil.parseInt(tokens[index++]);
+        int address = SUS.parseInt(tokens[index++]);
         ret.toBytes((byte) address);
 
         return ret;

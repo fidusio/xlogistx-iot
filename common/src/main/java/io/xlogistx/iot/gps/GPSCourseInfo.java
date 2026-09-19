@@ -68,8 +68,8 @@ public class GPSCourseInfo extends GPSMessage {
 
     private static final NVConfigEntity NVC_GPS_COURSE_INFO = new NVConfigEntityPortable("gps_course_info", null, "GPSCourseInfo", true, false, false, false,
             GPSCourseInfo.class,
-            SharedUtil.extractNVConfigs(Params.values()),
-            SharedUtil.toNVConfigList(
+            SUS.extractNVConfigs(Params.values()),
+            SUS.toNVConfigList(
                     NVC_MESSAGE_ID,
                     Params.COURSE_HEADING_1.getNVConfig(),
                     Params.REFERENCE_1.getNVConfig(),

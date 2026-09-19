@@ -15,7 +15,7 @@ import org.pcap4j.packet.Packet;
 import org.pcap4j.packet.namednumber.EtherType;
 import org.pcap4j.util.NifSelector;
 import org.zoxweb.server.logging.LogWrapper;
-import org.zoxweb.shared.util.SharedUtil;
+import org.zoxweb.shared.util.SUS;
 
 import java.io.IOException;
 
@@ -51,7 +51,7 @@ public class JTCPDump {
         //    while(eNI.hasMoreElements())
         //    {
         //    	NetworkInterface ni = eNI.nextElement();
-        //    	System.out.println(SharedUtil.toCanonicalID(',', ni.getName(), ni.getDisplayName(),
+        //    	System.out.println(SUS.toCanonicalID(',', ni.getName(), ni.getDisplayName(),
         //    			ni.getHardwareAddress() != null ?  MACAddressFilter.toString(ni.getHardwareAddress(), ":") : null));
         //    }
 
@@ -150,7 +150,7 @@ public class JTCPDump {
 
                         //if(log.isEnabled()) log.getLogger().info(ep.getHeader().getSrcAddr() + "->" + ep.getHeader().getDstAddr())
                         //if(log.isEnabled()) log.getLogger().info("{ packetCount:" + packetCount+ "\n" + v4Packet.getHeader() + "\n]" );
-                        System.out.println(SharedUtil.toCanonicalID(',', packetCount, handle.getTimestamp(), "S-IPV4:" + v4Packet.getHeader().getSrcAddr(), ep.getHeader().getSrcAddr(),
+                        System.out.println(SUS.toCanonicalID(',', packetCount, handle.getTimestamp(), "S-IPV4:" + v4Packet.getHeader().getSrcAddr(), ep.getHeader().getSrcAddr(),
                                 "D-IPV4:" + v4Packet.getHeader().getDstAddr(), ep.getHeader().getDstAddr(), ep.getHeader().getType()));
 
                     }
@@ -170,7 +170,7 @@ public class JTCPDump {
         //          public void gotPacket(byte[] packet) {
         //
         //            //System.out.println(ByteArrays.toHexString(packet, " "));
-        //            //System.out.println(SharedStringUtil.bytesToHex(packet));
+        //            //System.out.println(SUS.bytesToHex(packet));
         //            try {
         //            	EthernetPacket ep = EthernetPacket.newPacket(packet, 0, packet.length);
         //

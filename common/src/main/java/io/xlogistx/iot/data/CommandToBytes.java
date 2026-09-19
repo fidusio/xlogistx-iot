@@ -1,7 +1,7 @@
 package io.xlogistx.iot.data;
 
 import org.zoxweb.shared.util.BytesValue;
-import org.zoxweb.shared.util.SharedStringUtil;
+import org.zoxweb.shared.util.SUS;
 
 public class CommandToBytes {
     private final byte[] data;
@@ -89,7 +89,7 @@ public class CommandToBytes {
     }
 
     public String toString() {
-        return SharedStringUtil.bytesToHex(data, 0, size());
+        return SUS.bytesToHex(data, 0, size());
     }
 
     public synchronized CommandToBytes reset() {

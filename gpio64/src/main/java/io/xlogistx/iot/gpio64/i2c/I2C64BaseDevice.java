@@ -6,7 +6,6 @@ import io.xlogistx.iot.gpio64.GPIO64Tools;
 import org.zoxweb.shared.util.CanonicalID;
 import org.zoxweb.shared.util.NamedDescription;
 import org.zoxweb.shared.util.SUS;
-import org.zoxweb.shared.util.SharedUtil;
 
 /**
  * I2C Base Device for Pi4J v3.
@@ -57,7 +56,7 @@ public abstract class I2C64BaseDevice
 
     @Override
     public String toCanonicalID() {
-        return SharedUtil.toCanonicalID('-', getName(), bus, Integer.toHexString(address));
+        return SUS.toCanonicalID('-', getName(), bus, Integer.toHexString(address));
     }
 
     @Override
@@ -77,6 +76,6 @@ public abstract class I2C64BaseDevice
     }
 
     public static String i2cDeviceID(int bus, int address) {
-        return SharedUtil.toCanonicalID('-', "I2CDevice", bus, Integer.toHexString(address));
+        return SUS.toCanonicalID('-', "I2CDevice", bus, Integer.toHexString(address));
     }
 }

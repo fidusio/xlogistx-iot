@@ -66,7 +66,7 @@ public class GPSNavigation extends GPSMessage {
 
 
     private static final NVConfigEntity NVC_GPS_NAVIGATION = new NVConfigEntityPortable("gps_navigation", null, "GPSNavigation", true, false, false, false,
-            GPSNavigation.class, SharedUtil.extractNVConfigs(Params.values()), SharedUtil.toNVConfigList(GPSMessage.NVC_MESSAGE_ID,
+            GPSNavigation.class, SUS.extractNVConfigs(Params.values()), SUS.toNVConfigList(GPSMessage.NVC_MESSAGE_ID,
             Params.GPS_TIME.getNVConfig(),
             Params.STATUS.getNVConfig(),
             Params.LATITUDE.getNVConfig(),

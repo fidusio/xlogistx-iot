@@ -32,7 +32,7 @@ public class COMM
             false,
             false,
             COMM.class,
-            SharedUtil.extractNVConfigs(Param.values()),
+            SUS.extractNVConfigs(Param.values()),
             null,
             false,
             PropertyDAO.NVC_PROPERTY_DAO);

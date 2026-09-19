@@ -12,8 +12,7 @@ import org.zoxweb.shared.http.HTTPMethod;
 import org.zoxweb.shared.http.HTTPResponseData;
 import org.zoxweb.shared.util.NVGenericMap;
 import org.zoxweb.shared.util.ParamUtil;
-import org.zoxweb.shared.util.SharedStringUtil;
-import org.zoxweb.shared.util.SharedUtil;
+import org.zoxweb.shared.util.SUS;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -206,7 +205,7 @@ public class PinState64Machine
 
             for (String gpioConfig : gpios) {
                 System.out.println(gpioConfig);
-                String[] parsedGPIO = SharedStringUtil.parseToken(gpioConfig, 2, false, ":");
+                String[] parsedGPIO = SUS.parseToken(gpioConfig, 2, false, ":");
                 String gpio = parsedGPIO[0];
                 String name = parsedGPIO[1];
                 String url = parsedGPIO[2];
@@ -240,7 +239,7 @@ public class PinState64Machine
                                 return ret;
                             });
                 }
-                PullResistance ppr = SharedUtil.lookupEnum(pullState, PullResistance.values());
+                PullResistance ppr = SUS.lookupEnum(pullState, PullResistance.values());
                 pinStateMachine.start(true);
                 pinStateMachine.monitorDigitalPin(ppr, gpioPin.getName(), gpioNameMap != null ? gpioNameMap.nameMap : "state-monitor");
 

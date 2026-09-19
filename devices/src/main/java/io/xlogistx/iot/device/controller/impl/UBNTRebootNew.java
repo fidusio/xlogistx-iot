@@ -9,7 +9,7 @@ import org.zoxweb.shared.http.HTTPMethod;
 import org.zoxweb.shared.http.HTTPResponseData;
 import org.zoxweb.shared.util.NVGenericMap;
 import org.zoxweb.shared.util.NVPair;
-import org.zoxweb.shared.util.SharedStringUtil;
+import org.zoxweb.shared.util.SUS;
 
 
 import java.util.logging.Logger;
@@ -54,7 +54,7 @@ public class UBNTRebootNew
 
             //hc = new HTTPCall(hmci);
             rd = HTTPCall.send(hmci);
-            log.info("Device: " + getProperties().getValue("host") + ", " + SharedStringUtil.toString(rd.getData()));
+            log.info("Device: " + getProperties().getValue("host") + ", " + SUS.toString(rd.getData()));
         } catch (Exception e) {
             e.printStackTrace();
         }

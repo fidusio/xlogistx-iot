@@ -28,9 +28,9 @@ public class I2CIO
 
 
         index = input.data[index] == ':' ? ++index : index;
-        String portType = SharedStringUtil.toString(input.data, index, 1);
+        String portType = SUS.toString(input.data, index, 1);
         IOTDataUtil.PortType pt = IOTDataUtil.PortType.lookup(portType);
-        //System.out.println(ret.getStatus() +" pt: " + portType + " " + SharedStringUtil.bytesToHex(input.data));
+        //System.out.println(ret.getStatus() +" pt: " + portType + " " + SUS.bytesToHex(input.data));
         ret.getProperties().add(new NVEnum("port_type", pt));
         index++;
 
@@ -58,7 +58,7 @@ public class I2CIO
                 break;
             case PROVISIONING:
                 result = BytesValue.INT.toValue(input.data, index);
-                ret.getProperties().add(new NVEnum(Token.RESULT, SharedUtil.lookupEnum(result, IOTDataUtil.PinMode.values())));
+                ret.getProperties().add(new NVEnum(Token.RESULT, SUS.lookupEnum(result, IOTDataUtil.PinMode.values())));
                 break;
         }
 //        int result = BytesValue.INT.toValue(input.data, index);
@@ -77,14 +77,14 @@ public class I2CIO
 //    @Override
 //    public synchronized  CommandToBytes encode(String input) {
 //        // input is ignored
-//        String[] tokens = SharedStringUtil.parseString(input, ":", true);
+//        String[] tokens = SUS.parseString(input, ":", true);
 //        int index = 0;
 //        CommandToBytes ret = new CommandToBytes(16, ':').command(TokenFilter.UPPER_COLON.validate(tokens[index++]));
 //        action = tokens[index++];
 //        String pinType = tokens[index++];
 //        ret.toBytes(action).toBytes(pinType);
 //
-//        int  pin = SharedUtil.parseInt(tokens[index++]);
+//        int  pin = SUS.parseInt(tokens[index++]);
 //        ret.toBytes((byte)pin);
 //        if(index < tokens.length)
 //        {
@@ -104,7 +104,7 @@ public class I2CIO
 //            }
 //            else
 //            {
-//                int value = SharedUtil.parseInt(tokens[index++]);
+//                int value = SUS.parseInt(tokens[index++]);
 //                ret.toBytes((short) value);
 //            }
 //        }
@@ -115,10 +115,10 @@ public class I2CIO
     @Override
     public synchronized io.xlogistx.iot.data.CommandToBytes encode(String input) {
         // input is ignored
-        String[] tokens = SharedStringUtil.parseString(input, ":", true);
+        String[] tokens = SUS.parseString(input, ":", true);
         int index = 0;
         io.xlogistx.iot.data.CommandToBytes ret = new io.xlogistx.iot.data.CommandToBytes(16, ':').command(TokenFilter.UPPER_COLON.validate(tokens[index++]));
-        IOTDataUtil.IOAction action = SharedUtil.lookupEnum(tokens[index++], IOTDataUtil.IOAction.values());
+        IOTDataUtil.IOAction action = SUS.lookupEnum(tokens[index++], IOTDataUtil.IOAction.values());
         ret.toBytes(action.name());
 
         switch(action)
@@ -129,18 +129,18 @@ public class I2CIO
             case U:
                 String pinType = tokens[index++];
                 ret.toBytes(pinType);
-                int pin = SharedUtil.parseInt(tokens[index++]);
+                int pin = SUS.parseInt(tokens[index++]);
                 ret.toBytes((byte)pin);
                 if(index < tokens.length)
                 {
-                    int value = SharedUtil.parseInt(tokens[index++]);
+                    int value = SUS.parseInt(tokens[index++]);
                     ret.toBytes((short) value);
                 }
                 break;
             case P:
-                pin = SharedUtil.parseInt(tokens[index++]);
+                pin = SUS.parseInt(tokens[index++]);
                 ret.toBytes((byte)pin);
-                IOTDataUtil.PinMode pinMode = SharedUtil.lookupEnum(tokens[index], IOTDataUtil.PinMode.values());
+                IOTDataUtil.PinMode pinMode = SUS.lookupEnum(tokens[index], IOTDataUtil.PinMode.values());
 
                 if(pinMode != null)
                     ret.toBytes(pinMode.getName());

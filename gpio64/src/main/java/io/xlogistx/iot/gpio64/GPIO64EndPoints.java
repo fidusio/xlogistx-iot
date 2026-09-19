@@ -149,7 +149,7 @@ public class GPIO64EndPoints
 //                                    @ParamProp(name="command") String command)
 //            throws IOException, I2CFactory.UnsupportedBusNumberException
 //    {
-//        int address = SharedUtil.parseInt(addressID);
+//        int address = SUS.parseInt(addressID);
 //        SimpleMessage response = I2CUtil.SINGLETON.sendI2CCommand(bus, address, command);
 //        response.getProperties().add(new NVInt("i2c-bus", bus));
 //        response.getProperties().add(new NVInt("i2c-address", address));
@@ -180,7 +180,7 @@ public class GPIO64EndPoints
 //                                     throws IOException, I2CFactory.UnsupportedBusNumberException {
 //
 //        int address = Integer.parseInt(addressID, 16);
-//        String id = SharedUtil.toCanonicalID('-', "ADS1115", bus, Integer.toHexString(address));
+//        String id = SUS.toCanonicalID('-', "ADS1115", bus, Integer.toHexString(address));
 //        ADS1115 device = ResourceManager.SINGLETON.lookup(id);
 //        ADS1115.PGA pga = ADS1115.PGA.match(voltRef);
 //
@@ -226,7 +226,7 @@ public class GPIO64EndPoints
 //                                         @ParamProp(name="delay", optional = true) String delay) throws IOException, I2CFactory.UnsupportedBusNumberException {
 //
 //        int address = Integer.parseInt(addressID, 16);
-//        String id = SharedUtil.toCanonicalID('-', "ADS1115", bus, Integer.toHexString(address));
+//        String id = SUS.toCanonicalID('-', "ADS1115", bus, Integer.toHexString(address));
 //        ADS1115 device = ResourceManager.SINGLETON.lookup(id);
 //
 //

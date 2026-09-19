@@ -74,7 +74,7 @@ public class GPSActiveSatellites extends GPSMessage {
 
 
     private static final NVConfigEntity NVC_GPS_ACTIVE_SATELLITES = new NVConfigEntityPortable("gps_active_satellites", null, "GPSActiveSatellites", true, false, false, false,
-            GPSActiveSatellites.class, SharedUtil.extractNVConfigs(Params.values()), SharedUtil.toNVConfigList(GPSMessage.NVC_MESSAGE_ID,
+            GPSActiveSatellites.class, SUS.extractNVConfigs(Params.values()), SUS.toNVConfigList(GPSMessage.NVC_MESSAGE_ID,
             Params.MODE_1.getNVConfig(),
             Params.MODE_2.getNVConfig(),
 //																										Params.SATELLITE_USED_1.getNVConfig(),

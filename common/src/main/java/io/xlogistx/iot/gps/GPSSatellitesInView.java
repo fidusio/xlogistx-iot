@@ -61,8 +61,8 @@ public class GPSSatellitesInView extends GPSMessage {
 
     private static final NVConfigEntity NVC_GPS_SATELLITES_IN_VIEW = new NVConfigEntityPortable("gps_satellites_in_view", null, "GPSSatellitesInView", true, false, false, false,
             GPSSatellitesInView.class,
-            SharedUtil.extractNVConfigs(Params.values()),
-            SharedUtil.toNVConfigList(GPSMessage.NVC_MESSAGE_ID,
+            SUS.extractNVConfigs(Params.values()),
+            SUS.toNVConfigList(GPSMessage.NVC_MESSAGE_ID,
                     Params.NUMBER_OF_MESSAGES.getNVConfig(),
                     Params.MESSAGE_SEQUENCE_ID.getNVConfig(),
                     Params.SATELLITES_IN_VIEW.getNVConfig(),
