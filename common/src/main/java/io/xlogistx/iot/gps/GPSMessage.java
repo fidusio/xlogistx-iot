@@ -17,7 +17,7 @@
 package io.xlogistx.iot.gps;
 
 
-import org.zoxweb.shared.data.DataDAO;
+import org.zoxweb.shared.data.DataContent;
 import org.zoxweb.shared.util.*;
 
 /**
@@ -27,7 +27,7 @@ import org.zoxweb.shared.util.*;
  *
  */
 @SuppressWarnings("serial")
-public abstract class GPSMessage extends DataDAO {
+public abstract class GPSMessage extends DataContent {
     /**
      * This variable creates an NVConfig object for the
      * parameter which specifies the paramater's name,
@@ -51,7 +51,7 @@ public abstract class GPSMessage extends DataDAO {
     protected static final NVConfig NVC_MESSAGE_TYPE = NVConfigManager.createNVConfig("message_type", "This configures the type of message.", "MessageType", true, false, GPSMessageType.class);
 
 
-    public static final NVConfigEntity NVC_GPS_MESSAGE = new NVConfigEntityPortable("gps_message", null, "GPSMessage", true, false, false, false, GPSMessage.class, SUS.toNVConfigList(NVC_MESSAGE_ID, NVC_MESSAGE_TYPE), null, false, GPSMessage.NVC_DATA_DAO);//,SUS.extractNVConfigs( new Params[]{Params.REFERENCE_ID, Params.NAME, Params.LENGTH}));
+    public static final NVConfigEntity NVC_GPS_MESSAGE = new NVConfigEntityPortable("gps_message", null, "GPSMessage", true, false, false, false, GPSMessage.class, SUS.toNVConfigList(NVC_MESSAGE_ID, NVC_MESSAGE_TYPE), null, false, GPSMessage.NVC_DATA_CONTENT);//,SUS.extractNVConfigs( new Params[]{Params.REFERENCE_ID, Params.NAME, Params.LENGTH}));
 
 
     /**

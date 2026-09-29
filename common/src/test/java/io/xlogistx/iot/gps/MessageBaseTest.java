@@ -1,12 +1,12 @@
 package io.xlogistx.iot.gps;
 
-import org.zoxweb.shared.data.DataDAO;
+import org.zoxweb.shared.data.DataContent;
 
 public class MessageBaseTest {
 
 	public static void main(String[] args){
 		
-		DataDAO message = new DataDAO();
+		DataContent message = new DataContent();
 
 		
 		message.setCreationTime(System.currentTimeMillis());
