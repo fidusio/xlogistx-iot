@@ -3,7 +3,7 @@ package io.xlogistx.iot.net.util;
 import org.zoxweb.server.io.IOUtil;
 import org.zoxweb.server.util.GSONUtil;
 import org.zoxweb.server.util.RuntimeUtil;
-import org.zoxweb.shared.data.RuntimeResultDAO;
+import org.zoxweb.shared.data.RuntimeResultData;
 import org.zoxweb.shared.util.NVGenericMap;
 import org.zoxweb.shared.util.NVStringList;
 import org.zoxweb.shared.util.ParamUtil;
@@ -20,7 +20,7 @@ public class CommandLineMatch {
             String lineMatch = params.stringValue("match", false);
             String valueName = params.stringValue("name", false);
             String output = params.stringValue("output", true);
-            RuntimeResultDAO result = RuntimeUtil.runAndFinish(command);
+            RuntimeResultData result = RuntimeUtil.runAndFinish(command);
             String response = result.getOutputData();
             BufferedReader br = new BufferedReader(new StringReader(response));
 

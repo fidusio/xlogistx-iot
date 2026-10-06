@@ -1,14 +1,17 @@
 package io.xlogistx.iot.net;
 
 
-import org.zoxweb.shared.io.SharedIOUtil;
 import org.zoxweb.server.util.GSONUtil;
 import org.zoxweb.server.util.RuntimeUtil;
-import org.zoxweb.shared.data.RuntimeResultDAO;
+import org.zoxweb.shared.data.RuntimeResultData;
+import org.zoxweb.shared.io.SharedIOUtil;
 import org.zoxweb.shared.net.InetProp.InetProto;
 import org.zoxweb.shared.net.NIConfigDAO;
 import org.zoxweb.shared.net.NIConfigDAO.Param;
-import org.zoxweb.shared.util.*;
+import org.zoxweb.shared.util.GetNameValueComment;
+import org.zoxweb.shared.util.NVBase;
+import org.zoxweb.shared.util.NVConfig;
+import org.zoxweb.shared.util.SUS;
 
 import java.io.*;
 import java.util.Date;
@@ -174,13 +177,13 @@ public class NIConfigurator {
     }
 
     public static int upNI(String upCommand, String ni) throws InterruptedException, IOException {
-        RuntimeResultDAO rrd = RuntimeUtil.runAndFinish(upCommand, ni);
+        RuntimeResultData rrd = RuntimeUtil.runAndFinish(upCommand, ni);
         return rrd.getExitCode();
     }
 
 
     public static int downNI(String downCommand, String ni) throws InterruptedException, IOException {
-        RuntimeResultDAO rrd = RuntimeUtil.runAndFinish(downCommand, ni);
+        RuntimeResultData rrd = RuntimeUtil.runAndFinish(downCommand, ni);
         return rrd.getExitCode();
     }
 
