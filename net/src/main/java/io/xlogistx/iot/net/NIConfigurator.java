@@ -6,8 +6,8 @@ import org.zoxweb.server.util.RuntimeUtil;
 import org.zoxweb.shared.data.RuntimeResultData;
 import org.zoxweb.shared.io.SharedIOUtil;
 import org.zoxweb.shared.net.InetProp.InetProto;
-import org.zoxweb.shared.net.NIConfigDAO;
-import org.zoxweb.shared.net.NIConfigDAO.Param;
+import org.zoxweb.shared.net.NIConfigInfo;
+import org.zoxweb.shared.net.NIConfigInfo.Param;
 import org.zoxweb.shared.util.GetNameValueComment;
 import org.zoxweb.shared.util.NVBase;
 import org.zoxweb.shared.util.NVConfig;
@@ -26,11 +26,11 @@ public class NIConfigurator {
 
 
 //  private static NVConfig NI_PARAMS[] = 
-//    {   NIConfigDAO.Param.ADDRESS.getNVConfig(),
-//        NIConfigDAO.Param.GATEWAY.getNVConfig(), 
-//        NIConfigDAO.Param.NETMASK.getNVConfig(),
-//        NIConfigDAO.Param.NETWORK.getNVConfig(),
-//        NIConfigDAO.Param.DNS_SERVERS.getNVConfig()
+//    {   NIConfigInfo.Param.ADDRESS.getNVConfig(),
+//        NIConfigInfo.Param.GATEWAY.getNVConfig(), 
+//        NIConfigInfo.Param.NETMASK.getNVConfig(),
+//        NIConfigInfo.Param.NETWORK.getNVConfig(),
+//        NIConfigInfo.Param.DNS_SERVERS.getNVConfig()
 //    }; 
 
 
@@ -48,7 +48,7 @@ public class NIConfigurator {
         return str;
     }
 
-    public static String generateNIConfig(NIConfigDAO nicd, String template) {
+    public static String generateNIConfig(NIConfigInfo nicd, String template) {
         String ret = template;
 
 
@@ -86,21 +86,21 @@ public class NIConfigurator {
     }
 
 
-    public static NIConfigDAO[] readConfig(String config) throws IOException {
+    public static NIConfigInfo[] readConfig(String config) throws IOException {
         return readConfig(new StringReader(config));
     }
 
-    public static NIConfigDAO[] readConfig(Reader reader) throws IOException {
-        Map<String, NIConfigDAO> ret = new LinkedHashMap<String, NIConfigDAO>();
+    public static NIConfigInfo[] readConfig(Reader reader) throws IOException {
+        Map<String, NIConfigInfo> ret = new LinkedHashMap<String, NIConfigInfo>();
         try {
             BufferedReader br = new BufferedReader(reader);
 
             String line;
-            NIConfigDAO match = null;
+            NIConfigInfo match = null;
             while ((line = br.readLine()) != null) {
                 line = line.trim();
                 if (!line.isEmpty() && !SUS.isComment(line)) {
-                    NIConfigDAO temp = niMarker(line);
+                    NIConfigInfo temp = niMarker(line);
                     if (temp != null) {
                         ret.put(temp.getNIName(), temp);
                         match = temp;
@@ -131,11 +131,11 @@ public class NIConfigurator {
         } finally {
             SharedIOUtil.close(reader);
         }
-        return ret.values().toArray(new NIConfigDAO[ret.size()]);
+        return ret.values().toArray(new NIConfigInfo[ret.size()]);
     }
 
 
-    private static NIConfigDAO niMarker(String line) {
+    private static NIConfigInfo niMarker(String line) {
         if (line.startsWith("iface")) {
             String niInfos[] = line.split(" ");
             int index = 1;
@@ -145,7 +145,7 @@ public class NIConfigurator {
             if (niName != null && inet != null && proto != null) {
                 InetProto ip = SUS.lookupEnum(proto, InetProto.values());
                 if (ip != null) {
-                    NIConfigDAO ret = new NIConfigDAO();
+                    NIConfigInfo ret = new NIConfigInfo();
                     ret.setNIName(niName);
                     ret.setInteProtocol(ip);
                     return ret;
@@ -157,7 +157,7 @@ public class NIConfigurator {
     }
 
 
-    public static void writeNIFile(File destination, NIConfigDAO nicd, String template) throws IOException {
+    public static void writeNIFile(File destination, NIConfigInfo nicd, String template) throws IOException {
         SUS.checkIfNulls("Destinatio or config null", destination, nicd, template);
         if (destination.exists() && destination.isDirectory()) {
             throw new IllegalArgumentException("Desctination is a directory");
@@ -191,8 +191,8 @@ public class NIConfigurator {
     public static void main(String... args) {
         for (String filename : args) {
             try {
-                NIConfigDAO[] ret = readConfig(new FileReader(filename));
-                for (NIConfigDAO nicd : ret) {
+                NIConfigInfo[] ret = readConfig(new FileReader(filename));
+                for (NIConfigInfo nicd : ret) {
                     System.out.println(GSONUtil.toJSON(nicd, false, false, false));
                 }
             } catch (Exception e) {

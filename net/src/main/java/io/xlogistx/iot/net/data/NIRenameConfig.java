@@ -1,13 +1,13 @@
 package io.xlogistx.iot.net.data;
 
-import org.zoxweb.shared.data.PropertyDAO;
+import org.zoxweb.shared.data.PropertyImpl;
 import org.zoxweb.shared.util.*;
 
 import java.util.List;
 
 @SuppressWarnings("serial")
 public class NIRenameConfig
-        extends PropertyDAO {
+        extends PropertyImpl {
 
     public enum Param
             implements GetName {
@@ -39,11 +39,11 @@ public class NIRenameConfig
             false,
             false,
             false,
-            PropertyDAO.class,
+            PropertyImpl.class,
             SUS.extractNVConfigs(),
             null,
             false,
-            PropertyDAO.NVC_PROPERTY_DAO);
+            PropertyImpl.NVC_PROPERTY_IMPL);
 
     public NIRenameConfig() {
         super(NVC_NI_RENAME_DAO);

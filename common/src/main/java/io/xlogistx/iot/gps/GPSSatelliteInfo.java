@@ -17,7 +17,7 @@
 package io.xlogistx.iot.gps;
 
 
-import org.zoxweb.shared.data.SetNameDAO;
+import org.zoxweb.shared.data.SetNameImpl;
 import org.zoxweb.shared.util.*;
 
 /**
@@ -29,7 +29,7 @@ import org.zoxweb.shared.util.*;
  *
  */
 @SuppressWarnings("serial")
-public class GPSSatelliteInfo extends SetNameDAO {
+public class GPSSatelliteInfo extends SetNameImpl {
     /**
      * This enum contains the messages parameters and creates an NVConfig
      * object for each parameter which specifies the paramater's name,
@@ -65,7 +65,7 @@ public class GPSSatelliteInfo extends SetNameDAO {
             Params.AZIMUTH.getNVConfig(),
             Params.SNR.getNVConfig()
 
-    ), false, SetNameDAO.NVC_NAME_DAO);
+    ), false, SetNameImpl.NVC_NAME_IMPL);
 
 
     /**

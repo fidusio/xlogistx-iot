@@ -1,12 +1,12 @@
 package io.xlogistx.iot.device.shared;
 
 
-import org.zoxweb.shared.data.PropertyDAO;
+import org.zoxweb.shared.data.PropertyImpl;
 import org.zoxweb.shared.util.*;
 
 
 public class IOTDeviceInfo
-        extends PropertyDAO {
+        extends PropertyImpl {
     public enum Param
             implements GetNVConfig {
         DEVICE_ID(NVConfigManager.createNVConfig("id", "Device ID", "DeviceID", false, true, String.class)),
@@ -43,7 +43,7 @@ public class IOTDeviceInfo
             SUS.extractNVConfigs(Param.values()),
             null,
             false,
-            PropertyDAO.NVC_PROPERTY_DAO);
+            PropertyImpl.NVC_PROPERTY_IMPL);
 
     public IOTDeviceInfo() {
         super(NVC_IOT_DEVICE_INFO);

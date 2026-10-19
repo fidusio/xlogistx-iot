@@ -1,7 +1,7 @@
 package io.xlogistx.iot.net.data;
 
 
-import org.zoxweb.shared.data.PropertyDAO;
+import org.zoxweb.shared.data.PropertyImpl;
 import org.zoxweb.shared.util.GetName;
 import org.zoxweb.shared.util.NVConfigEntity;
 import org.zoxweb.shared.util.NVConfigEntityPortable;
@@ -10,7 +10,7 @@ import org.zoxweb.shared.util.SUS;
 
 @SuppressWarnings("serial")
 public class OSConfig
-        extends PropertyDAO {
+        extends PropertyImpl {
 
     public enum Param
             implements GetName {
@@ -47,7 +47,7 @@ public class OSConfig
             SUS.extractNVConfigs(),
             null,
             false,
-            PropertyDAO.NVC_PROPERTY_DAO);
+            PropertyImpl.NVC_PROPERTY_IMPL);
 
 
     public OSConfig() {

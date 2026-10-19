@@ -1,9 +1,9 @@
 package io.xlogistx.iot.device.shared;
 
-import org.zoxweb.shared.data.PropertyDAO;
+import org.zoxweb.shared.data.PropertyImpl;
 import org.zoxweb.shared.util.*;
 
-public class Port extends PropertyDAO {
+public class Port extends PropertyImpl {
     public enum Param
             implements GetNVConfig {
         ID(NVConfigManager.createNVConfig("id", "ID", "id", false, true, String.class)),
@@ -34,7 +34,7 @@ public class Port extends PropertyDAO {
             SUS.extractNVConfigs(Param.values()),
             null,
             false,
-            PropertyDAO.NVC_PROPERTY_DAO);
+            PropertyImpl.NVC_PROPERTY_IMPL);
 
     public Port() {
         super(NVC_PORT);

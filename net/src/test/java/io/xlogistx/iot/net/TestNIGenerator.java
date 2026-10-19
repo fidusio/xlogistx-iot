@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.zoxweb.server.io.IOUtil;
 import org.zoxweb.server.util.GSONUtil;
 import org.zoxweb.shared.net.InetProp.InetProto;
-import org.zoxweb.shared.net.NIConfigDAO;
+import org.zoxweb.shared.net.NIConfigInfo;
 
 
 public class TestNIGenerator {
@@ -19,7 +19,7 @@ public class TestNIGenerator {
   @Test
   public void testStatic() throws IOException {
     String niConfigTemplate = IOUtil.inputStreamToString(this.getClass().getClassLoader().getResource("ni-config/ni_file_template").getFile());
-    NIConfigDAO nicd = new NIConfigDAO();
+    NIConfigInfo nicd = new NIConfigInfo();
     nicd.setName("wan");
     nicd.setNIName("eth0");
     nicd.setInteProtocol(InetProto.STATIC);
@@ -35,7 +35,7 @@ public class TestNIGenerator {
   @Test
   public void testStaticNoGateway() throws IOException {
     String niConfigTemplate = IOUtil.inputStreamToString(this.getClass().getClassLoader().getResource("ni-config/ni_file_template").getFile());
-    NIConfigDAO nicd = new NIConfigDAO();
+    NIConfigInfo nicd = new NIConfigInfo();
     nicd.setName("lan");
     nicd.setNIName("eth1");
     nicd.setInteProtocol(InetProto.STATIC);
@@ -50,7 +50,7 @@ public class TestNIGenerator {
   @Test
   public void testDHCP() throws IOException {
     String niConfigTemplate = IOUtil.inputStreamToString(this.getClass().getClassLoader().getResource("ni-config/ni_file_template").getFile());
-    NIConfigDAO nicd = new NIConfigDAO();
+    NIConfigInfo nicd = new NIConfigInfo();
     nicd.setName("wan");
     nicd.setNIName("eth0");
     nicd.setInteProtocol(InetProto.DHCP);
@@ -62,7 +62,7 @@ public class TestNIGenerator {
   public void testRead() throws IOException
   {
     String niConfigTemplate = IOUtil.inputStreamToString(this.getClass().getClassLoader().getResource("ni-config/ni_file_template").getFile());
-    NIConfigDAO nicd = new NIConfigDAO();
+    NIConfigInfo nicd = new NIConfigInfo();
     nicd.setName("lan");
     nicd.setNIName("eth1");
     nicd.setInteProtocol(InetProto.STATIC);
@@ -72,8 +72,8 @@ public class TestNIGenerator {
     
     String config = NIConfigurator.generateNIConfig(nicd, niConfigTemplate);
     
-    NIConfigDAO nicds[] = NIConfigurator.readConfig(config);
-    for(NIConfigDAO nic : nicds)
+    NIConfigInfo nicds[] = NIConfigurator.readConfig(config);
+    for(NIConfigInfo nic : nicds)
     {
       System.out.println(GSONUtil.toJSON(nic, false, false, false));
     }
@@ -87,8 +87,8 @@ public class TestNIGenerator {
     String config = IOUtil.inputStreamToString(this.getClass().getClassLoader().getResource("ni-config/interfaces").getFile());
     
     
-    NIConfigDAO nicds[] = NIConfigurator.readConfig(config);
-    for(NIConfigDAO nic : nicds)
+    NIConfigInfo nicds[] = NIConfigurator.readConfig(config);
+    for(NIConfigInfo nic : nicds)
     {
       System.out.println("Interfaces:" + GSONUtil.toJSON(nic, false, false, false));
     }

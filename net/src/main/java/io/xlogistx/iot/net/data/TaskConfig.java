@@ -1,6 +1,6 @@
 package io.xlogistx.iot.net.data;
 
-import org.zoxweb.shared.data.PropertyDAO;
+import org.zoxweb.shared.data.PropertyImpl;
 
 import org.zoxweb.shared.http.HTTPMessageConfig;
 import org.zoxweb.shared.http.HTTPMessageConfigInterface;
@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.List;
 
 public class TaskConfig
-        extends PropertyDAO {
+        extends PropertyImpl {
 
 
     public enum Param
@@ -45,7 +45,7 @@ public class TaskConfig
             SUS.extractNVConfigs(Param.values()),
             null,
             false,
-            PropertyDAO.NVC_PROPERTY_DAO);
+            PropertyImpl.NVC_PROPERTY_IMPL);
 
     public TaskConfig() {
         super(NVC_TASK_CONFIG);

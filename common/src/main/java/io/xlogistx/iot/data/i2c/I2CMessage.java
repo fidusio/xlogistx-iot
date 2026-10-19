@@ -1,7 +1,7 @@
 package io.xlogistx.iot.data.i2c;
 
 
-import org.zoxweb.shared.data.PropertyDAO;
+import org.zoxweb.shared.data.PropertyImpl;
 import org.zoxweb.shared.data.SimpleMessage;
 
 import org.zoxweb.shared.util.*;
@@ -33,7 +33,7 @@ public class I2CMessage extends SimpleMessage {
             false,
             false,
             SimpleMessage.class,
-            SUS.extractNVConfigs(Param.I2C_BUS, Param.I2C_ADDRESS, PropertyDAO.Param.PROPERTIES),
+            SUS.extractNVConfigs(Param.I2C_BUS, Param.I2C_ADDRESS, PropertyImpl.Param.PROPERTIES),
             null,
             false,
             SimpleMessage.NVC_SIMPLE_MESSAGE

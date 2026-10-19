@@ -1,10 +1,10 @@
 package io.xlogistx.iot.device.shared;
 
-import org.zoxweb.shared.data.PropertyDAO;
+import org.zoxweb.shared.data.PropertyImpl;
 import org.zoxweb.shared.util.*;
 
 public class COMM
-        extends PropertyDAO {
+        extends PropertyImpl {
 
 
     public enum Param
@@ -35,7 +35,7 @@ public class COMM
             SUS.extractNVConfigs(Param.values()),
             null,
             false,
-            PropertyDAO.NVC_PROPERTY_DAO);
+            PropertyImpl.NVC_PROPERTY_IMPL);
 
     public COMM() {
         super(NVC_COMM);
